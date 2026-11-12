@@ -106,3 +106,52 @@ with one input.)
 - **Training time per round is flat** (0.04–0.06 s) at this scale. The LPs grow
   with the total neuron count but are still tiny at 80 neurons, so the cost is
   dominated by per-call overhead.
+
+## 3 Capacity (`exp3_capacity.py`)
+
+4 visible neurons ($n_0 = 4$, no inputs), random sequences of $k+1$ vectors
+($k$ transitions). The same $N$ sequences are trained either in one round or in
+$N$ rounds of one sequence each. The Lemma 4 bound is $2k n_0 = 8k$ per round,
+so $8k$ for one round and $8kN$ summed over $N$ rounds. Means over 3 seeds.
+Every sequence replayed from its key in every run (5 weight matrices each), and
+the bound held in every run.
+
+| $k$ | $N$ | $Nk$ | one round: added | bound | per sequence: added | bound (sum) | one round: added per transition | per sequence: added per transition | one round s | per sequence s |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2 | 1 | 2 | 0 | 16 | 0 | 16 | 0 | 0 | 0.010 | 0.009 |
+| 2 | 2 | 4 | 1.33 | 16 | 1.67 | 32 | 0.33 | 0.42 | 0.015 | 0.027 |
+| 2 | 4 | 8 | 3.00 | 16 | 3.67 | 64 | 0.38 | 0.46 | 0.022 | 0.053 |
+| 2 | 8 | 16 | 6.67 | 16 | 12.0 | 128 | 0.42 | 0.75 | 0.039 | 0.145 |
+| 2 | 16 | 32 | 7.67 | 16 | 24.0 | 256 | 0.24 | 0.75 | 0.051 | 0.352 |
+| 4 | 1 | 4 | 2.67 | 32 | 2.67 | 32 | 0.67 | 0.67 | 0.030 | 0.029 |
+| 4 | 2 | 8 | 4.33 | 32 | 4.33 | 64 | 0.54 | 0.54 | 0.042 | 0.056 |
+| 4 | 4 | 16 | 6.67 | 32 | 10.0 | 128 | 0.42 | 0.63 | 0.056 | 0.109 |
+| 4 | 8 | 32 | 11.0 | 32 | 24.7 | 256 | 0.34 | 0.77 | 0.069 | 0.230 |
+| 4 | 16 | 64 | 13.3 | 32 | 48.3 | 512 | 0.21 | 0.76 | 0.086 | 0.450 |
+| 8 | 1 | 8 | 5.00 | 64 | 5.00 | 64 | 0.63 | 0.63 | 0.034 | 0.034 |
+| 8 | 2 | 16 | 8.67 | 64 | 10.7 | 128 | 0.54 | 0.67 | 0.053 | 0.073 |
+| 8 | 4 | 32 | 13.0 | 64 | 20.0 | 256 | 0.41 | 0.63 | 0.077 | 0.149 |
+| 8 | 8 | 64 | 19.7 | 64 | 39.7 | 512 | 0.31 | 0.62 | 0.120 | 0.300 |
+| 8 | 16 | 128 | 25.7 | 64 | 80.0 | 1024 | 0.20 | 0.63 | 0.170 | 0.561 |
+| 16 | 1 | 16 | 8.67 | 128 | 8.67 | 128 | 0.54 | 0.54 | 0.044 | 0.047 |
+| 16 | 2 | 32 | 14.7 | 128 | 18.7 | 256 | 0.46 | 0.58 | 0.071 | 0.095 |
+| 16 | 4 | 64 | 26.3 | 128 | 33.7 | 512 | 0.41 | 0.53 | 0.137 | 0.182 |
+| 16 | 8 | 128 | 38.7 | 128 | 69.7 | 1024 | 0.30 | 0.54 | 0.249 | 0.463 |
+| 16 | 16 | 256 | 49.7 | 128 | 141 | 2048 | 0.19 | 0.55 | 0.551 | 1.15 |
+
+- **Per-sequence rounds grow linearly in total length**: about 0.55–0.75 new
+  neurons per transition, steady across $N$. This is the growth seen in
+  experiment 2: no cohort is shared between rounds.
+- **One round grows sublinearly** in $N$ for fixed $k$: the neurons added per
+  transition fall from about 0.6 at $N = 1$ to about 0.2 at $N = 16$. Sequences
+  trained together share helper chains, and the per-round bound $8k$ does not
+  depend on $N$. With $N = 16$, one round used 2.8× (k=16) to 3.6× (k=8) fewer
+  neurons than one round per sequence. It was also faster.
+- **The Lemma 4 bound is loose.** The largest fraction of the bound used in
+  any run was 50% for one round ($k = 2$, $N = 16$: 8 of 16) and 12.5% for one
+  round per sequence. At $k = 2$, $N = 16$ one round is close to its cap, which
+  is the only place the bound, rather than the data, limits growth.
+- Caveat: with 4 visible neurons there are only 16 visible states, so long
+  random sequences repeat states with conflicting successors. Most helpers
+  resolve those conflicts. With more visible neurons, conflicts would be rarer
+  and fewer helpers needed.
