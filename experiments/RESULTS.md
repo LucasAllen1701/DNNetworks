@@ -237,6 +237,52 @@ Diagnostic columns:
 - Tomita 2's 0.975 accuracy is just the baseline: almost every prefix is
   rejected and the network predicts 0.
 
+## 5 Baseline with an always-on input neuron (`exp5_bias.py`)
+
+Experiments 1 and 4 rerun with `dnn.py` on exactly the same data, with and
+without an extra input neuron that is 1 at every step. That neuron gives
+every threshold unit a bias weight. Hidden neurons are chain neurons; the
+CA "all-zero baseline" and the task "majority baseline" do not depend on the
+bias. Means over 5 seeds (CA) and 3 seeds (tasks). The shared code is in
+`experiments/harness.py`.
+
+| task | training sequences | hidden: no bias | hidden: bias | unseen exact: no bias | unseen exact: bias | unseen accuracy: no bias | unseen accuracy: bias | baseline |
+|---|---|---|---|---|---|---|---|---|
+| rule 232 | 1 | 0 | 0 | 0.048 | 0.042 | 0.508 | 0.503 | 0.505 |
+| rule 232 | 8 | 0 | 0 | 0.086 | 0.087 | 0.661 | 0.661 | 0.506 |
+| rule 232 | 16 | 0 | 0 | 0.301 | 0.298 | 0.786 | 0.783 | 0.497 |
+| rule 232 | 32 | 0 | 0 | **1.000** | **0.878** | **1.000** | **0.976** | 0.497 |
+| rule 90 | 1 | 0 | 0 | 0.015 | 0.014 | 0.779 | 0.777 | 0.850 |
+| rule 90 | 8 | 7.4 | 7.4 | 0.013 | 0.014 | 0.819 | 0.792 | 0.850 |
+| rule 90 | 32 | 14 | 14 | 0.016 | 0.016 | 0.849 | 0.849 | 0.849 |
+| prev_input | 8–128 | 0 | 0 | 1 | 1 | 1 | 1 | 0.51 |
+| parity | 128 | 12 | 12 | 0 | 0 | 0.515 | 0.515 | 0.515 |
+| adder | 128 | 12 | 12 | 0 | 0 | 0.491 | 0.491 | 0.510 |
+| tomita1 | 8–128 | 0 | 0 | 1 | 1 | 1 | 1 | 0.92 |
+| tomita2 | 128 | 6 | 6 | 0.787 | 0.787 | 0.975 | 0.975 | 0.975 |
+| tomita3 | 128 | 12 | 12 | 0.030 | 0 | 0.486 | 0.471 | 0.529 |
+| tomita4 | 128 | 12 | 12 | 0 | 0 | 0.329 | 0.314 | 0.686 |
+| tomita5 | 128 | 12 | 12 | 0.017 | 0.017 | 0.750 | 0.750 | 0.750 |
+| tomita6 | 128 | 12 | 12 | 0 | 0 | 0.689 | 0.689 | 0.689 |
+| tomita7 | 128 | 12 | 12 | 0 | 0 | 0.420 | 0.405 | 0.595 |
+
+(Abridged; every training size of both experiments is in
+`experiments/results/exp5_bias.csv`, and `python experiments/exp5_bias.py`
+prints the full tables. The rows left out show the same pattern.)
+
+- **Nothing that failed is fixed, and nothing that worked gets better.** No
+  task changes from failing to passing or from needing hidden neurons to not
+  needing them. Every training sequence still replays from its key.
+- That is expected. The failing tasks fail because the next output is either
+  not a function of the visible state at all (adder, Tomita 2–7) or an XOR of
+  it (rule 90, parity). A bias weight does not make XOR linearly separable, and
+  it adds no memory.
+- **The bias makes things slightly worse.** Rule 232 with 32 trajectories drops
+  from 1.0 to 0.88 exact on unseen states. The bias weight is one more loosely
+  constrained coordinate in each box, so the sampled corners disagree with
+  majority on states not seen in training. Tomita 3, 4 and 7 lose about 1.5
+  points of unseen accuracy for the same reason.
+
 ## Summary
 
 - No bugs were found in `dnn.py`. Every learning and no-forgetting check
