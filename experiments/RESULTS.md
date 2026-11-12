@@ -283,6 +283,70 @@ prints the full tables. The rows left out show the same pattern.)
   majority on states not seen in training. Tomita 3, 4 and 7 lose about 1.5
   points of unseen accuracy for the same reason.
 
+## 6 Tasks given one extra network step (`exp6_two_step.py`)
+
+**(a) Two-step parity**: input $x$, output $y$,
+$y(t+2) = x(0) \oplus \dots \oplus x(t)$, $y(0) = y(1) = 0$; streams of 13
+vectors. **(b) Two-step rule 90** on a ring of 6: $c(0), 0, c(1), 0, \dots,
+c(5)$, so each automaton step takes two network steps and the cells are 0 on
+odd steps. There are only 64 states; the unseen set is every state not used for
+training. Unseen data starts from its true visible state with every hidden
+neuron at 0. Means over 3 seeds.
+
+**The task is realisable.** The hand-built network
+$h_1 = s(x - h_1 - h_2)$, $h_2 = s(h_1 + h_2 - x)$, $y = s(h_1 + h_2)$, with
+$h_1, h_2$ as feature neurons, was exact on 1000 of 1000 random streams (it is
+also a unit test). The two hidden neurons hold the running parity, encoded as
+"$h_1$ or $h_2$".
+
+| task | trainer | training sequences | features | chain neurons | train s | training exact from key | unseen exact | unseen accuracy | baseline |
+|---|---|---|---|---|---|---|---|---|---|
+| parity, 2-step | hand-built | – | 2 | 0 | – | – | **1.000** | **1.000** | – |
+| parity, 2-step | baseline | 8 | 0 | 10.7 | 0.05 | 1 | 0 | 0.544 | 0.544 |
+| parity, 2-step | baseline | 32 | 0 | 12 | 0.08 | 1 | 0 | 0.553 | 0.553 |
+| parity, 2-step | baseline | 128 | 0 | 12 | 0.17 | 1 | 0 | 0.552 | 0.552 |
+| parity, 2-step | variant | 8 | 3.33 | 10.7 | 0.24 | 1 | 0 | 0.544 | 0.544 |
+| parity, 2-step | variant | 32 | 3.67 | 12 | 0.38 | 1 | 0 | 0.553 | 0.553 |
+| parity, 2-step | variant | 128 | 4 | 12 | 0.82 | 1 | 0 | 0.552 | 0.552 |
+| rule 90, 2-step | baseline | 2 | 0 | 13.3 | 0.07 | 1 | 0.061 | 0.730 | 0.749 |
+| rule 90, 2-step | baseline | 8 | 0 | 26 | 0.15 | 1 | 0.054 | 0.749 | 0.749 |
+| rule 90, 2-step | baseline | 32 | 0 | 44 | 0.35 | 1 | 0.052 | 0.739 | 0.740 |
+| rule 90, 2-step | variant | 2 | 2.67 | 0 | 0.22 | 1 | 0.065 | 0.752 | 0.749 |
+| rule 90, 2-step | variant | 4 | 6.67 | 0 | 2.1 | 1 | 0.057 | 0.757 | 0.749 |
+| rule 90, 2-step | variant | 8 | 9.67 | 0 | 5.2 | 1 | 0.193 | 0.835 | 0.749 |
+| rule 90, 2-step | variant | 16 | 10.7 | 0 | 7.4 | 1 | 0.428 | 0.889 | 0.752 |
+| rule 90, 2-step | variant | 32 | 11.7 | 0 | 11.2 | 1 | **0.854** | **0.976** | 0.740 |
+
+(Baseline rows for 4 and 16 training states are in the CSV and show the same
+pattern.)
+
+- **Two-step parity: not found, as expected.** The greedy search spends its 4
+  features (latch, set-reset, copy and an AND/OR) without reaching zero slack,
+  then falls back to a full chain of 12. Unseen accuracy is exactly the
+  baseline's. The hand-built $h_1, h_2$ each have three inputs, so neither is
+  in the candidate pool, and no single pool candidate lowers the slack in a way
+  that leads towards them. So the task is realisable but not by this search.
+- **Two-step rule 90: solved structurally, mostly solved on unseen data.** The
+  variant uses no chain neurons at all for any training size. With 32 training
+  states it finds, in 2 of 3 seeds, all 12 features a correct solution needs:
+  for each cell, OR and AND of its two neighbours (XOR = OR AND NOT AND). Every
+  sampled weight matrix reproduces the training data from its key, and on
+  unseen states it reaches 0.85 exact and 0.98 cell accuracy, against
+  0.05 / 0.74 for the baseline.
+- **Why not 1.0 — loose boxes, not missing features.** A diagnostic run on the
+  same data (not in the CSV) separated the two causes. For the two seeds with
+  all 12 features, the midpoint of the boxes was exact on every unseen state,
+  and 20 random interior samples were exact on 97–100%. The failures come from
+  the box corners: lower and upper corners were exact on 72–94%. The cell
+  weights on irrelevant coordinates are constrained only by the training
+  states, and `sample_weights` cuts unbounded sides at an arbitrary ±5, so the
+  corners are the worst case. The third seed found 11 of 12 features and is
+  wrong on about 30% of unseen states for every weight choice. This is the same
+  effect as rule 232 in experiment 1: correct structure, with generalisation
+  limited by how much training data constrains the box.
+- The variant is much slower here (11 s against 0.35 s at 32 states), because
+  each greedy step solves one slack LP per candidate.
+
 ## Summary
 
 - No bugs were found in `dnn.py`. Every learning and no-forgetting check
