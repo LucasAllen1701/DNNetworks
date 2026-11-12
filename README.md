@@ -13,6 +13,11 @@ sequence does not fit.
 - `tests/test_dnn.py` — tests: the worked examples from the notes, random
   multi-round training with replay, the neuron-count bound, and the dormancy
   condition.
+- `dnn_causal.py`, `docs/Causal_Variant.md`, `tests/test_dnn_causal.py` — a
+  variant with fixed-weight *feature* neurons computed from the past. They
+  work on unseen data, but the variant gives up the no-forgetting guarantee.
+- `experiments/` — experiment scripts; findings are in
+  `experiments/RESULTS.md`.
 
 ## Quick start
 

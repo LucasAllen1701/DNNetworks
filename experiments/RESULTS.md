@@ -415,7 +415,7 @@ tables below are condensed.
 | 10 | 5.0 | 3.7 | 98.7 | 17.1 | 1 | 0 / 0 | 1 |
 
 (Variant columns other than recall are without bias; with bias they are within
-about 1 neuron and up to 30% slower. Recall counts a sequence only if its
+about 1 neuron and up to 1.9× slower. Recall counts a sequence only if its
 visible values replay exactly, from its zero-padded key, for 5 weight
 matrices.)
 
@@ -455,7 +455,8 @@ in every run, and so did the variant in one-round mode. With bias the numbers
 are similar.)
 
 - On short random data the variant uses fewer chain neurons, but **more
-  neurons in total** once $N k \ge 16$. Random sequences have no structure to
+  neurons in total** from about $N k = 16$ on (equal at $k = 8$, $N = 2$; more in
+  every larger configuration). Random sequences have no structure to
   find, so features only fit coincidences.
 - **One round per sequence leaves only the last sequence**, in most runs: recall
   of all $N$ is typically $1/N$. This is the forgetting of 7.2 again.
@@ -498,14 +499,58 @@ are similar.)
 
 ## Summary
 
-- No bugs were found in `dnn.py`. Every learning and no-forgetting check
-  passed in all four experiments, the Lemma 4 bound always held, and hidden
-  cohorts started at 0 always stayed silent, as Lemma 1 says.
+**Baseline (`dnn.py`, experiments 1–5).**
+- No bugs were found in `dnn.py`. Every learning and no-forgetting check passed,
+  the Lemma 4 bound always held, and hidden cohorts started at 0 stayed silent
+  (Lemma 1).
 - The algorithm does what the Theorem promises — exact recall without
-  forgetting — and no more. It generalises only when the task is a bias-free
-  threshold function of the visible state (rule 232, previous input, Tomita 1),
-  and then only once the training data constrains the visible boxes enough.
-- When hidden neurons are needed, they store the answer in the key rather than
-  computing it. Started from an unseen state, the hidden neurons stay at 0 (by
-  Lemma 1), so they cannot help, and accuracy falls to the majority baseline or
-  below.
+  forgetting — and no more. It generalises only when the task is a threshold
+  function of the visible state with no bias (rule 232, previous input,
+  Tomita 1), and then only once the training data constrains the visible boxes
+  enough.
+- When hidden neurons are needed they store the answer in the key rather than
+  computing it. Started from an unseen state they stay at 0, so accuracy falls
+  to the majority baseline or below.
+- An always-on input neuron (experiment 5) changes no outcome. It cannot make
+  XOR separable or add memory, and it slightly loosens the boxes.
+
+**Causal variant (`dnn_causal.py`, experiments 6–7, `docs/Causal_Variant.md`).**
+- The expected outcomes were confirmed:
+  - Both test tasks ($y(t+1) = x(t-1)$ and $x(t) \wedge x(t-1)$) are learned
+    with features alone and are exact on unseen streams.
+  - Two-step rule 90 is learned with features alone (no chain neurons): 0.85
+    exact and 0.98 cell accuracy on unseen states with 32 training states,
+    against 0.05 and 0.74 for the baseline. The remaining errors come from
+    loose box corners, plus one seed that missed one of the 12 needed features.
+  - Two-step parity is realisable with two hand-built features, but the greedy
+    search does not find them, so it falls back to chains and stays at the
+    baseline.
+  - Forgetting appears, and it is near-total: after a later round almost no
+    earlier sequence replays.
+- One result was not predicted: **Tomita 2 is solved exactly on unseen
+  streams** with a single AND feature.
+- Nothing else improves:
+  - Single-step rule 90 cannot be solved, because a feature reads one step too
+    late; the variant does worse than the baseline here.
+  - Parity, the adder and Tomita 3, 5 and 6 get features that lower the slack
+    but do not remove it, and the variant falls back to full chains.
+  - For Tomita 4 and 7, no single candidate helps at all, so the search stops
+    at once.
+- The variant pays for features in size and time. It still adds chain neurons
+  on random data, and its candidate search makes training up to about 300×
+  slower over many rounds. That is why experiment 7 runs at reduced sizes.
+- Taken together: features computed from the past do generalise when the
+  needed computation is one candidate deep (one AND, or an OR/AND pair). The
+  greedy, one-step slack search is the bottleneck for anything deeper. Because
+  nothing protects old sequences from new features, the variant is not usable
+  for continual learning as it stands.
+
+**Deviations from the specification.**
+- Experiment 7 runs at reduced sizes (section 7).
+- The feature search runs for each visible neuron when the worklist reaches
+  it, and neurons already passed are not revisited.
+- Duplicate and silent candidates are skipped, and ties go to the first
+  candidate in a fixed order. This does not change which slack values are
+  reachable.
+- For two-step rule 90 the unseen set is every one of the 64 states not used
+  for training, rather than 100 random states.
