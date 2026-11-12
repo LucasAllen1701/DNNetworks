@@ -59,3 +59,50 @@ test set: 100 random starting states not among the training starts. Means over
   rule 90 sends every state to all zeros within 8 steps. Short transients are
   also why the number of hidden neurons levels off at about 14, far below the
   bound.
+
+## 2 Continual learning (`exp2_continual_learning.py`)
+
+4 visible neurons, output neuron 3; either no inputs or neuron 0 as an input.
+10 rounds, each with 3 new random sequences of 6 activation vectors. After every
+round, every sequence trained so far is replayed from its key with 20 weight
+matrices (both corners and 18 random points); a sequence counts as recalled only
+if all 20 replays are exact. Means over 5 seeds.
+
+| inputs | round | neurons added | total neurons | train s | recall, all so far | recall, this round | recall, earlier rounds | stored numbers $2n^2+n$ |
+|---|---|---|---|---|---|---|---|---|
+| none | 1 | 7.8 | 11.8 | 0.055 | 1 | 1 | – | 291 |
+| none | 2 | 7.6 | 19.4 | 0.059 | 1 | 1 | 1 | 774 |
+| none | 3 | 7.4 | 26.8 | 0.055 | 1 | 1 | 1 | 1 470 |
+| none | 4 | 7.0 | 33.8 | 0.051 | 1 | 1 | 1 | 2 330 |
+| none | 5 | 8.0 | 41.8 | 0.059 | 1 | 1 | 1 | 3 550 |
+| none | 6 | 8.0 | 49.8 | 0.062 | 1 | 1 | 1 | 5 030 |
+| none | 7 | 7.4 | 57.2 | 0.059 | 1 | 1 | 1 | 6 630 |
+| none | 8 | 6.8 | 64.0 | 0.054 | 1 | 1 | 1 | 8 290 |
+| none | 9 | 7.2 | 71.2 | 0.056 | 1 | 1 | 1 | 10 200 |
+| none | 10 | 7.4 | 78.6 | 0.062 | 1 | 1 | 1 | 12 500 |
+| neuron 0 | 1 | 7.0 | 11.0 | 0.045 | 1 | 1 | – | 253 |
+| neuron 0 | 2 | 6.6 | 17.6 | 0.039 | 1 | 1 | 1 | 638 |
+| neuron 0 | 3 | 6.6 | 24.2 | 0.040 | 1 | 1 | 1 | 1 200 |
+| neuron 0 | 4 | 6.2 | 30.4 | 0.045 | 1 | 1 | 1 | 1 880 |
+| neuron 0 | 5 | 7.2 | 37.6 | 0.046 | 1 | 1 | 1 | 2 870 |
+| neuron 0 | 6 | 7.0 | 44.6 | 0.045 | 1 | 1 | 1 | 4 030 |
+| neuron 0 | 7 | 7.0 | 51.6 | 0.046 | 1 | 1 | 1 | 5 390 |
+| neuron 0 | 8 | 7.6 | 59.2 | 0.054 | 1 | 1 | 1 | 7 080 |
+| neuron 0 | 9 | 6.8 | 66.0 | 0.051 | 1 | 1 | 1 | 8 790 |
+| neuron 0 | 10 | 6.4 | 72.4 | 0.044 | 1 | 1 | 1 | 10 600 |
+
+(Lemma 4 bound per round: $2 \cdot 5 \cdot 4 = 40$ neurons without inputs, 30
+with one input.)
+
+- **No forgetting holds exactly.** In all 100 rounds (2 configurations × 5
+  seeds × 10 rounds), every sequence from every round replayed exactly for all
+  20 weight matrices. This matches part 2 of the Theorem.
+- **Growth is linear and does not slow down.** Every round adds about 7
+  neurons, with no downward trend, because earlier cohorts are never reused
+  (section 8.4 of the notes): each round's sequences get their own new helper
+  neurons. The neuron count grows linearly in the number of rounds, so the
+  stored size $2n^2 + n$ grows quadratically: about 12 500 numbers after
+  30 sequences of 6 vectors each.
+- **Training time per round is flat** (0.04–0.06 s) at this scale. The LPs grow
+  with the total neuron count but are still tiny at 80 neurons, so the cost is
+  dominated by per-call overhead.
