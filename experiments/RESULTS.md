@@ -347,6 +347,155 @@ pattern.)
 - The variant is much slower here (11 s against 0.35 s at 32 states), because
   each greedy step solves one slack LP per candidate.
 
+## 7 The causal variant next to the baseline (`exp7_causal.py`)
+
+Experiments 1–4 rerun with `dnn_causal.py` (described in
+`docs/Causal_Variant.md`; `max_features = 4`, margin 0.5) and with `dnn.py`,
+each with and without the always-on input neuron. "Features" are the variant's
+fixed-weight neurons; "chain" counts predictor and anti-predictor neurons.
+Unseen data is run with every hidden neuron at 0. Features start at 0 too, but
+unlike chain neurons they then compute.
+
+**Problem sizes were reduced** because the candidate search is slow. Every
+greedy step solves one slack LP per candidate, the pool grows with the square
+of the number of visible and feature neurons, and features accumulate over
+rounds: a 10-round run of experiment 2 took about 80 s per seed, against 0.5 s
+for the baseline. Changes from experiments 1–4:
+- exp 1: 4, 16 and 32 trajectories, 3 seeds;
+- exp 2: only the configuration without an input neuron, 3 seeds;
+- exp 3: $k \in \{2, 4, 8\}$, $N \in \{1, 2, 4, 8\}$, 2 seeds;
+- exp 4: unchanged.
+
+Configurations run in 4 worker processes and the whole script takes about
+6 minutes. The data is the same as in the original experiments wherever the
+sizes overlap. The full tables, with every bias setting, are printed by the
+script and stored in `experiments/results/exp7_causal_exp{1,2,3,4}.csv`; the
+tables below are condensed.
+
+### 7.1 Cellular automata (8 cells, one automaton step per network step)
+
+| rule | trajectories | bias | trainer | features | chain | training starts, hidden at 0: exact | unseen exact | unseen cell accuracy | all-zero baseline |
+|---|---|---|---|---|---|---|---|---|---|
+| 232 | 32 | no | both | 0 | 0 | 1 | 1.000 | 1.000 | 0.491 |
+| 232 | 32 | yes | both | 0 | 0 | 1 | 0.880 | 0.976 | 0.491 |
+| 90 | 4 | no | baseline | 0 | 3.3 | 0.083 | 0.023 | 0.768 | 0.850 |
+| 90 | 4 | no | variant | 2 | 0 | **1** | 0.033 | 0.782 | 0.850 |
+| 90 | 16 | no | baseline | 0 | 11.3 | 0.021 | 0.017 | 0.853 | 0.853 |
+| 90 | 16 | no | variant | 9.7 | 7.7 | 0.021 | 0.007 | 0.732 | 0.853 |
+| 90 | 32 | no | baseline | 0 | 14 | 0.010 | 0.007 | 0.850 | 0.850 |
+| 90 | 32 | no | variant | 10.7 | 13.3 | 0.010 | 0.003 | 0.843 | 0.850 |
+| 90 | 32 | yes | variant | 9 | 13 | 0.010 | 0.003 | 0.820 | 0.850 |
+
+- Rule 232 needs no hidden neurons, so the two trainers give identical networks.
+- **Single-step rule 90 is not solved, and the variant is worse.** Its next
+  state is an XOR of the *current* state, but a feature reads the state one step
+  earlier. A feature therefore cannot supply that XOR in time for the next step,
+  which is why experiment 6 gives the network an extra step. With 4
+  trajectories, two features are enough to replay the training trajectories
+  from hidden 0, but they fit those particular trajectories rather than the
+  rule: unseen accuracy is unchanged. With 16–32 trajectories the variant adds
+  about 10 features and still needs chains. Its unseen cell accuracy
+  (0.73–0.84) is below the all-zero baseline the original trainer reaches,
+  because the features fire on unseen states and push the cells into wrong
+  values.
+
+### 7.2 Continual learning (4 visible neurons, 10 rounds of 3 sequences)
+
+| round | variant: features added | variant: chain added | variant: total neurons | variant: train s | variant: recall, this round | variant: recall, earlier rounds (no bias / bias) | baseline: recall, earlier rounds |
+|---|---|---|---|---|---|---|---|
+| 1 | 5.0 | 2.3 | 11.3 | 0.8 | 1 | – | – |
+| 2 | 5.7 | 4.7 | 21.7 | 3.2 | 1 | **0 / 0** | 1 |
+| 3 | 5.3 | 4.0 | 31.0 | 4.2 | 1 | 0 / 0 | 1 |
+| 4 | 4.7 | 5.0 | 40.7 | 7.2 | 1 | 0 / 0 | 1 |
+| 5 | 4.7 | 5.0 | 50.3 | 6.6 | 1 | 0 / 0 | 1 |
+| 6 | 4.7 | 5.3 | 60.3 | 10.0 | 1 | 0 / 0 | 1 |
+| 7 | 5.3 | 4.7 | 70.3 | 11.5 | 1 | 0 / 0 | 1 |
+| 8 | 4.7 | 5.7 | 80.7 | 9.6 | 1 | 0.016 / 0 | 1 |
+| 9 | 5.0 | 4.3 | 90.0 | 14.4 | 1 | 0 / 0 | 1 |
+| 10 | 5.0 | 3.7 | 98.7 | 17.1 | 1 | 0 / 0 | 1 |
+
+(Variant columns other than recall are without bias; with bias they are within
+about 1 neuron and up to 30% slower. Recall counts a sequence only if its
+visible values replay exactly, from its zero-padded key, for 5 weight
+matrices.)
+
+- **Forgetting appears, as expected, and it is near-total.** After every
+  round from round 2 on, essentially no sequence from an earlier round replays
+  (1 of 63 old sequences in one round of one seed). The current round always
+  replays, as the variant guarantees.
+- **Why it is total.** Every round adds about 5 features, and new features
+  fire on old sequences. When the visible neurons are refitted, their weights
+  on the new feature coordinates are fitted only to the new sequences. A
+  control run confirmed the cause: after a round that adds no neurons (an
+  all-zero sequence), every round-1 sequence still replayed. So forgetting is
+  caused by new features, not by box shrinkage or the dormant chain neurons.
+- **The variant is bigger and slower.** It ends with about 99 neurons against
+  79 for the baseline, because it still adds 4–6 chain neurons per round. Time
+  per round grows from 0.8 s to 17 s as the pool of feature candidates grows;
+  the baseline stays at about 0.05 s.
+
+### 7.3 Capacity (4 visible neurons, no bias)
+
+| $k$ | $N$ | baseline one round: chain | variant one round: features + chain | baseline per sequence: chain | variant per sequence: features + chain | variant per sequence: recall of all $N$ |
+|---|---|---|---|---|---|---|
+| 2 | 2 | 1 | 0.5 + 0 | 1.5 | 1 + 0 | 0.75 |
+| 2 | 4 | 3 | 3 + 0 | 3.5 | 1.5 + 2 | 1.00 |
+| 2 | 8 | 6.5 | 4.5 + 4 | 12 | 4 + 6.5 | 0.31 |
+| 4 | 1 | 2 | 0.5 + 0 | 2 | 0.5 + 0 | 1 |
+| 4 | 2 | 3.5 | 3 + 0 | 3.5 | 2 + 1.5 | 0.50 |
+| 4 | 4 | 6.5 | 5.5 + 2 | 9.5 | 5.5 + 4 | 0.25 |
+| 4 | 8 | 10.5 | 11.5 + 7.5 | 25.5 | 14.5 + 11.5 | 0.125 |
+| 8 | 1 | 5 | 2 + 0 | 5 | 2 + 0 | 1 |
+| 8 | 2 | 9 | 5 + 4 | 10.5 | 5.5 + 4.5 | 0.50 |
+| 8 | 4 | 13 | 9 + 6 | 19 | 13 + 10 | 0.25 |
+| 8 | 8 | 20.5 | 15.5 + 16.5 | 41 | 27.5 + 23.5 | 0.125 |
+
+(Rows with $N = 1$ for $k = 2$ add nothing. The baseline recalled every sequence
+in every run, and so did the variant in one-round mode. With bias the numbers
+are similar.)
+
+- On short random data the variant uses fewer chain neurons, but **more
+  neurons in total** once $N k \ge 16$. Random sequences have no structure to
+  find, so features only fit coincidences.
+- **One round per sequence leaves only the last sequence**, in most runs: recall
+  of all $N$ is typically $1/N$. This is the forgetting of 7.2 again.
+- The bounds hold. Chain neurons used at most 30% of the Lemma 4 bound. Features
+  stay within the variant's own cap of $4(n_0 - |I|)$ per round, and reached it
+  in one run.
+- Training in one round is up to 15 s for the variant, against 0.1 s for the
+  baseline.
+
+### 7.4 Input-driven tasks (128 training streams; other sizes in the CSV)
+
+| task | baseline: chain | baseline: unseen acc | variant: features + chain | variant: unseen acc (no bias / bias) | variant: unseen exact | majority baseline |
+|---|---|---|---|---|---|---|
+| prev_input | 0 | **1** | 0 + 0 | **1 / 1** | 1 | 0.51 |
+| parity | 12 | 0.515 | 2.3 + 12 | 0.515 / 0.515 | 0 | 0.515 |
+| adder | 12 | 0.491 | 4 + 12 | 0.491 / 0.491 | 0 | 0.510 |
+| tomita1 | 0 | **1** | 0 + 0 | **1 / 1** | 1 | 0.925 |
+| tomita2 | 6 | 0.975 | **1 + 0** | **1 / 1** | **1** | 0.975 |
+| tomita3 | 12 | 0.486 | 4 + 12 | 0.480 / 0.479 | 0.02 | 0.529 |
+| tomita4 | 12 | 0.329 | 0 + 12 | 0.329 / 0.314 | 0 | 0.686 |
+| tomita5 | 12 | 0.750 | 2 + 12 | 0.750 / 0.750 | 0.02 | 0.750 |
+| tomita6 | 12 | 0.689 | 3 + 12 | 0.691 / 0.691 | 0.01 | 0.689 |
+| tomita7 | 12 | 0.420 | 0 + 12 | 0.420 / 0.405 | 0 | 0.595 |
+
+- **Tomita 2 is solved by the variant**: one feature and no chain neurons,
+  exact on every unseen stream at every training size (8, 32 and 128 streams),
+  with or without bias. The feature is $f = \text{AND}(x, y)$, and the output
+  learns $y(t+1) = f(t) \wedge \neg x(t)$, which is exactly "the string so far
+  is $(10)^*$". The baseline needed 4–7 chain neurons and only matched the
+  majority class.
+- **Everything else is unchanged.** Parity, the adder, and Tomita 3, 5 and 6 get
+  2–4 features that lower the slack but do not reach 0. The search then falls
+  back to full chains, and unseen accuracy is the baseline's to within 0.01.
+  For Tomita 4 and 7, no single candidate lowers the slack at all, so the
+  greedy search stops immediately. Both need two-level features (for example,
+  "the last two inputs were 0"), and a one-step greedy search cannot see
+  through the first level.
+- With bias the variant sometimes finds fewer features (the always-on neuron
+  makes some candidates duplicates). It changes no outcome.
+
 ## Summary
 
 - No bugs were found in `dnn.py`. Every learning and no-forgetting check
