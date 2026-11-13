@@ -1,0 +1,901 @@
+case,rule,capacity,rounds,per_round,seed,visible_neurons,went_wrong,rounds_adding_chains_late,chain_neurons,unseen_exact_round_1,unseen_exact,unseen_exact_mid,recall_min,constraints_stored_end,constraints_stored_max,overflows,seconds
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.052
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,1,7,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.371
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,2,7,False,0,0,0.8800000000000001,1.0,1.0,1.0,0,0,,0.051
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,3,7,True,5,49,0.8,0.8,0.8,1.0,0,0,,0.254
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,4,7,False,0,0,0.8960000000000001,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,5,7,True,6,59,0.71,0.71,0.71,1.0,0,0,,0.298
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,7,7,True,6,59,0.82,0.82,0.82,1.0,0,0,,0.309
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,8,7,False,0,0,0.8240000000000001,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",notes (cap 1),0,8,4,9,7,False,0,0,0.8879999999999999,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,1,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,2,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,3,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,4,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,5,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,7,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,8,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, input shifts + clock",notes (cap 1),0,2,16,9,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",cap 16,0,8,4,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.048
+"tomita4, input shifts + clock",cap 16,0,8,4,1,7,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.382
+"tomita4, input shifts + clock",cap 16,0,8,4,2,7,False,0,0,0.8800000000000001,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",cap 16,0,8,4,3,7,True,5,49,0.8,0.8,0.8,1.0,0,0,,0.253
+"tomita4, input shifts + clock",cap 16,0,8,4,4,7,False,0,0,0.8960000000000001,1.0,1.0,1.0,0,0,,0.046
+"tomita4, input shifts + clock",cap 16,0,8,4,5,7,True,6,59,0.71,0.71,0.71,1.0,0,0,,0.3
+"tomita4, input shifts + clock",cap 16,0,8,4,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",cap 16,0,8,4,7,7,True,6,59,0.82,0.82,0.82,1.0,0,0,,0.322
+"tomita4, input shifts + clock",cap 16,0,8,4,8,7,False,0,0,0.8240000000000001,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",cap 16,0,8,4,9,7,False,0,0,0.8879999999999999,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",cap 16,0,2,16,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.039
+"tomita4, input shifts + clock",cap 16,0,2,16,1,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, input shifts + clock",cap 16,0,2,16,2,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",cap 16,0,2,16,3,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"tomita4, input shifts + clock",cap 16,0,2,16,4,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",cap 16,0,2,16,5,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.041
+"tomita4, input shifts + clock",cap 16,0,2,16,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"tomita4, input shifts + clock",cap 16,0,2,16,7,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",cap 16,0,2,16,8,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.039
+"tomita4, input shifts + clock",cap 16,0,2,16,9,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, input shifts + clock",bounded 8,0,8,4,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",bounded 8,0,8,4,1,7,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.359
+"tomita4, input shifts + clock",bounded 8,0,8,4,2,7,False,0,0,0.9119999999999999,1.0,1.0,1.0,0,0,,0.048
+"tomita4, input shifts + clock",bounded 8,0,8,4,3,7,True,6,59,0.58,0.58,0.58,1.0,0,0,,0.3
+"tomita4, input shifts + clock",bounded 8,0,8,4,4,7,False,0,0,0.826,1.0,1.0,1.0,0,0,,0.048
+"tomita4, input shifts + clock",bounded 8,0,8,4,5,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",bounded 8,0,8,4,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.046
+"tomita4, input shifts + clock",bounded 8,0,8,4,7,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.045
+"tomita4, input shifts + clock",bounded 8,0,8,4,8,7,False,0,0,0.868,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",bounded 8,0,8,4,9,7,False,0,0,0.784,1.0,1.0,1.0,0,0,,0.047
+"tomita4, input shifts + clock",bounded 8,0,2,16,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"tomita4, input shifts + clock",bounded 8,0,2,16,1,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"tomita4, input shifts + clock",bounded 8,0,2,16,2,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"tomita4, input shifts + clock",bounded 8,0,2,16,3,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.055
+"tomita4, input shifts + clock",bounded 8,0,2,16,4,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"tomita4, input shifts + clock",bounded 8,0,2,16,5,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",bounded 8,0,2,16,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",bounded 8,0,2,16,7,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"tomita4, input shifts + clock",bounded 8,0,2,16,8,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, input shifts + clock",bounded 8,0,2,16,9,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"tomita4, input shifts + clock",volume 8,0,8,4,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.076
+"tomita4, input shifts + clock",volume 8,0,8,4,1,7,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.54
+"tomita4, input shifts + clock",volume 8,0,8,4,2,7,False,0,0,0.9119999999999999,1.0,1.0,1.0,0,0,,0.087
+"tomita4, input shifts + clock",volume 8,0,8,4,3,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.071
+"tomita4, input shifts + clock",volume 8,0,8,4,4,7,False,0,0,0.89,1.0,1.0,1.0,0,0,,0.071
+"tomita4, input shifts + clock",volume 8,0,8,4,5,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.07
+"tomita4, input shifts + clock",volume 8,0,8,4,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.071
+"tomita4, input shifts + clock",volume 8,0,8,4,7,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.08
+"tomita4, input shifts + clock",volume 8,0,8,4,8,7,False,0,0,0.89,1.0,1.0,1.0,0,0,,0.092
+"tomita4, input shifts + clock",volume 8,0,8,4,9,7,False,0,0,0.844,1.0,1.0,1.0,0,0,,0.076
+"tomita4, input shifts + clock",volume 8,0,2,16,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.059
+"tomita4, input shifts + clock",volume 8,0,2,16,1,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.063
+"tomita4, input shifts + clock",volume 8,0,2,16,2,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.058
+"tomita4, input shifts + clock",volume 8,0,2,16,3,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.058
+"tomita4, input shifts + clock",volume 8,0,2,16,4,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.079
+"tomita4, input shifts + clock",volume 8,0,2,16,5,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.072
+"tomita4, input shifts + clock",volume 8,0,2,16,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.058
+"tomita4, input shifts + clock",volume 8,0,2,16,7,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"tomita4, input shifts + clock",volume 8,0,2,16,8,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.076
+"tomita4, input shifts + clock",volume 8,0,2,16,9,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, input shifts + clock",volume 32,0,8,4,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"tomita4, input shifts + clock",volume 32,0,8,4,1,7,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.539
+"tomita4, input shifts + clock",volume 32,0,8,4,2,7,False,0,0,0.9119999999999999,1.0,1.0,1.0,0,0,,0.097
+"tomita4, input shifts + clock",volume 32,0,8,4,3,7,True,5,49,0.8,0.8,0.8,1.0,0,0,,0.411
+"tomita4, input shifts + clock",volume 32,0,8,4,4,7,False,0,0,0.89,1.0,1.0,1.0,0,0,,0.094
+"tomita4, input shifts + clock",volume 32,0,8,4,5,7,True,6,59,0.71,0.71,0.71,1.0,0,0,,0.555
+"tomita4, input shifts + clock",volume 32,0,8,4,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"tomita4, input shifts + clock",volume 32,0,8,4,7,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.076
+"tomita4, input shifts + clock",volume 32,0,8,4,8,7,False,0,0,0.89,1.0,1.0,1.0,0,0,,0.096
+"tomita4, input shifts + clock",volume 32,0,8,4,9,7,False,0,0,0.844,1.0,1.0,1.0,0,0,,0.074
+"tomita4, input shifts + clock",volume 32,0,2,16,0,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"tomita4, input shifts + clock",volume 32,0,2,16,1,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"tomita4, input shifts + clock",volume 32,0,2,16,2,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"tomita4, input shifts + clock",volume 32,0,2,16,3,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"tomita4, input shifts + clock",volume 32,0,2,16,4,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.06
+"tomita4, input shifts + clock",volume 32,0,2,16,5,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"tomita4, input shifts + clock",volume 32,0,2,16,6,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"tomita4, input shifts + clock",volume 32,0,2,16,7,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.058
+"tomita4, input shifts + clock",volume 32,0,2,16,8,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.058
+"tomita4, input shifts + clock",volume 32,0,2,16,9,7,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.058
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.048
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,1,9,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.362
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,2,9,True,6,56,0.77,0.77,0.77,1.0,0,0,,0.302
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,3,9,True,6,59,0.58,0.58,0.58,1.0,0,0,,0.315
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,4,9,True,2,21,0.77,0.77,0.77,1.0,0,0,,0.135
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,5,9,True,7,86,0.4600000000000001,0.4600000000000001,0.46,1.0,0,0,,0.446
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,7,9,True,6,59,0.82,0.82,0.82,1.0,0,0,,0.295
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,8,9,True,6,65,0.58,0.58,0.58,1.0,0,0,,0.344
+"tomita4, all shifts + clock",notes (cap 1),0,8,4,9,9,True,4,34,0.79,0.79,0.79,1.0,0,0,,0.217
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,1,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.038
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,2,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,3,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,4,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,5,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.04
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,7,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,8,9,True,1,12,0.73,0.73,0.73,1.0,0,0,,0.107
+"tomita4, all shifts + clock",notes (cap 1),0,2,16,9,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + clock",cap 16,0,8,4,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.05
+"tomita4, all shifts + clock",cap 16,0,8,4,1,9,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.383
+"tomita4, all shifts + clock",cap 16,0,8,4,2,9,True,6,56,0.77,0.77,0.77,1.0,0,0,,0.297
+"tomita4, all shifts + clock",cap 16,0,8,4,3,9,True,6,59,0.58,0.58,0.58,1.0,0,0,,0.309
+"tomita4, all shifts + clock",cap 16,0,8,4,4,9,True,2,21,0.77,0.77,0.77,1.0,0,0,,0.149
+"tomita4, all shifts + clock",cap 16,0,8,4,5,9,True,7,86,0.4600000000000001,0.4600000000000001,0.46,1.0,0,0,,0.449
+"tomita4, all shifts + clock",cap 16,0,8,4,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.048
+"tomita4, all shifts + clock",cap 16,0,8,4,7,9,True,6,59,0.82,0.82,0.82,1.0,0,0,,0.327
+"tomita4, all shifts + clock",cap 16,0,8,4,8,9,True,6,65,0.58,0.58,0.58,1.0,0,0,,0.436
+"tomita4, all shifts + clock",cap 16,0,8,4,9,9,True,4,34,0.79,0.79,0.79,1.0,0,0,,0.204
+"tomita4, all shifts + clock",cap 16,0,2,16,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita4, all shifts + clock",cap 16,0,2,16,1,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"tomita4, all shifts + clock",cap 16,0,2,16,2,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + clock",cap 16,0,2,16,3,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.037
+"tomita4, all shifts + clock",cap 16,0,2,16,4,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita4, all shifts + clock",cap 16,0,2,16,5,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, all shifts + clock",cap 16,0,2,16,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, all shifts + clock",cap 16,0,2,16,7,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + clock",cap 16,0,2,16,8,9,True,1,12,0.73,0.73,0.73,1.0,0,0,,0.094
+"tomita4, all shifts + clock",cap 16,0,2,16,9,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"tomita4, all shifts + clock",bounded 8,0,8,4,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + clock",bounded 8,0,8,4,1,9,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.385
+"tomita4, all shifts + clock",bounded 8,0,8,4,2,9,False,0,0,0.884,1.0,1.0,1.0,0,0,,0.047
+"tomita4, all shifts + clock",bounded 8,0,8,4,3,9,True,6,59,0.58,0.58,0.58,1.0,0,0,,0.312
+"tomita4, all shifts + clock",bounded 8,0,8,4,4,9,False,0,0,0.974,1.0,1.0,1.0,0,0,,0.047
+"tomita4, all shifts + clock",bounded 8,0,8,4,5,9,True,6,59,0.688,0.71,0.71,1.0,0,0,,0.382
+"tomita4, all shifts + clock",bounded 8,0,8,4,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.048
+"tomita4, all shifts + clock",bounded 8,0,8,4,7,9,True,6,59,0.82,0.82,0.82,1.0,0,0,,0.31
+"tomita4, all shifts + clock",bounded 8,0,8,4,8,9,False,0,0,0.858,1.0,1.0,1.0,0,0,,0.051
+"tomita4, all shifts + clock",bounded 8,0,8,4,9,9,False,0,0,0.944,1.0,1.0,1.0,0,0,,0.051
+"tomita4, all shifts + clock",bounded 8,0,2,16,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + clock",bounded 8,0,2,16,1,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + clock",bounded 8,0,2,16,2,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita4, all shifts + clock",bounded 8,0,2,16,3,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + clock",bounded 8,0,2,16,4,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.053
+"tomita4, all shifts + clock",bounded 8,0,2,16,5,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita4, all shifts + clock",bounded 8,0,2,16,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita4, all shifts + clock",bounded 8,0,2,16,7,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita4, all shifts + clock",bounded 8,0,2,16,8,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.037
+"tomita4, all shifts + clock",bounded 8,0,2,16,9,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita4, all shifts + clock",volume 8,0,8,4,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.08
+"tomita4, all shifts + clock",volume 8,0,8,4,1,9,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.565
+"tomita4, all shifts + clock",volume 8,0,8,4,2,9,False,0,0,0.8800000000000001,1.0,1.0,1.0,0,0,,0.081
+"tomita4, all shifts + clock",volume 8,0,8,4,3,9,True,6,59,0.58,0.58,0.58,1.0,0,0,,0.534
+"tomita4, all shifts + clock",volume 8,0,8,4,4,9,False,0,0,0.876,1.0,1.0,1.0,0,0,,0.096
+"tomita4, all shifts + clock",volume 8,0,8,4,5,9,True,6,59,0.688,0.71,0.71,1.0,0,0,,0.467
+"tomita4, all shifts + clock",volume 8,0,8,4,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.079
+"tomita4, all shifts + clock",volume 8,0,8,4,7,9,True,6,59,0.82,0.82,0.82,1.0,0,0,,0.479
+"tomita4, all shifts + clock",volume 8,0,8,4,8,9,False,0,0,0.7940000000000002,1.0,1.0,1.0,0,0,,0.077
+"tomita4, all shifts + clock",volume 8,0,8,4,9,9,False,0,0,0.874,1.0,1.0,1.0,0,0,,0.094
+"tomita4, all shifts + clock",volume 8,0,2,16,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + clock",volume 8,0,2,16,1,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.063
+"tomita4, all shifts + clock",volume 8,0,2,16,2,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + clock",volume 8,0,2,16,3,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"tomita4, all shifts + clock",volume 8,0,2,16,4,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + clock",volume 8,0,2,16,5,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.06
+"tomita4, all shifts + clock",volume 8,0,2,16,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.074
+"tomita4, all shifts + clock",volume 8,0,2,16,7,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + clock",volume 8,0,2,16,8,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + clock",volume 8,0,2,16,9,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + clock",volume 32,0,8,4,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.078
+"tomita4, all shifts + clock",volume 32,0,8,4,1,9,True,7,70,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.555
+"tomita4, all shifts + clock",volume 32,0,8,4,2,9,False,0,0,0.8640000000000001,1.0,1.0,1.0,0,0,,0.095
+"tomita4, all shifts + clock",volume 32,0,8,4,3,9,True,6,59,0.58,0.58,0.58,1.0,0,0,,0.476
+"tomita4, all shifts + clock",volume 32,0,8,4,4,9,False,0,0,0.8960000000000001,1.0,1.0,1.0,0,0,,0.08
+"tomita4, all shifts + clock",volume 32,0,8,4,5,9,True,6,59,0.688,0.71,0.71,1.0,0,0,,0.477
+"tomita4, all shifts + clock",volume 32,0,8,4,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.078
+"tomita4, all shifts + clock",volume 32,0,8,4,7,9,False,0,0,0.8559999999999999,1.0,1.0,1.0,0,0,,0.077
+"tomita4, all shifts + clock",volume 32,0,8,4,8,9,False,0,0,0.8680000000000001,1.0,1.0,1.0,0,0,,0.078
+"tomita4, all shifts + clock",volume 32,0,8,4,9,9,False,0,0,0.874,1.0,1.0,1.0,0,0,,0.094
+"tomita4, all shifts + clock",volume 32,0,2,16,0,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.06
+"tomita4, all shifts + clock",volume 32,0,2,16,1,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + clock",volume 32,0,2,16,2,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.064
+"tomita4, all shifts + clock",volume 32,0,2,16,3,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.063
+"tomita4, all shifts + clock",volume 32,0,2,16,4,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + clock",volume 32,0,2,16,5,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + clock",volume 32,0,2,16,6,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + clock",volume 32,0,2,16,7,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + clock",volume 32,0,2,16,8,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + clock",volume 32,0,2,16,9,9,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.05
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,1,11,True,7,63,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.335
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,2,11,False,0,0,0.9400000000000001,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,3,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,4,11,False,0,0,0.9480000000000001,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,5,11,True,6,46,0.51,0.71,0.71,1.0,0,0,,0.25
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.05
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,7,11,True,6,59,0.82,0.82,0.82,1.0,0,0,,0.313
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,8,11,False,0,0,0.744,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",notes (cap 1),0,8,4,9,11,False,0,0,0.93,1.0,1.0,1.0,0,0,,0.05
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,1,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,2,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,3,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,4,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.038
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,5,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,7,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,8,11,False,0,0,0.784,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",notes (cap 1),0,2,16,9,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",cap 16,0,8,4,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",cap 16,0,8,4,1,11,True,7,63,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.336
+"tomita4, all shifts + twins",cap 16,0,8,4,2,11,False,0,0,0.85,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",cap 16,0,8,4,3,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",cap 16,0,8,4,4,11,False,0,0,0.8699999999999999,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",cap 16,0,8,4,5,11,True,6,46,0.51,0.71,0.71,1.0,0,0,,0.247
+"tomita4, all shifts + twins",cap 16,0,8,4,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",cap 16,0,8,4,7,11,True,6,59,0.82,0.82,0.82,1.0,0,0,,0.311
+"tomita4, all shifts + twins",cap 16,0,8,4,8,11,False,0,0,0.6599999999999999,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",cap 16,0,8,4,9,11,False,0,0,0.8459999999999999,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",cap 16,0,2,16,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + twins",cap 16,0,2,16,1,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + twins",cap 16,0,2,16,2,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",cap 16,0,2,16,3,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",cap 16,0,2,16,4,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",cap 16,0,2,16,5,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + twins",cap 16,0,2,16,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + twins",cap 16,0,2,16,7,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + twins",cap 16,0,2,16,8,11,False,0,0,0.784,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + twins",cap 16,0,2,16,9,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita4, all shifts + twins",bounded 8,0,8,4,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.05
+"tomita4, all shifts + twins",bounded 8,0,8,4,1,11,True,7,63,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.336
+"tomita4, all shifts + twins",bounded 8,0,8,4,2,11,False,0,0,0.9339999999999999,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",bounded 8,0,8,4,3,11,True,6,58,0.58,0.58,0.58,1.0,0,0,,0.304
+"tomita4, all shifts + twins",bounded 8,0,8,4,4,11,False,0,0,0.826,1.0,1.0,1.0,0,0,,0.051
+"tomita4, all shifts + twins",bounded 8,0,8,4,5,11,True,6,46,0.71,0.71,0.71,1.0,0,0,,0.253
+"tomita4, all shifts + twins",bounded 8,0,8,4,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",bounded 8,0,8,4,7,11,True,6,59,0.82,0.82,0.82,1.0,0,0,,0.31
+"tomita4, all shifts + twins",bounded 8,0,8,4,8,11,False,0,0,0.9339999999999999,1.0,1.0,1.0,0,0,,0.049
+"tomita4, all shifts + twins",bounded 8,0,8,4,9,11,False,0,0,0.924,1.0,1.0,1.0,0,0,,0.05
+"tomita4, all shifts + twins",bounded 8,0,2,16,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",bounded 8,0,2,16,1,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",bounded 8,0,2,16,2,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",bounded 8,0,2,16,3,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",bounded 8,0,2,16,4,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",bounded 8,0,2,16,5,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",bounded 8,0,2,16,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",bounded 8,0,2,16,7,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.037
+"tomita4, all shifts + twins",bounded 8,0,2,16,8,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita4, all shifts + twins",bounded 8,0,2,16,9,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita4, all shifts + twins",volume 8,0,8,4,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.08
+"tomita4, all shifts + twins",volume 8,0,8,4,1,11,True,7,63,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.53
+"tomita4, all shifts + twins",volume 8,0,8,4,2,11,False,0,0,0.97,1.0,1.0,1.0,0,0,,0.095
+"tomita4, all shifts + twins",volume 8,0,8,4,3,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.079
+"tomita4, all shifts + twins",volume 8,0,8,4,4,11,False,0,0,0.9100000000000001,1.0,1.0,1.0,0,0,,0.101
+"tomita4, all shifts + twins",volume 8,0,8,4,5,11,False,0,0,0.8780000000000001,1.0,1.0,1.0,0,0,,0.078
+"tomita4, all shifts + twins",volume 8,0,8,4,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.078
+"tomita4, all shifts + twins",volume 8,0,8,4,7,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.079
+"tomita4, all shifts + twins",volume 8,0,8,4,8,11,False,0,0,0.9560000000000001,1.0,1.0,1.0,0,0,,0.096
+"tomita4, all shifts + twins",volume 8,0,8,4,9,11,False,0,0,0.958,1.0,1.0,1.0,0,0,,0.096
+"tomita4, all shifts + twins",volume 8,0,2,16,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + twins",volume 8,0,2,16,1,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + twins",volume 8,0,2,16,2,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + twins",volume 8,0,2,16,3,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + twins",volume 8,0,2,16,4,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + twins",volume 8,0,2,16,5,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + twins",volume 8,0,2,16,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + twins",volume 8,0,2,16,7,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + twins",volume 8,0,2,16,8,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + twins",volume 8,0,2,16,9,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + twins",volume 32,0,8,4,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.079
+"tomita4, all shifts + twins",volume 32,0,8,4,1,11,True,7,63,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.625
+"tomita4, all shifts + twins",volume 32,0,8,4,2,11,False,0,0,0.97,1.0,1.0,1.0,0,0,,0.095
+"tomita4, all shifts + twins",volume 32,0,8,4,3,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.078
+"tomita4, all shifts + twins",volume 32,0,8,4,4,11,False,0,0,0.8640000000000001,1.0,1.0,1.0,0,0,,0.112
+"tomita4, all shifts + twins",volume 32,0,8,4,5,11,False,0,0,0.8780000000000001,1.0,1.0,1.0,0,0,,0.078
+"tomita4, all shifts + twins",volume 32,0,8,4,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.078
+"tomita4, all shifts + twins",volume 32,0,8,4,7,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.078
+"tomita4, all shifts + twins",volume 32,0,8,4,8,11,False,0,0,0.9560000000000001,1.0,1.0,1.0,0,0,,0.096
+"tomita4, all shifts + twins",volume 32,0,8,4,9,11,False,0,0,0.93,1.0,1.0,1.0,0,0,,0.096
+"tomita4, all shifts + twins",volume 32,0,2,16,0,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.067
+"tomita4, all shifts + twins",volume 32,0,2,16,1,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.065
+"tomita4, all shifts + twins",volume 32,0,2,16,2,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.064
+"tomita4, all shifts + twins",volume 32,0,2,16,3,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.067
+"tomita4, all shifts + twins",volume 32,0,2,16,4,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita4, all shifts + twins",volume 32,0,2,16,5,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + twins",volume 32,0,2,16,6,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.063
+"tomita4, all shifts + twins",volume 32,0,2,16,7,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.066
+"tomita4, all shifts + twins",volume 32,0,2,16,8,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita4, all shifts + twins",volume 32,0,2,16,9,11,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita2, all shifts",notes (cap 1),0,8,4,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.045
+"tomita2, all shifts",notes (cap 1),0,8,4,1,4,False,0,0,0.8160000000000001,1.0,1.0,1.0,0,0,,0.045
+"tomita2, all shifts",notes (cap 1),0,8,4,2,4,False,0,0,0.9339999999999999,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",notes (cap 1),0,8,4,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",notes (cap 1),0,8,4,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita2, all shifts",notes (cap 1),0,8,4,5,4,True,7,75,0.63,0.63,0.63,1.0,0,0,,0.412
+"tomita2, all shifts",notes (cap 1),0,8,4,6,4,False,0,0,0.76,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",notes (cap 1),0,8,4,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",notes (cap 1),0,8,4,8,4,False,0,0,0.776,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",notes (cap 1),0,8,4,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",notes (cap 1),0,2,16,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.028
+"tomita2, all shifts",notes (cap 1),0,2,16,1,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita2, all shifts",notes (cap 1),0,2,16,2,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",notes (cap 1),0,2,16,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.03
+"tomita2, all shifts",notes (cap 1),0,2,16,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.03
+"tomita2, all shifts",notes (cap 1),0,2,16,5,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",notes (cap 1),0,2,16,6,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.031
+"tomita2, all shifts",notes (cap 1),0,2,16,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita2, all shifts",notes (cap 1),0,2,16,8,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.03
+"tomita2, all shifts",notes (cap 1),0,2,16,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.03
+"tomita2, all shifts",cap 16,0,8,4,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.055
+"tomita2, all shifts",cap 16,0,8,4,1,4,False,0,0,0.8160000000000001,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",cap 16,0,8,4,2,4,False,0,0,0.9339999999999999,1.0,1.0,1.0,0,0,,0.045
+"tomita2, all shifts",cap 16,0,8,4,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.044
+"tomita2, all shifts",cap 16,0,8,4,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita2, all shifts",cap 16,0,8,4,5,4,True,7,75,0.63,0.63,0.63,1.0,0,0,,0.379
+"tomita2, all shifts",cap 16,0,8,4,6,4,False,0,0,0.76,1.0,1.0,1.0,0,0,,0.044
+"tomita2, all shifts",cap 16,0,8,4,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.068
+"tomita2, all shifts",cap 16,0,8,4,8,4,False,0,0,0.776,1.0,1.0,1.0,0,0,,0.052
+"tomita2, all shifts",cap 16,0,8,4,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita2, all shifts",cap 16,0,2,16,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",cap 16,0,2,16,1,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",cap 16,0,2,16,2,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.028
+"tomita2, all shifts",cap 16,0,2,16,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.028
+"tomita2, all shifts",cap 16,0,2,16,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.03
+"tomita2, all shifts",cap 16,0,2,16,5,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",cap 16,0,2,16,6,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.028
+"tomita2, all shifts",cap 16,0,2,16,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",cap 16,0,2,16,8,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",cap 16,0,2,16,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",bounded 8,0,8,4,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita2, all shifts",bounded 8,0,8,4,1,4,True,7,22,0.77,0.77,0.77,1.0,0,0,,0.131
+"tomita2, all shifts",bounded 8,0,8,4,2,4,False,0,0,0.9339999999999999,1.0,1.0,1.0,0,0,,0.044
+"tomita2, all shifts",bounded 8,0,8,4,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita2, all shifts",bounded 8,0,8,4,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.044
+"tomita2, all shifts",bounded 8,0,8,4,5,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita2, all shifts",bounded 8,0,8,4,6,4,False,0,0,0.76,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",bounded 8,0,8,4,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.043
+"tomita2, all shifts",bounded 8,0,8,4,8,4,True,5,10,0.72,0.72,0.72,1.0,0,0,,0.1
+"tomita2, all shifts",bounded 8,0,8,4,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.048
+"tomita2, all shifts",bounded 8,0,2,16,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.028
+"tomita2, all shifts",bounded 8,0,2,16,1,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.028
+"tomita2, all shifts",bounded 8,0,2,16,2,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.028
+"tomita2, all shifts",bounded 8,0,2,16,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.028
+"tomita2, all shifts",bounded 8,0,2,16,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",bounded 8,0,2,16,5,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.045
+"tomita2, all shifts",bounded 8,0,2,16,6,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",bounded 8,0,2,16,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.028
+"tomita2, all shifts",bounded 8,0,2,16,8,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.042
+"tomita2, all shifts",bounded 8,0,2,16,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.029
+"tomita2, all shifts",volume 8,0,8,4,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.055
+"tomita2, all shifts",volume 8,0,8,4,1,4,True,7,22,0.77,0.77,0.77,1.0,0,0,,0.228
+"tomita2, all shifts",volume 8,0,8,4,2,4,False,0,0,0.9339999999999999,1.0,1.0,1.0,0,0,,0.058
+"tomita2, all shifts",volume 8,0,8,4,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"tomita2, all shifts",volume 8,0,8,4,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.056
+"tomita2, all shifts",volume 8,0,8,4,5,4,True,7,75,0.63,0.63,0.63,1.0,0,0,,0.587
+"tomita2, all shifts",volume 8,0,8,4,6,4,False,0,0,0.76,1.0,1.0,1.0,0,0,,0.055
+"tomita2, all shifts",volume 8,0,8,4,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.054
+"tomita2, all shifts",volume 8,0,8,4,8,4,True,5,10,0.72,0.72,0.72,1.0,0,0,,0.145
+"tomita2, all shifts",volume 8,0,8,4,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.054
+"tomita2, all shifts",volume 8,0,2,16,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 8,0,2,16,1,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 8,0,2,16,2,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 8,0,2,16,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 8,0,2,16,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita2, all shifts",volume 8,0,2,16,5,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 8,0,2,16,6,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 8,0,2,16,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 8,0,2,16,8,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita2, all shifts",volume 8,0,2,16,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita2, all shifts",volume 32,0,8,4,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.054
+"tomita2, all shifts",volume 32,0,8,4,1,4,True,7,22,0.77,0.77,0.77,1.0,0,0,,0.216
+"tomita2, all shifts",volume 32,0,8,4,2,4,False,0,0,0.9339999999999999,1.0,1.0,1.0,0,0,,0.073
+"tomita2, all shifts",volume 32,0,8,4,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita2, all shifts",volume 32,0,8,4,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.06
+"tomita2, all shifts",volume 32,0,8,4,5,4,True,7,75,0.63,0.63,0.63,1.0,0,0,,0.579
+"tomita2, all shifts",volume 32,0,8,4,6,4,False,0,0,0.76,1.0,1.0,1.0,0,0,,0.055
+"tomita2, all shifts",volume 32,0,8,4,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.055
+"tomita2, all shifts",volume 32,0,8,4,8,4,True,5,10,0.72,0.72,0.72,1.0,0,0,,0.132
+"tomita2, all shifts",volume 32,0,8,4,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.055
+"tomita2, all shifts",volume 32,0,2,16,0,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 32,0,2,16,1,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.035
+"tomita2, all shifts",volume 32,0,2,16,2,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 32,0,2,16,3,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 32,0,2,16,4,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 32,0,2,16,5,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 32,0,2,16,6,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 32,0,2,16,7,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 32,0,2,16,8,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita2, all shifts",volume 32,0,2,16,9,4,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.034
+"tomita7, states",notes (cap 1),0,8,4,0,14,False,0,0,0.8879999999999999,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",notes (cap 1),0,8,4,1,14,False,0,0,0.8320000000000001,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",notes (cap 1),0,8,4,2,14,False,0,0,0.9,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",notes (cap 1),0,8,4,3,14,True,6,24,0.58,0.58,0.58,1.0,0,0,,0.154
+"tomita7, states",notes (cap 1),0,8,4,4,14,False,0,0,0.7379999999999999,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",notes (cap 1),0,8,4,5,14,False,0,0,0.51,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",notes (cap 1),0,8,4,6,14,False,0,0,0.514,1.0,1.0,1.0,0,0,,0.052
+"tomita7, states",notes (cap 1),0,8,4,7,14,False,0,0,0.524,1.0,1.0,1.0,0,0,,0.052
+"tomita7, states",notes (cap 1),0,8,4,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",notes (cap 1),0,8,4,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",notes (cap 1),0,2,16,0,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",notes (cap 1),0,2,16,1,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",notes (cap 1),0,2,16,2,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",notes (cap 1),0,2,16,3,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",notes (cap 1),0,2,16,4,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",notes (cap 1),0,2,16,5,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",notes (cap 1),0,2,16,6,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",notes (cap 1),0,2,16,7,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",notes (cap 1),0,2,16,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",notes (cap 1),0,2,16,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.039
+"tomita7, states",cap 16,0,8,4,0,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.052
+"tomita7, states",cap 16,0,8,4,1,14,False,0,0,0.72,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",cap 16,0,8,4,2,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.055
+"tomita7, states",cap 16,0,8,4,3,14,True,6,24,0.58,0.58,0.58,1.0,0,0,,0.156
+"tomita7, states",cap 16,0,8,4,4,14,False,0,0,0.906,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",cap 16,0,8,4,5,14,False,0,0,0.45400000000000007,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",cap 16,0,8,4,6,14,False,0,0,0.5339999999999999,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",cap 16,0,8,4,7,14,False,0,0,0.524,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",cap 16,0,8,4,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.052
+"tomita7, states",cap 16,0,8,4,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.052
+"tomita7, states",cap 16,0,2,16,0,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",cap 16,0,2,16,1,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",cap 16,0,2,16,2,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.04
+"tomita7, states",cap 16,0,2,16,3,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.038
+"tomita7, states",cap 16,0,2,16,4,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",cap 16,0,2,16,5,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",cap 16,0,2,16,6,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.037
+"tomita7, states",cap 16,0,2,16,7,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.037
+"tomita7, states",cap 16,0,2,16,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",cap 16,0,2,16,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",bounded 8,0,8,4,0,14,False,0,0,0.776,1.0,1.0,1.0,0,0,,0.052
+"tomita7, states",bounded 8,0,8,4,1,14,False,0,0,0.8879999999999999,1.0,1.0,1.0,0,0,,0.052
+"tomita7, states",bounded 8,0,8,4,2,14,False,0,0,0.8,1.0,1.0,1.0,0,0,,0.052
+"tomita7, states",bounded 8,0,8,4,3,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",bounded 8,0,8,4,4,14,False,0,0,0.736,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",bounded 8,0,8,4,5,14,False,0,0,0.5660000000000001,1.0,1.0,1.0,0,0,,0.058
+"tomita7, states",bounded 8,0,8,4,6,14,True,6,48,0.43200000000000005,0.57,0.57,1.0,0,0,,0.261
+"tomita7, states",bounded 8,0,8,4,7,14,True,7,63,0.58,0.58,0.58,1.0,0,0,,0.335
+"tomita7, states",bounded 8,0,8,4,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",bounded 8,0,8,4,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.051
+"tomita7, states",bounded 8,0,2,16,0,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",bounded 8,0,2,16,1,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",bounded 8,0,2,16,2,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",bounded 8,0,2,16,3,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",bounded 8,0,2,16,4,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",bounded 8,0,2,16,5,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",bounded 8,0,2,16,6,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",bounded 8,0,2,16,7,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",bounded 8,0,2,16,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.037
+"tomita7, states",bounded 8,0,2,16,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.036
+"tomita7, states",volume 8,0,8,4,0,14,False,0,0,0.8879999999999999,1.0,1.0,1.0,0,0,,0.084
+"tomita7, states",volume 8,0,8,4,1,14,False,0,0,0.776,1.0,1.0,1.0,0,0,,0.08
+"tomita7, states",volume 8,0,8,4,2,14,False,0,0,0.9,1.0,1.0,1.0,0,0,,0.084
+"tomita7, states",volume 8,0,8,4,3,14,False,0,0,0.9199999999999999,1.0,1.0,1.0,0,0,,0.08
+"tomita7, states",volume 8,0,8,4,4,14,False,0,0,0.5980000000000001,1.0,1.0,1.0,0,0,,0.083
+"tomita7, states",volume 8,0,8,4,5,14,False,0,0,0.61,1.0,1.0,1.0,0,0,,0.08
+"tomita7, states",volume 8,0,8,4,6,14,False,0,0,0.49399999999999994,1.0,1.0,1.0,0,0,,0.099
+"tomita7, states",volume 8,0,8,4,7,14,False,0,0,0.524,1.0,1.0,1.0,0,0,,0.099
+"tomita7, states",volume 8,0,8,4,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.08
+"tomita7, states",volume 8,0,8,4,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.08
+"tomita7, states",volume 8,0,2,16,0,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.063
+"tomita7, states",volume 8,0,2,16,1,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.064
+"tomita7, states",volume 8,0,2,16,2,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita7, states",volume 8,0,2,16,3,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita7, states",volume 8,0,2,16,4,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.085
+"tomita7, states",volume 8,0,2,16,5,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.063
+"tomita7, states",volume 8,0,2,16,6,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita7, states",volume 8,0,2,16,7,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita7, states",volume 8,0,2,16,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.063
+"tomita7, states",volume 8,0,2,16,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita7, states",volume 32,0,8,4,0,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.08
+"tomita7, states",volume 32,0,8,4,1,14,False,0,0,0.72,1.0,1.0,1.0,0,0,,0.08
+"tomita7, states",volume 32,0,8,4,2,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.082
+"tomita7, states",volume 32,0,8,4,3,14,False,0,0,0.96,1.0,1.0,1.0,0,0,,0.105
+"tomita7, states",volume 32,0,8,4,4,14,False,0,0,0.53,1.0,1.0,1.0,0,0,,0.084
+"tomita7, states",volume 32,0,8,4,5,14,False,0,0,0.71,1.0,1.0,1.0,0,0,,0.08
+"tomita7, states",volume 32,0,8,4,6,14,False,0,0,0.514,1.0,1.0,1.0,0,0,,0.098
+"tomita7, states",volume 32,0,8,4,7,14,False,0,0,0.524,1.0,1.0,1.0,0,0,,0.098
+"tomita7, states",volume 32,0,8,4,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.085
+"tomita7, states",volume 32,0,8,4,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.079
+"tomita7, states",volume 32,0,2,16,0,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita7, states",volume 32,0,2,16,1,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita7, states",volume 32,0,2,16,2,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita7, states",volume 32,0,2,16,3,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita7, states",volume 32,0,2,16,4,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita7, states",volume 32,0,2,16,5,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita7, states",volume 32,0,2,16,6,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita7, states",volume 32,0,2,16,7,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.061
+"tomita7, states",volume 32,0,2,16,8,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.062
+"tomita7, states",volume 32,0,2,16,9,14,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",notes (cap 1),0,8,4,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",notes (cap 1),0,8,4,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",notes (cap 1),0,8,4,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",notes (cap 1),0,8,4,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.046
+"parity (latency 1), states",notes (cap 1),0,8,4,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",notes (cap 1),0,8,4,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.088
+"parity (latency 1), states",notes (cap 1),0,8,4,6,8,False,0,0,0.82,1.0,1.0,1.0,0,0,,0.046
+"parity (latency 1), states",notes (cap 1),0,8,4,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",notes (cap 1),0,8,4,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",notes (cap 1),0,8,4,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.046
+"parity (latency 1), states",notes (cap 1),0,2,16,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",notes (cap 1),0,2,16,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",notes (cap 1),0,2,16,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",notes (cap 1),0,2,16,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",notes (cap 1),0,2,16,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",notes (cap 1),0,2,16,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",notes (cap 1),0,2,16,6,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",notes (cap 1),0,2,16,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"parity (latency 1), states",notes (cap 1),0,2,16,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",notes (cap 1),0,2,16,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.081
+"parity (latency 1), states",cap 16,0,8,4,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",cap 16,0,8,4,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.046
+"parity (latency 1), states",cap 16,0,8,4,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.077
+"parity (latency 1), states",cap 16,0,8,4,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.053
+"parity (latency 1), states",cap 16,0,8,4,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",cap 16,0,8,4,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.046
+"parity (latency 1), states",cap 16,0,8,4,6,8,False,0,0,0.7299999999999999,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",cap 16,0,8,4,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.048
+"parity (latency 1), states",cap 16,0,8,4,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.046
+"parity (latency 1), states",cap 16,0,8,4,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.046
+"parity (latency 1), states",cap 16,0,2,16,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"parity (latency 1), states",cap 16,0,2,16,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"parity (latency 1), states",cap 16,0,2,16,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",cap 16,0,2,16,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",cap 16,0,2,16,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.033
+"parity (latency 1), states",cap 16,0,2,16,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.031
+"parity (latency 1), states",cap 16,0,2,16,6,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",cap 16,0,2,16,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",cap 16,0,2,16,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.031
+"parity (latency 1), states",cap 16,0,2,16,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.031
+"parity (latency 1), states",bounded 8,0,8,4,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",bounded 8,0,8,4,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",bounded 8,0,8,4,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.045
+"parity (latency 1), states",bounded 8,0,8,4,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.044
+"parity (latency 1), states",bounded 8,0,8,4,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",bounded 8,0,8,4,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",bounded 8,0,8,4,6,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.045
+"parity (latency 1), states",bounded 8,0,8,4,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.045
+"parity (latency 1), states",bounded 8,0,8,4,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.046
+"parity (latency 1), states",bounded 8,0,8,4,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.047
+"parity (latency 1), states",bounded 8,0,2,16,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",bounded 8,0,2,16,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.031
+"parity (latency 1), states",bounded 8,0,2,16,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",bounded 8,0,2,16,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",bounded 8,0,2,16,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",bounded 8,0,2,16,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.031
+"parity (latency 1), states",bounded 8,0,2,16,6,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",bounded 8,0,2,16,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",bounded 8,0,2,16,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.031
+"parity (latency 1), states",bounded 8,0,2,16,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.032
+"parity (latency 1), states",volume 8,0,8,4,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.074
+"parity (latency 1), states",volume 8,0,8,4,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.074
+"parity (latency 1), states",volume 8,0,8,4,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.07
+"parity (latency 1), states",volume 8,0,8,4,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.071
+"parity (latency 1), states",volume 8,0,8,4,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",volume 8,0,8,4,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",volume 8,0,8,4,6,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.07
+"parity (latency 1), states",volume 8,0,8,4,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.077
+"parity (latency 1), states",volume 8,0,8,4,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",volume 8,0,8,4,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",volume 8,0,2,16,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.084
+"parity (latency 1), states",volume 8,0,2,16,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.054
+"parity (latency 1), states",volume 8,0,2,16,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"parity (latency 1), states",volume 8,0,2,16,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"parity (latency 1), states",volume 8,0,2,16,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.06
+"parity (latency 1), states",volume 8,0,2,16,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.058
+"parity (latency 1), states",volume 8,0,2,16,6,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"parity (latency 1), states",volume 8,0,2,16,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"parity (latency 1), states",volume 8,0,2,16,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.058
+"parity (latency 1), states",volume 8,0,2,16,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.058
+"parity (latency 1), states",volume 32,0,8,4,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",volume 32,0,8,4,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.076
+"parity (latency 1), states",volume 32,0,8,4,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.077
+"parity (latency 1), states",volume 32,0,8,4,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.08
+"parity (latency 1), states",volume 32,0,8,4,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",volume 32,0,8,4,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",volume 32,0,8,4,6,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.077
+"parity (latency 1), states",volume 32,0,8,4,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.071
+"parity (latency 1), states",volume 32,0,8,4,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",volume 32,0,8,4,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.075
+"parity (latency 1), states",volume 32,0,2,16,0,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.054
+"parity (latency 1), states",volume 32,0,2,16,1,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.055
+"parity (latency 1), states",volume 32,0,2,16,2,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"parity (latency 1), states",volume 32,0,2,16,3,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"parity (latency 1), states",volume 32,0,2,16,4,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.054
+"parity (latency 1), states",volume 32,0,2,16,5,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.054
+"parity (latency 1), states",volume 32,0,2,16,6,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"parity (latency 1), states",volume 32,0,2,16,7,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"parity (latency 1), states",volume 32,0,2,16,8,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.057
+"parity (latency 1), states",volume 32,0,2,16,9,8,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.06
+"parity (latency 1), library",notes (cap 1),0,8,4,0,108,True,7,66,0.05600000000000001,0.05600000000000001,0.06,1.0,0,0,,0.622
+"parity (latency 1), library",notes (cap 1),0,8,4,1,108,True,7,61,0.18,0.19799999999999998,0.21,1.0,0,0,,0.579
+"parity (latency 1), library",notes (cap 1),0,8,4,2,108,True,7,60,0.22000000000000003,0.23399999999999999,0.27,1.0,0,0,,0.685
+"parity (latency 1), library",notes (cap 1),0,8,4,3,108,True,6,57,0.19,0.41999999999999993,0.47,1.0,0,0,,0.551
+"parity (latency 1), library",notes (cap 1),0,8,4,4,108,True,7,67,0.194,0.192,0.22,1.0,0,0,,0.627
+"parity (latency 1), library",notes (cap 1),0,8,4,5,108,True,7,66,0.278,0.32000000000000006,0.34,1.0,0,0,,0.603
+"parity (latency 1), library",notes (cap 1),0,8,4,6,108,True,6,51,0.42400000000000004,0.48599999999999993,0.49,1.0,0,0,,0.481
+"parity (latency 1), library",notes (cap 1),0,8,4,7,108,True,7,67,0.20400000000000001,0.20800000000000002,0.25,1.0,0,0,,0.659
+"parity (latency 1), library",notes (cap 1),0,8,4,8,108,True,7,56,0.272,0.31799999999999995,0.35,1.0,0,0,,0.53
+"parity (latency 1), library",notes (cap 1),0,8,4,9,108,True,7,67,0.20800000000000002,0.21800000000000003,0.23,1.0,0,0,,0.629
+"parity (latency 1), library",notes (cap 1),0,2,16,0,108,False,0,0,0.9339999999999999,0.982,1.0,1.0,0,0,,0.125
+"parity (latency 1), library",notes (cap 1),0,2,16,1,108,False,0,0,0.982,1.0,1.0,1.0,0,0,,0.118
+"parity (latency 1), library",notes (cap 1),0,2,16,2,108,False,0,0,0.868,0.976,1.0,1.0,0,0,,0.106
+"parity (latency 1), library",notes (cap 1),0,2,16,3,108,False,0,0,0.8800000000000001,0.968,1.0,1.0,0,0,,0.114
+"parity (latency 1), library",notes (cap 1),0,2,16,4,108,True,1,17,0.5780000000000001,0.5780000000000001,0.58,1.0,0,0,,0.314
+"parity (latency 1), library",notes (cap 1),0,2,16,5,108,False,0,0,0.844,1.0,1.0,1.0,0,0,,0.22
+"parity (latency 1), library",notes (cap 1),0,2,16,6,108,False,0,0,0.876,0.952,1.0,1.0,0,0,,0.106
+"parity (latency 1), library",notes (cap 1),0,2,16,7,108,False,0,0,0.8480000000000001,0.984,1.0,1.0,0,0,,0.22
+"parity (latency 1), library",notes (cap 1),0,2,16,8,108,False,0,0,0.916,0.966,1.0,1.0,0,0,,0.106
+"parity (latency 1), library",notes (cap 1),0,2,16,9,108,False,0,0,0.9199999999999999,0.968,1.0,1.0,0,0,,0.105
+"parity (latency 1), library",cap 16,0,8,4,0,108,True,7,66,0.05600000000000001,0.05600000000000001,0.06,1.0,0,0,,0.655
+"parity (latency 1), library",cap 16,0,8,4,1,108,True,7,61,0.18,0.19799999999999998,0.21,1.0,0,0,,0.578
+"parity (latency 1), library",cap 16,0,8,4,2,108,True,7,60,0.22000000000000003,0.23399999999999999,0.27,1.0,0,0,,0.574
+"parity (latency 1), library",cap 16,0,8,4,3,108,True,6,57,0.25999999999999995,0.41999999999999993,0.47,1.0,0,0,,0.548
+"parity (latency 1), library",cap 16,0,8,4,4,108,True,7,67,0.194,0.192,0.22,1.0,0,0,,0.627
+"parity (latency 1), library",cap 16,0,8,4,5,108,True,7,66,0.278,0.32000000000000006,0.34,1.0,0,0,,0.604
+"parity (latency 1), library",cap 16,0,8,4,6,108,True,6,51,0.438,0.48599999999999993,0.49,1.0,0,0,,0.489
+"parity (latency 1), library",cap 16,0,8,4,7,108,True,7,67,0.20400000000000001,0.20800000000000002,0.25,1.0,0,0,,0.632
+"parity (latency 1), library",cap 16,0,8,4,8,108,True,7,56,0.28400000000000003,0.31799999999999995,0.35,1.0,0,0,,0.53
+"parity (latency 1), library",cap 16,0,8,4,9,108,True,7,67,0.20800000000000002,0.21800000000000003,0.23,1.0,0,0,,0.634
+"parity (latency 1), library",cap 16,0,2,16,0,108,False,0,0,0.9280000000000002,0.976,1.0,1.0,0,0,,0.108
+"parity (latency 1), library",cap 16,0,2,16,1,108,False,0,0,0.982,1.0,1.0,1.0,0,0,,0.107
+"parity (latency 1), library",cap 16,0,2,16,2,108,False,0,0,0.868,0.976,1.0,1.0,0,0,,0.108
+"parity (latency 1), library",cap 16,0,2,16,3,108,False,0,0,0.8800000000000001,0.968,1.0,1.0,0,0,,0.108
+"parity (latency 1), library",cap 16,0,2,16,4,108,True,1,17,0.5780000000000001,0.5780000000000001,0.58,1.0,0,0,,0.33
+"parity (latency 1), library",cap 16,0,2,16,5,108,False,0,0,0.844,1.0,1.0,1.0,0,0,,0.111
+"parity (latency 1), library",cap 16,0,2,16,6,108,False,0,0,0.868,0.952,1.0,1.0,0,0,,0.107
+"parity (latency 1), library",cap 16,0,2,16,7,108,False,0,0,0.8480000000000001,0.984,1.0,1.0,0,0,,0.109
+"parity (latency 1), library",cap 16,0,2,16,8,108,False,0,0,0.916,0.966,1.0,1.0,0,0,,0.106
+"parity (latency 1), library",cap 16,0,2,16,9,108,False,0,0,0.9,0.968,1.0,1.0,0,0,,0.106
+"parity (latency 1), library",bounded 8,0,8,4,0,108,True,7,64,0.05800000000000001,0.08,0.08,1.0,0,0,,0.621
+"parity (latency 1), library",bounded 8,0,8,4,1,108,True,7,62,0.11199999999999999,0.08,0.08,1.0,0,0,,0.606
+"parity (latency 1), library",bounded 8,0,8,4,2,108,True,7,61,0.188,0.19,0.19,1.0,0,0,,0.592
+"parity (latency 1), library",bounded 8,0,8,4,3,108,True,7,68,0.014000000000000002,0.02,0.02,1.0,0,0,,0.668
+"parity (latency 1), library",bounded 8,0,8,4,4,108,True,7,71,0.11000000000000001,0.08,0.08,1.0,0,0,,0.671
+"parity (latency 1), library",bounded 8,0,8,4,5,108,True,7,77,0.12,0.124,0.14,1.0,0,0,,0.71
+"parity (latency 1), library",bounded 8,0,8,4,6,108,True,7,73,0.22999999999999998,0.3,0.3,1.0,0,0,,0.689
+"parity (latency 1), library",bounded 8,0,8,4,7,108,True,7,67,0.17600000000000002,0.164,0.2,1.0,0,0,,0.64
+"parity (latency 1), library",bounded 8,0,8,4,8,108,True,7,63,0.14600000000000002,0.11399999999999999,0.11,1.0,0,0,,0.614
+"parity (latency 1), library",bounded 8,0,8,4,9,108,True,7,67,0.15200000000000002,0.134,0.11,1.0,0,0,,0.646
+"parity (latency 1), library",bounded 8,0,2,16,0,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.107
+"parity (latency 1), library",bounded 8,0,2,16,1,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.109
+"parity (latency 1), library",bounded 8,0,2,16,2,108,True,1,15,0.46399999999999997,0.502,0.47,1.0,0,0,,0.288
+"parity (latency 1), library",bounded 8,0,2,16,3,108,True,1,11,0.808,0.808,0.82,1.0,0,0,,0.236
+"parity (latency 1), library",bounded 8,0,2,16,4,108,True,1,17,0.64,0.64,0.64,1.0,0,0,,0.317
+"parity (latency 1), library",bounded 8,0,2,16,5,108,True,1,20,0.74,0.74,0.74,1.0,0,0,,0.34
+"parity (latency 1), library",bounded 8,0,2,16,6,108,True,1,11,0.892,0.82,0.82,1.0,0,0,,0.234
+"parity (latency 1), library",bounded 8,0,2,16,7,108,True,1,11,0.986,1.0,1.0,1.0,0,0,,0.241
+"parity (latency 1), library",bounded 8,0,2,16,8,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.109
+"parity (latency 1), library",bounded 8,0,2,16,9,108,False,0,0,0.8400000000000001,0.8400000000000001,0.84,1.0,0,0,,0.108
+"parity (latency 1), library",volume 8,0,8,4,0,108,True,7,59,0.066,0.11599999999999999,0.12,1.0,0,0,,0.946
+"parity (latency 1), library",volume 8,0,8,4,1,108,True,7,62,0.136,0.128,0.12,1.0,0,0,,0.974
+"parity (latency 1), library",volume 8,0,8,4,2,108,True,7,62,0.15600000000000003,0.162,0.16,1.0,0,0,,0.965
+"parity (latency 1), library",volume 8,0,8,4,3,108,True,7,61,0.036000000000000004,0.04,0.04,1.0,0,0,,0.961
+"parity (latency 1), library",volume 8,0,8,4,4,108,True,7,71,0.10400000000000001,0.09,0.1,1.0,0,0,,1.06
+"parity (latency 1), library",volume 8,0,8,4,5,108,True,7,78,0.118,0.10999999999999999,0.1,1.0,0,0,,1.104
+"parity (latency 1), library",volume 8,0,8,4,6,108,True,6,58,0.254,0.418,0.38,1.0,0,0,,0.922
+"parity (latency 1), library",volume 8,0,8,4,7,108,True,7,68,0.14400000000000002,0.17200000000000001,0.17,1.0,0,0,,1.024
+"parity (latency 1), library",volume 8,0,8,4,8,108,True,7,62,0.15400000000000003,0.11200000000000002,0.12,1.0,0,0,,0.963
+"parity (latency 1), library",volume 8,0,8,4,9,108,True,7,68,0.1,0.1,0.09,1.0,0,0,,1.031
+"parity (latency 1), library",volume 8,0,2,16,0,108,False,0,0,0.986,0.998,1.0,1.0,0,0,,0.28
+"parity (latency 1), library",volume 8,0,2,16,1,108,False,0,0,0.984,1.0,1.0,1.0,0,0,,0.285
+"parity (latency 1), library",volume 8,0,2,16,2,108,True,1,15,0.43200000000000005,0.43200000000000005,0.44,1.0,0,0,,0.487
+"parity (latency 1), library",volume 8,0,2,16,3,108,False,0,0,0.9800000000000001,0.992,1.0,1.0,0,0,,0.283
+"parity (latency 1), library",volume 8,0,2,16,4,108,True,1,17,0.6359999999999999,0.638,0.67,1.0,0,0,,0.525
+"parity (latency 1), library",volume 8,0,2,16,5,108,True,1,20,0.7520000000000001,0.7520000000000001,0.74,1.0,0,0,,0.549
+"parity (latency 1), library",volume 8,0,2,16,6,108,False,0,0,0.882,0.9480000000000001,1.0,1.0,0,0,,0.285
+"parity (latency 1), library",volume 8,0,2,16,7,108,False,0,0,0.966,0.976,1.0,1.0,0,0,,0.288
+"parity (latency 1), library",volume 8,0,2,16,8,108,False,0,0,0.958,0.982,1.0,1.0,0,0,,0.288
+"parity (latency 1), library",volume 8,0,2,16,9,108,False,0,0,0.942,0.952,1.0,1.0,0,0,,0.28
+"parity (latency 1), library",volume 32,0,8,4,0,108,True,7,59,0.072,0.11000000000000001,0.12,1.0,0,0,,0.943
+"parity (latency 1), library",volume 32,0,8,4,1,108,True,7,62,0.14200000000000002,0.128,0.12,1.0,0,0,,0.975
+"parity (latency 1), library",volume 32,0,8,4,2,108,True,7,62,0.15000000000000002,0.162,0.16,1.0,0,0,,0.966
+"parity (latency 1), library",volume 32,0,8,4,3,108,True,7,70,0.034,0.04,0.04,1.0,0,0,,1.049
+"parity (latency 1), library",volume 32,0,8,4,4,108,True,7,71,0.1,0.086,0.09,1.0,0,0,,1.061
+"parity (latency 1), library",volume 32,0,8,4,5,108,True,7,78,0.11399999999999999,0.10999999999999999,0.1,1.0,0,0,,1.102
+"parity (latency 1), library",volume 32,0,8,4,6,108,True,6,62,0.25200000000000006,0.42400000000000004,0.49,1.0,0,0,,0.924
+"parity (latency 1), library",volume 32,0,8,4,7,108,True,7,68,0.14400000000000002,0.166,0.17,1.0,0,0,,1.025
+"parity (latency 1), library",volume 32,0,8,4,8,108,True,7,62,0.15400000000000003,0.11200000000000002,0.12,1.0,0,0,,0.97
+"parity (latency 1), library",volume 32,0,8,4,9,108,True,7,59,0.10599999999999998,0.1,0.09,1.0,0,0,,0.971
+"parity (latency 1), library",volume 32,0,2,16,0,108,False,0,0,0.954,1.0,1.0,1.0,0,0,,0.283
+"parity (latency 1), library",volume 32,0,2,16,1,108,False,0,0,0.984,1.0,1.0,1.0,0,0,,0.289
+"parity (latency 1), library",volume 32,0,2,16,2,108,True,1,15,0.43200000000000005,0.43200000000000005,0.44,1.0,0,0,,0.492
+"parity (latency 1), library",volume 32,0,2,16,3,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.241
+"parity (latency 1), library",volume 32,0,2,16,4,108,True,1,17,0.6519999999999999,0.6519999999999999,0.71,1.0,0,0,,0.522
+"parity (latency 1), library",volume 32,0,2,16,5,108,True,1,20,0.764,0.7520000000000001,0.74,1.0,0,0,,0.551
+"parity (latency 1), library",volume 32,0,2,16,6,108,False,0,0,0.844,0.9480000000000001,1.0,1.0,0,0,,0.291
+"parity (latency 1), library",volume 32,0,2,16,7,108,False,0,0,0.9339999999999999,0.976,1.0,1.0,0,0,,0.281
+"parity (latency 1), library",volume 32,0,2,16,8,108,False,0,0,0.982,1.0,1.0,1.0,0,0,,0.284
+"parity (latency 1), library",volume 32,0,2,16,9,108,False,0,0,0.8299999999999998,0.9800000000000001,1.0,1.0,0,0,,0.299
+"tomita4, library",notes (cap 1),0,8,4,0,108,True,2,21,0.6599999999999999,0.93,0.93,1.0,0,0,,0.27
+"tomita4, library",notes (cap 1),0,8,4,1,108,True,7,62,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.583
+"tomita4, library",notes (cap 1),0,8,4,2,108,False,0,0,0.716,0.9120000000000001,0.89,1.0,0,0,,0.127
+"tomita4, library",notes (cap 1),0,8,4,3,108,True,6,41,0.386,0.58,0.58,1.0,0,0,,0.464
+"tomita4, library",notes (cap 1),0,8,4,4,108,False,0,0,0.7180000000000002,0.976,1.0,1.0,0,0,,0.123
+"tomita4, library",notes (cap 1),0,8,4,5,108,True,3,30,0.434,0.68,0.68,1.0,0,0,,0.335
+"tomita4, library",notes (cap 1),0,8,4,6,108,False,0,0,0.976,0.998,1.0,1.0,0,0,,0.158
+"tomita4, library",notes (cap 1),0,8,4,7,108,False,0,0,0.8099999999999999,1.0,1.0,1.0,0,0,,0.132
+"tomita4, library",notes (cap 1),0,8,4,8,108,True,1,12,0.42000000000000004,0.9399999999999998,0.94,1.0,0,0,,0.203
+"tomita4, library",notes (cap 1),0,8,4,9,108,False,0,0,0.892,0.986,1.0,1.0,0,0,,0.123
+"tomita4, library",notes (cap 1),0,2,16,0,108,False,0,0,0.976,1.0,1.0,1.0,0,0,,0.1
+"tomita4, library",notes (cap 1),0,2,16,1,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.105
+"tomita4, library",notes (cap 1),0,2,16,2,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.1
+"tomita4, library",notes (cap 1),0,2,16,3,108,False,0,0,0.99,0.99,1.0,1.0,0,0,,0.102
+"tomita4, library",notes (cap 1),0,2,16,4,108,False,0,0,0.992,0.992,1.0,1.0,0,0,,0.124
+"tomita4, library",notes (cap 1),0,2,16,5,108,False,0,0,0.99,1.0,1.0,1.0,0,0,,0.099
+"tomita4, library",notes (cap 1),0,2,16,6,108,False,0,0,0.998,0.998,1.0,1.0,0,0,,0.101
+"tomita4, library",notes (cap 1),0,2,16,7,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.102
+"tomita4, library",notes (cap 1),0,2,16,8,108,True,1,12,0.724,0.724,0.73,1.0,0,0,,0.24
+"tomita4, library",notes (cap 1),0,2,16,9,108,False,0,0,0.9199999999999999,0.986,1.0,1.0,0,0,,0.1
+"tomita4, library",cap 16,0,8,4,0,108,True,2,21,0.6599999999999999,0.93,0.93,1.0,0,0,,0.269
+"tomita4, library",cap 16,0,8,4,1,108,True,7,62,0.4699999999999999,0.4699999999999999,0.47,1.0,0,0,,0.579
+"tomita4, library",cap 16,0,8,4,2,108,False,0,0,0.64,0.9120000000000001,0.89,1.0,0,0,,0.123
+"tomita4, library",cap 16,0,8,4,3,108,True,6,41,0.338,0.58,0.58,1.0,0,0,,0.428
+"tomita4, library",cap 16,0,8,4,4,108,False,0,0,0.5959999999999999,0.976,1.0,1.0,0,0,,0.125
+"tomita4, library",cap 16,0,8,4,5,108,True,3,30,0.434,0.68,0.68,1.0,0,0,,0.335
+"tomita4, library",cap 16,0,8,4,6,108,False,0,0,0.976,0.998,1.0,1.0,0,0,,0.125
+"tomita4, library",cap 16,0,8,4,7,108,False,0,0,0.8099999999999999,1.0,1.0,1.0,0,0,,0.122
+"tomita4, library",cap 16,0,8,4,8,108,True,1,12,0.386,0.9399999999999998,0.94,1.0,0,0,,0.205
+"tomita4, library",cap 16,0,8,4,9,108,False,0,0,0.8939999999999999,0.986,1.0,1.0,0,0,,0.123
+"tomita4, library",cap 16,0,2,16,0,108,False,0,0,0.976,1.0,1.0,1.0,0,0,,0.1
+"tomita4, library",cap 16,0,2,16,1,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.101
+"tomita4, library",cap 16,0,2,16,2,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.101
+"tomita4, library",cap 16,0,2,16,3,108,False,0,0,0.99,0.99,1.0,1.0,0,0,,0.1
+"tomita4, library",cap 16,0,2,16,4,108,False,0,0,0.992,0.992,1.0,1.0,0,0,,0.101
+"tomita4, library",cap 16,0,2,16,5,108,False,0,0,0.99,1.0,1.0,1.0,0,0,,0.101
+"tomita4, library",cap 16,0,2,16,6,108,False,0,0,0.998,0.998,1.0,1.0,0,0,,0.1
+"tomita4, library",cap 16,0,2,16,7,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.1
+"tomita4, library",cap 16,0,2,16,8,108,True,1,12,0.724,0.724,0.73,1.0,0,0,,0.24
+"tomita4, library",cap 16,0,2,16,9,108,False,0,0,0.9199999999999999,0.986,1.0,1.0,0,0,,0.101
+"tomita4, library",bounded 8,0,8,4,0,108,True,5,47,0.582,0.61,0.61,1.0,0,0,,0.473
+"tomita4, library",bounded 8,0,8,4,1,108,True,3,26,0.49000000000000005,0.908,0.92,1.0,0,0,,0.313
+"tomita4, library",bounded 8,0,8,4,2,108,False,0,0,0.724,0.8859999999999999,0.89,1.0,0,0,,0.124
+"tomita4, library",bounded 8,0,8,4,3,108,True,6,55,0.534,0.58,0.58,1.0,0,0,,0.547
+"tomita4, library",bounded 8,0,8,4,4,108,False,0,0,0.538,0.974,1.0,1.0,0,0,,0.124
+"tomita4, library",bounded 8,0,8,4,5,108,True,5,42,0.806,0.876,0.91,1.0,0,0,,0.43
+"tomita4, library",bounded 8,0,8,4,6,108,False,0,0,0.5599999999999999,1.0,1.0,1.0,0,0,,0.124
+"tomita4, library",bounded 8,0,8,4,7,108,True,2,14,0.882,0.89,0.89,1.0,0,0,,0.226
+"tomita4, library",bounded 8,0,8,4,8,108,True,1,12,0.548,0.828,0.83,1.0,0,0,,0.208
+"tomita4, library",bounded 8,0,8,4,9,108,True,3,21,0.732,0.82,0.84,1.0,0,0,,0.283
+"tomita4, library",bounded 8,0,2,16,0,108,False,0,0,0.958,0.984,1.0,1.0,0,0,,0.105
+"tomita4, library",bounded 8,0,2,16,1,108,False,0,0,0.982,0.994,1.0,1.0,0,0,,0.104
+"tomita4, library",bounded 8,0,2,16,2,108,False,0,0,0.868,0.89,0.89,1.0,0,0,,0.103
+"tomita4, library",bounded 8,0,2,16,3,108,False,0,0,0.9719999999999999,0.998,1.0,1.0,0,0,,0.103
+"tomita4, library",bounded 8,0,2,16,4,108,False,0,0,0.9480000000000001,0.9640000000000001,1.0,1.0,0,0,,0.106
+"tomita4, library",bounded 8,0,2,16,5,108,False,0,0,0.95,1.0,1.0,1.0,0,0,,0.106
+"tomita4, library",bounded 8,0,2,16,6,108,False,0,0,0.97,0.998,1.0,1.0,0,0,,0.104
+"tomita4, library",bounded 8,0,2,16,7,108,True,1,11,0.8859999999999999,0.89,0.89,1.0,0,0,,0.239
+"tomita4, library",bounded 8,0,2,16,8,108,True,1,12,0.6679999999999999,0.788,0.83,1.0,0,0,,0.251
+"tomita4, library",bounded 8,0,2,16,9,108,False,0,0,0.9400000000000001,0.9879999999999999,1.0,1.0,0,0,,0.105
+"tomita4, library",volume 8,0,8,4,0,108,True,5,47,0.6539999999999999,0.61,0.61,1.0,0,0,,0.728
+"tomita4, library",volume 8,0,8,4,1,108,True,7,62,0.5139999999999999,0.4699999999999999,0.47,1.0,0,0,,0.908
+"tomita4, library",volume 8,0,8,4,2,108,False,0,0,0.778,0.89,0.89,1.0,0,0,,0.22
+"tomita4, library",volume 8,0,8,4,3,108,True,3,23,0.764,0.85,0.85,1.0,0,0,,0.464
+"tomita4, library",volume 8,0,8,4,4,108,True,6,58,0.492,0.546,0.58,1.0,0,0,,0.851
+"tomita4, library",volume 8,0,8,4,5,108,True,5,42,0.8320000000000001,0.9099999999999999,0.91,1.0,0,0,,0.667
+"tomita4, library",volume 8,0,8,4,6,108,False,0,0,0.594,1.0,1.0,1.0,0,0,,0.255
+"tomita4, library",volume 8,0,8,4,7,108,True,2,14,0.89,0.89,0.89,1.0,0,0,,0.376
+"tomita4, library",volume 8,0,8,4,8,108,True,1,12,0.7180000000000001,0.8299999999999998,0.83,1.0,0,0,,0.364
+"tomita4, library",volume 8,0,8,4,9,108,True,3,21,0.8039999999999999,0.8400000000000001,0.84,1.0,0,0,,0.477
+"tomita4, library",volume 8,0,2,16,0,108,False,0,0,0.984,1.0,1.0,1.0,0,0,,0.238
+"tomita4, library",volume 8,0,2,16,1,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.194
+"tomita4, library",volume 8,0,2,16,2,108,False,0,0,0.89,0.89,0.89,1.0,0,0,,0.188
+"tomita4, library",volume 8,0,2,16,3,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.197
+"tomita4, library",volume 8,0,2,16,4,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.193
+"tomita4, library",volume 8,0,2,16,5,108,False,0,0,0.984,1.0,1.0,1.0,0,0,,0.203
+"tomita4, library",volume 8,0,2,16,6,108,False,0,0,0.982,1.0,1.0,1.0,0,0,,0.241
+"tomita4, library",volume 8,0,2,16,7,108,True,1,11,0.89,0.89,0.89,1.0,0,0,,0.383
+"tomita4, library",volume 8,0,2,16,8,108,True,1,12,0.788,0.8299999999999998,0.83,1.0,0,0,,0.39
+"tomita4, library",volume 8,0,2,16,9,108,False,0,0,0.9640000000000001,0.974,1.0,1.0,0,0,,0.239
+"tomita4, library",volume 32,0,8,4,0,108,True,5,47,0.6539999999999999,0.61,0.61,1.0,0,0,,0.728
+"tomita4, library",volume 32,0,8,4,1,108,True,3,26,0.506,0.9200000000000002,0.92,1.0,0,0,,0.509
+"tomita4, library",volume 32,0,8,4,2,108,False,0,0,0.778,0.89,0.89,1.0,0,0,,0.219
+"tomita4, library",volume 32,0,8,4,3,108,True,3,23,0.764,0.85,0.85,1.0,0,0,,0.462
+"tomita4, library",volume 32,0,8,4,4,108,True,6,58,0.512,0.556,0.58,1.0,0,0,,0.877
+"tomita4, library",volume 32,0,8,4,5,108,True,5,42,0.8320000000000001,0.9099999999999999,0.91,1.0,0,0,,0.694
+"tomita4, library",volume 32,0,8,4,6,108,False,0,0,0.6439999999999999,1.0,1.0,1.0,0,0,,0.253
+"tomita4, library",volume 32,0,8,4,7,108,True,2,14,0.89,0.89,0.89,1.0,0,0,,0.361
+"tomita4, library",volume 32,0,8,4,8,108,True,1,12,0.7180000000000001,0.828,0.83,1.0,0,0,,0.363
+"tomita4, library",volume 32,0,8,4,9,108,True,3,21,0.8039999999999999,0.8400000000000001,0.84,1.0,0,0,,0.46
+"tomita4, library",volume 32,0,2,16,0,108,False,0,0,0.984,1.0,1.0,1.0,0,0,,0.285
+"tomita4, library",volume 32,0,2,16,1,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.193
+"tomita4, library",volume 32,0,2,16,2,108,False,0,0,0.868,0.89,0.89,1.0,0,0,,0.235
+"tomita4, library",volume 32,0,2,16,3,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.196
+"tomita4, library",volume 32,0,2,16,4,108,False,0,0,1.0,1.0,1.0,1.0,0,0,,0.192
+"tomita4, library",volume 32,0,2,16,5,108,False,0,0,0.984,1.0,1.0,1.0,0,0,,0.203
+"tomita4, library",volume 32,0,2,16,6,108,False,0,0,0.982,1.0,1.0,1.0,0,0,,0.24
+"tomita4, library",volume 32,0,2,16,7,108,True,1,11,0.89,0.89,0.89,1.0,0,0,,0.381
+"tomita4, library",volume 32,0,2,16,8,108,True,1,12,0.788,0.8299999999999998,0.83,1.0,0,0,,0.387
+"tomita4, library",volume 32,0,2,16,9,108,False,0,0,0.9640000000000001,0.974,1.0,1.0,0,0,,0.237
+"xor2 (latency 1), library",notes (cap 1),0,8,4,0,108,False,0,0,0.6699999999999999,0.9780000000000001,1.0,1.0,0,0,,0.124
+"xor2 (latency 1), library",notes (cap 1),0,8,4,1,108,False,0,0,0.45999999999999996,0.9640000000000001,1.0,1.0,0,0,,0.124
+"xor2 (latency 1), library",notes (cap 1),0,8,4,2,108,False,0,0,0.728,0.984,1.0,1.0,0,0,,0.121
+"xor2 (latency 1), library",notes (cap 1),0,8,4,3,108,False,0,0,0.876,1.0,1.0,1.0,0,0,,0.121
+"xor2 (latency 1), library",notes (cap 1),0,8,4,4,108,False,0,0,0.858,0.9800000000000001,1.0,1.0,0,0,,0.124
+"xor2 (latency 1), library",notes (cap 1),0,8,4,5,108,False,0,0,0.734,0.992,1.0,1.0,0,0,,0.123
+"xor2 (latency 1), library",notes (cap 1),0,8,4,6,108,False,0,0,0.736,0.99,1.0,1.0,0,0,,0.121
+"xor2 (latency 1), library",notes (cap 1),0,8,4,7,108,False,0,0,0.8379999999999999,1.0,1.0,1.0,0,0,,0.122
+"xor2 (latency 1), library",notes (cap 1),0,8,4,8,108,False,0,0,0.76,0.99,1.0,1.0,0,0,,0.124
+"xor2 (latency 1), library",notes (cap 1),0,8,4,9,108,False,0,0,0.794,0.99,1.0,1.0,0,0,,0.124
+"xor2 (latency 1), library",notes (cap 1),0,2,16,0,108,False,0,0,0.9179999999999999,0.976,1.0,1.0,0,0,,0.099
+"xor2 (latency 1), library",notes (cap 1),0,2,16,1,108,False,0,0,0.974,1.0,1.0,1.0,0,0,,0.1
+"xor2 (latency 1), library",notes (cap 1),0,2,16,2,108,False,0,0,0.882,1.0,1.0,1.0,0,0,,0.101
+"xor2 (latency 1), library",notes (cap 1),0,2,16,3,108,False,0,0,0.952,0.992,1.0,1.0,0,0,,0.102
+"xor2 (latency 1), library",notes (cap 1),0,2,16,4,108,False,0,0,0.976,0.986,1.0,1.0,0,0,,0.099
+"xor2 (latency 1), library",notes (cap 1),0,2,16,5,108,False,0,0,0.8879999999999999,0.97,1.0,1.0,0,0,,0.099
+"xor2 (latency 1), library",notes (cap 1),0,2,16,6,108,False,0,0,0.9219999999999999,0.998,1.0,1.0,0,0,,0.101
+"xor2 (latency 1), library",notes (cap 1),0,2,16,7,108,False,0,0,0.968,1.0,1.0,1.0,0,0,,0.1
+"xor2 (latency 1), library",notes (cap 1),0,2,16,8,108,False,0,0,0.9719999999999999,1.0,1.0,1.0,0,0,,0.1
+"xor2 (latency 1), library",notes (cap 1),0,2,16,9,108,False,0,0,0.882,0.99,1.0,1.0,0,0,,0.099
+"xor2 (latency 1), library",cap 16,0,8,4,0,108,False,0,0,0.6699999999999999,0.9780000000000001,1.0,1.0,0,0,,0.123
+"xor2 (latency 1), library",cap 16,0,8,4,1,108,False,0,0,0.562,0.9640000000000001,1.0,1.0,0,0,,0.124
+"xor2 (latency 1), library",cap 16,0,8,4,2,108,False,0,0,0.772,0.984,1.0,1.0,0,0,,0.12
+"xor2 (latency 1), library",cap 16,0,8,4,3,108,False,0,0,0.876,1.0,1.0,1.0,0,0,,0.12
+"xor2 (latency 1), library",cap 16,0,8,4,4,108,False,0,0,0.9720000000000001,0.9800000000000001,1.0,1.0,0,0,,0.122
+"xor2 (latency 1), library",cap 16,0,8,4,5,108,False,0,0,0.734,0.992,1.0,1.0,0,0,,0.124
+"xor2 (latency 1), library",cap 16,0,8,4,6,108,False,0,0,0.736,0.99,1.0,1.0,0,0,,0.121
+"xor2 (latency 1), library",cap 16,0,8,4,7,108,False,0,0,0.782,1.0,1.0,1.0,0,0,,0.122
+"xor2 (latency 1), library",cap 16,0,8,4,8,108,False,0,0,0.76,0.99,1.0,1.0,0,0,,0.123
+"xor2 (latency 1), library",cap 16,0,8,4,9,108,False,0,0,0.794,0.99,1.0,1.0,0,0,,0.123
+"xor2 (latency 1), library",cap 16,0,2,16,0,108,False,0,0,0.9179999999999999,0.976,1.0,1.0,0,0,,0.099
+"xor2 (latency 1), library",cap 16,0,2,16,1,108,False,0,0,0.974,1.0,1.0,1.0,0,0,,0.098
+"xor2 (latency 1), library",cap 16,0,2,16,2,108,False,0,0,0.882,1.0,1.0,1.0,0,0,,0.1
+"xor2 (latency 1), library",cap 16,0,2,16,3,108,False,0,0,0.952,0.992,1.0,1.0,0,0,,0.1
+"xor2 (latency 1), library",cap 16,0,2,16,4,108,False,0,0,0.976,0.986,1.0,1.0,0,0,,0.099
+"xor2 (latency 1), library",cap 16,0,2,16,5,108,False,0,0,0.8879999999999999,0.97,1.0,1.0,0,0,,0.097
+"xor2 (latency 1), library",cap 16,0,2,16,6,108,False,0,0,0.9219999999999999,0.998,1.0,1.0,0,0,,0.101
+"xor2 (latency 1), library",cap 16,0,2,16,7,108,False,0,0,0.968,1.0,1.0,1.0,0,0,,0.101
+"xor2 (latency 1), library",cap 16,0,2,16,8,108,False,0,0,0.9719999999999999,1.0,1.0,1.0,0,0,,0.098
+"xor2 (latency 1), library",cap 16,0,2,16,9,108,False,0,0,0.882,0.99,1.0,1.0,0,0,,0.1
+"xor2 (latency 1), library",bounded 8,0,8,4,0,108,True,7,56,0.122,0.38,0.38,1.0,0,0,,0.55
+"xor2 (latency 1), library",bounded 8,0,8,4,1,108,True,7,54,0.11600000000000002,0.33999999999999997,0.33,1.0,0,0,,0.539
+"xor2 (latency 1), library",bounded 8,0,8,4,2,108,False,0,0,0.10200000000000001,0.8699999999999999,0.87,1.0,0,0,,0.132
+"xor2 (latency 1), library",bounded 8,0,8,4,3,108,True,7,59,0.07200000000000001,0.15400000000000003,0.15,1.0,0,0,,0.572
+"xor2 (latency 1), library",bounded 8,0,8,4,4,108,True,3,26,0.07799999999999999,0.78,0.78,1.0,0,0,,0.313
+"xor2 (latency 1), library",bounded 8,0,8,4,5,108,True,7,59,0.06799999999999999,0.11200000000000002,0.11,1.0,0,0,,0.563
+"xor2 (latency 1), library",bounded 8,0,8,4,6,108,True,7,59,0.18000000000000002,0.262,0.28,1.0,0,0,,0.575
+"xor2 (latency 1), library",bounded 8,0,8,4,7,108,True,6,47,0.22400000000000003,0.6279999999999999,0.65,1.0,0,0,,0.481
+"xor2 (latency 1), library",bounded 8,0,8,4,8,108,True,5,39,0.1,0.532,0.49,1.0,0,0,,0.454
+"xor2 (latency 1), library",bounded 8,0,8,4,9,108,True,2,17,0.11199999999999999,0.68,0.68,1.0,0,0,,0.236
+"xor2 (latency 1), library",bounded 8,0,2,16,0,108,True,1,11,0.614,0.76,0.8,1.0,0,0,,0.242
+"xor2 (latency 1), library",bounded 8,0,2,16,1,108,False,0,0,0.8719999999999999,0.944,0.94,1.0,0,0,,0.11
+"xor2 (latency 1), library",bounded 8,0,2,16,2,108,False,0,0,0.658,0.992,0.99,1.0,0,0,,0.11
+"xor2 (latency 1), library",bounded 8,0,2,16,3,108,True,1,11,0.8459999999999999,0.8859999999999999,0.96,1.0,0,0,,0.225
+"xor2 (latency 1), library",bounded 8,0,2,16,4,108,True,1,11,0.604,0.6579999999999999,0.69,1.0,0,0,,0.239
+"xor2 (latency 1), library",bounded 8,0,2,16,5,108,False,0,0,0.518,0.898,0.98,1.0,0,0,,0.112
+"xor2 (latency 1), library",bounded 8,0,2,16,6,108,False,0,0,0.6559999999999999,0.9800000000000001,1.0,1.0,0,0,,0.144
+"xor2 (latency 1), library",bounded 8,0,2,16,7,108,True,1,11,0.8099999999999999,0.8800000000000001,0.93,1.0,0,0,,0.251
+"xor2 (latency 1), library",bounded 8,0,2,16,8,108,True,1,11,0.8480000000000001,0.8859999999999999,0.98,1.0,0,0,,0.24
+"xor2 (latency 1), library",bounded 8,0,2,16,9,108,False,0,0,0.8019999999999999,0.942,0.94,1.0,0,0,,0.109
+"xor2 (latency 1), library",volume 8,0,8,4,0,108,True,2,14,0.082,0.8400000000000001,0.84,1.0,0,0,,0.491
+"xor2 (latency 1), library",volume 8,0,8,4,1,108,True,7,54,0.10200000000000001,0.394,0.41,1.0,0,0,,1.032
+"xor2 (latency 1), library",volume 8,0,8,4,2,108,False,0,0,0.074,0.998,1.0,1.0,0,0,,0.369
+"xor2 (latency 1), library",volume 8,0,8,4,3,108,True,7,59,0.1,0.34400000000000003,0.37,1.0,0,0,,0.949
+"xor2 (latency 1), library",volume 8,0,8,4,4,108,True,2,17,0.068,0.708,0.7,1.0,0,0,,0.513
+"xor2 (latency 1), library",volume 8,0,8,4,5,108,True,7,59,0.044,0.19,0.2,1.0,0,0,,0.929
+"xor2 (latency 1), library",volume 8,0,8,4,6,108,True,7,59,0.24,0.418,0.45,1.0,0,0,,0.96
+"xor2 (latency 1), library",volume 8,0,8,4,7,108,True,7,53,0.158,0.638,0.64,1.0,0,0,,0.885
+"xor2 (latency 1), library",volume 8,0,8,4,8,108,True,5,38,0.17800000000000002,0.6260000000000001,0.62,1.0,0,0,,0.735
+"xor2 (latency 1), library",volume 8,0,8,4,9,108,True,1,9,0.076,0.7860000000000001,0.8,1.0,0,0,,0.387
+"xor2 (latency 1), library",volume 8,0,2,16,0,108,False,0,0,0.786,0.892,0.91,1.0,0,0,,0.293
+"xor2 (latency 1), library",volume 8,0,2,16,1,108,False,0,0,0.874,0.984,1.0,1.0,0,0,,0.308
+"xor2 (latency 1), library",volume 8,0,2,16,2,108,False,0,0,0.6719999999999999,0.9800000000000001,1.0,1.0,0,0,,0.381
+"xor2 (latency 1), library",volume 8,0,2,16,3,108,False,0,0,0.8560000000000001,0.9780000000000001,1.0,1.0,0,0,,0.311
+"xor2 (latency 1), library",volume 8,0,2,16,4,108,False,0,0,0.8719999999999999,0.9879999999999999,1.0,1.0,0,0,,0.297
+"xor2 (latency 1), library",volume 8,0,2,16,5,108,False,0,0,0.7699999999999999,0.9640000000000001,1.0,1.0,0,0,,0.291
+"xor2 (latency 1), library",volume 8,0,2,16,6,108,False,0,0,0.8640000000000001,0.9780000000000001,1.0,1.0,0,0,,0.287
+"xor2 (latency 1), library",volume 8,0,2,16,7,108,False,0,0,0.852,0.952,1.0,1.0,0,0,,0.308
+"xor2 (latency 1), library",volume 8,0,2,16,8,108,False,0,0,0.874,0.954,1.0,1.0,0,0,,0.307
+"xor2 (latency 1), library",volume 8,0,2,16,9,108,False,0,0,0.8559999999999999,0.958,0.96,1.0,0,0,,0.304
+"xor2 (latency 1), library",volume 32,0,8,4,0,108,True,2,14,0.084,0.8400000000000001,0.84,1.0,0,0,,0.481
+"xor2 (latency 1), library",volume 32,0,8,4,1,108,True,7,54,0.10200000000000001,0.39199999999999996,0.41,1.0,0,0,,0.89
+"xor2 (latency 1), library",volume 32,0,8,4,2,108,False,0,0,0.062,0.992,1.0,1.0,0,0,,0.322
+"xor2 (latency 1), library",volume 32,0,8,4,3,108,True,7,59,0.08600000000000001,0.31,0.37,1.0,0,0,,1.016
+"xor2 (latency 1), library",volume 32,0,8,4,4,108,True,2,17,0.066,0.726,0.74,1.0,0,0,,0.537
+"xor2 (latency 1), library",volume 32,0,8,4,5,108,True,7,59,0.04,0.202,0.2,1.0,0,0,,0.926
+"xor2 (latency 1), library",volume 32,0,8,4,6,108,True,7,59,0.15,0.242,0.26,1.0,0,0,,0.872
+"xor2 (latency 1), library",volume 32,0,8,4,7,108,True,7,53,0.13,0.514,0.5,1.0,0,0,,0.847
+"xor2 (latency 1), library",volume 32,0,8,4,8,108,True,3,20,0.154,0.8140000000000001,0.83,1.0,0,0,,0.575
+"xor2 (latency 1), library",volume 32,0,8,4,9,108,True,1,9,0.07400000000000001,0.78,0.79,1.0,0,0,,0.39
+"xor2 (latency 1), library",volume 32,0,2,16,0,108,False,0,0,0.7659999999999999,0.89,0.91,1.0,0,0,,0.294
+"xor2 (latency 1), library",volume 32,0,2,16,1,108,False,0,0,0.8620000000000001,0.97,1.0,1.0,0,0,,0.296
+"xor2 (latency 1), library",volume 32,0,2,16,2,108,False,0,0,0.6819999999999999,0.984,1.0,1.0,0,0,,0.307
+"xor2 (latency 1), library",volume 32,0,2,16,3,108,False,0,0,0.868,0.9800000000000001,1.0,1.0,0,0,,0.306
+"xor2 (latency 1), library",volume 32,0,2,16,4,108,False,0,0,0.852,0.9879999999999999,1.0,1.0,0,0,,0.308
+"xor2 (latency 1), library",volume 32,0,2,16,5,108,False,0,0,0.756,0.958,1.0,1.0,0,0,,0.293
+"xor2 (latency 1), library",volume 32,0,2,16,6,108,False,0,0,0.8240000000000001,0.976,1.0,1.0,0,0,,0.291
+"xor2 (latency 1), library",volume 32,0,2,16,7,108,False,0,0,0.8460000000000001,0.952,1.0,1.0,0,0,,0.305
+"xor2 (latency 1), library",volume 32,0,2,16,8,108,False,0,0,0.874,0.9640000000000001,1.0,1.0,0,0,,0.308
+"xor2 (latency 1), library",volume 32,0,2,16,9,108,False,0,0,0.85,0.96,0.96,1.0,0,0,,0.302

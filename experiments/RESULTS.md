@@ -937,6 +937,127 @@ stream at the end, with sampled weights and with midpoint weights.
 - xor2 with the library never added a hidden neuron, and its score on unseen
   streams rose from 0.75 after the first round to 0.99 after the last.
 
+## 11 The wrong-box problem: box rules and a constraint buffer (`exp11_box_rule.py`)
+
+Sections 8.2, 9.2 and 10.4 found that a learnable task trained in small rounds
+can keep a box that contains no correct weight vector. `docs/Box_Rule.md`
+finds the cause, proves that no rule for choosing the box avoids it
+(Proposition 6), and proposes a *constraint buffer*: the trained neuron keeps
+its first $K$ distinct constraints exactly and only turns them into a box when
+there are more (Proposition 7). `dnn.py` is unchanged; `dnn_box.py` and
+`dnn_buffer.py` swap the rule in for the duration of a training call.
+
+Nine cases from experiments 8–10, all of them threshold functions of the
+visible state, so that no hidden neuron is ever needed. A run *goes wrong* if
+any round after the first adds one. 32 training streams, 10 seeds.
+
+### 11.1 Other box rules, no buffer
+
+Runs that go wrong, of 10, with 4 streams per round (8 rounds). "cap 16" is
+the notes' rule with widths capped at 16; "bounded" and "volume" are described
+in `docs/Box_Rule.md`.
+
+| case | visible neurons | notes' rule | cap 16 | bounded 8 | volume 8 | volume 32 |
+|---|---|---|---|---|---|---|
+| tomita4, input shifts + clock | 7 | 4 | 4 | 2 | 1 | 3 |
+| tomita4, all shifts + clock | 9 | 8 | 8 | 4 | 4 | 3 |
+| tomita4, all shifts + twins | 11 | 3 | 3 | 4 | 1 | 1 |
+| tomita2, all shifts | 4 | 1 | 1 | 2 | 3 | 3 |
+| tomita7, states | 14 | 1 | 1 | 2 | 0 | 0 |
+| parity (latency 1), states | 8 | 0 | 0 | 0 | 0 | 0 |
+| parity (latency 1), library | 108 | 10 | 10 | 10 | 10 | 10 |
+| tomita4, library | 108 | 5 | 5 | 7 | 8 | 8 |
+| xor2 (latency 1), library | 108 | 0 | 0 | 9 | 9 | 9 |
+| **total, of 90** | | **32** | 32 | 40 | 36 | 37 |
+| total with 16 streams per round, of 90 | | **3** | 3 | 13 | 5 | 5 |
+
+- **No rule is better overall.** The largest-volume rule roughly halves the
+  failures on the six small layouts (9 or 10 of 60 against 17), but with the
+  library it nearly doubles them (27 of 30 against 15). The notes' rule has
+  the fewest failures in total at both round sizes.
+- **The cap does not matter.** Cap 16 went wrong in exactly the same runs as
+  cap 1.
+- This is what Proposition 6 leads one to expect: a rule moves the failures
+  to other tasks.
+- Every rule keeps the Theorem: all trained streams replayed from their keys
+  at the end of all 900 runs.
+
+### 11.2 The constraint buffer
+
+The notes' rule is used when a buffer overflows. Capacity 0 is the algorithm
+of the notes. Runs that go wrong:
+
+| streams per round | runs | capacity 0 | capacity 16 | capacity 64 | capacity 256 |
+|---|---|---|---|---|---|
+| 1 (32 rounds; the six cases without the library) | 60 | 42 | 16 | **0** | **0** |
+| 4 (8 rounds) | 90 | 32 | 29 | 1 | **0** |
+| 16 (2 rounds) | 90 | 3 | 3 | 1 | **0** |
+| runs exact on every unseen stream at the end, midpoint weights | 240 | 162 | 191 | 238 | **240** |
+
+Largest number of constraints stored in any run, at capacity 256 (no
+overflow):
+
+| case | visible neurons | constraints stored |
+|---|---|---|
+| tomita4, input shifts + clock | 7 | 22 |
+| tomita4, all shifts + clock | 9 | 28 |
+| tomita4, all shifts + twins | 11 | 28 |
+| tomita2, all shifts | 4 | 10 |
+| tomita7, states | 14 | 22 |
+| parity (latency 1), states | 8 | 10 |
+| parity (latency 1), library | 108 | 110 |
+| tomita4, library | 108 | 91 |
+| xor2 (latency 1), library | 108 | 156 |
+
+- **With a buffer that does not overflow, no run goes wrong** (0 of 240), and
+  every run is exact on every unseen stream at the end with midpoint weights.
+  This is Proposition 7(3).
+- **This includes training one stream at a time.** Without a buffer 42 of 60
+  such runs go wrong and end with 68 hidden neurons on average. With it, none
+  goes wrong and no hidden neuron is added.
+- **The buffer stays small.** It holds one entry per distinct pair of visible
+  state and next output, however many streams are trained: 10 to 28 for the
+  small layouts and 91 to 156 with the library. The largest was 3.1 times the
+  number of visible neurons.
+- **A buffer that overflows early helps less.** At capacity 16, 48 of the 240
+  runs still go wrong (77 without a buffer). At capacity 64 the two failures
+  are library runs that overflowed.
+- **No forgetting held throughout**: after every round of all 960 runs, every
+  stream trained so far replayed from its key for 5 weight matrices taken from
+  the regions.
+- **Which weight vector is used matters.** With a buffer the region is not a
+  box. Taking the point nearest the box's midpoint was exact on every unseen
+  stream in all 240 runs at capacity 256; points nearest the corner and random
+  samples were exact in 186.
+
+## 12 How many steps to give the output (`exp12_latency.py`)
+
+A training sequence has to say when the output for an input prefix appears:
+$h$ steps after the last input it depends on. Experiments 4–9 used $h = 1$
+and experiment 10 added $h = 2$ (its "latency 1"). Here $h = 1, \dots, 4$,
+for the library and the state-neuron layouts of experiment 10, 128 training
+streams, 3 seeds. The table counts the tasks, of 15, for which no hidden
+neuron was added in any seed.
+
+| layout | $h = 1$ | $h = 2$ | $h = 3$ | $h = 4$ |
+|---|---|---|---|---|
+| library | 8 | 10 | 7 | 3 |
+| states | 9 | **15** | 8 | 1 |
+
+(The table for each task is printed by the script; the runs are in
+`experiments/results/exp12_latency.csv`.)
+
+- **$h$ has to be chosen, and both too little and too much fail.** With
+  $h = 1$ six tasks are impossible (Proposition 4). With $h = 2$ the state
+  neurons solve all 15, as Proposition 5 says. With $h = 3$ or $4$ fewer tasks
+  are solved, because the network must then hold the answer for the extra
+  steps and has no neurons to hold it with. The library loses tasks more
+  slowly, probably because it includes shifts of depth 2.
+- **$h = 2$ was the best value for both layouts**, and by Proposition 5 it is
+  enough in principle for every finite-state task.
+- In all 183 runs with no hidden neuron the midpoint weights were exact on
+  every unseen stream; in the 177 runs with hidden neurons none was.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1046,6 +1167,27 @@ stream at the end, with sampled weights and with midpoint weights.
 - The library's 105 coordinates make the boxes loose and the wrong-box
   problem severe: parity trained 4 streams per round went wrong in 10 of 10
   runs with the library and in none with the 5 state neurons.
+
+**The wrong-box problem (experiment 11, `docs/Box_Rule.md`).**
+- A box cannot keep an open trade-off between weights, such as "these weights
+  add up to at least 1"; it has to settle it. After a small round the choice
+  is arbitrary and can exclude every correct weight vector.
+- No rule for choosing the box avoids this (Proposition 6), and none of the
+  four tried was better overall than the notes' rule.
+- A constraint buffer does: the trained neuron keeps its first constraints
+  exactly and turns them into a box only when there are too many. With a
+  buffer that does not overflow, no run went wrong (0 of 240, against 77
+  without), including when streams were trained one at a time, and no stream
+  was forgotten. It needed at most 156 stored constraints, about 3 per visible
+  neuron at most.
+- The buffer adds storage that is still polynomial in the number of neurons.
+  Whether to adopt it is a decision for Lucas.
+
+**Output timing (experiment 12).**
+- The number of steps $h$ between an input and the output that depends on it
+  is a parameter of the training data, and it matters: $h = 2$ was best,
+  $h = 1$ makes six tasks impossible, and larger $h$ fails unless the network
+  has neurons to hold the answer.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).

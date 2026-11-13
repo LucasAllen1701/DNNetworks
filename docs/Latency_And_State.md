@@ -179,6 +179,11 @@ that computes the task, by Lemma S and Proposition 2. $\square$
   generic fixed neurons finds some machines (experiment 10 reports which).
 - **No forgetting is unaffected.** State neurons and library neurons are fixed
   neurons, so Proposition 1 applies to all of them.
+- **The latency is a parameter of the training data.** The sequences say at
+  which step each output appears, and the network cannot change that. One
+  step of latency is enough in principle (Proposition 5). More is not better:
+  the network then has to hold the answer for the extra steps, which needs
+  neurons to hold it (experiment 12).
 
 ## 5 Implementation and tests
 
