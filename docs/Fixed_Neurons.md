@@ -117,6 +117,15 @@ neurons, which is what TRAIN takes. So the Theorem applies to them as written.
 
 (4) follows from (3), since $E(u)$ restricted to $T$ is $u$. $\square$
 
+**Remark (skipping the fixed neurons).** The proof shows that the row equal
+to $w_m$ on the visible neurons and 0 on every hidden neuron always lies in
+$P_m \cap \tilde F(m)$. Using that row as the box of $m$ is therefore a valid
+outcome of step 2, and it amounts to lifting $F(m)$ by $\{0\}$ for every new
+neuron and never testing or refitting $m$. `dnn_fixed.train` does this by
+default, which saves two linear programs per fixed neuron per round. Every
+other neuron gets the same box either way, since its own linear programs do
+not involve $F(m)$ (tested, and experiment 9 gives identical results).
+
 **Proposition 2 (fixed neurons follow their rule on any run).** After any
 number of rounds, let $A$ be any weight matrix whose rows lie in the boxes, and
 take any run without a key: any visible starting state and any input stream.
@@ -187,8 +196,8 @@ allowed, and then $g$ receives $1 - 5 < 1$ at the second step: the sequence is
 forgotten. The lift that would be safe depends on the old sequences, which are
 not stored; the only lift that is safe for every history is $\{0\}$, and then
 the new neuron is useless to the old ones. This is why the causal variant
-forgets, and why its features would be safe if they were installed before
-round 1.
+forgets, and why its features are safe when they are installed before
+round 1 (experiment 10).
 
 ## 4 What fixed neurons give and what they do not
 
@@ -197,10 +206,11 @@ round 1.
   $\varepsilon$, of the extended state. With shifts of depth $d$ that is a
   function of the last $d + 1$ task states, where before it was the current
   state alone.
-- **Memory, not new kinds of function.** A function that is not a threshold
-  function of the window, such as an XOR of two of its entries, is still out
-  of reach, and so is anything that depends on the whole history, such as
-  parity.
+- **Shifts add memory, not new kinds of function.** A function that is not a
+  threshold function of the window, such as an XOR of two of its entries, is
+  out of reach of shifts, and so is anything that depends on the whole
+  history, such as parity. Other fixed neurons reach these, but only with one
+  step of latency: see `docs/Latency_And_State.md`.
 - **A fixed cost.** The network has $|\Phi|$ more neurons from the start. The
   storage is still $2n^2 + n$ numbers, and $|\Phi|$ does not grow.
 - **The depth is chosen in advance.**
@@ -225,4 +235,6 @@ extended sequences (`train`). `tests/test_dnn_fixed.py` checks:
 - Tomita 2 with shifts of depth 1 of the input and the output: no hidden
   neuron, exact on all 256 streams of length 8.
 
-Results are in `experiments/RESULTS.md`, section 9.
+Results are in `experiments/RESULTS.md`, sections 9 and 10. The feature
+library, the state neurons and their tests are described in
+`docs/Latency_And_State.md`.

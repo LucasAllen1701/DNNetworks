@@ -782,6 +782,161 @@ and hidden neuron at 0 (5 weight matrices).
   apart, but the successor is rarely a threshold function of it, so the chains
   still do the work.
 
+## 10 A feature library and state neurons (`exp10_library_and_states.py`)
+
+The plan was to install the causal variant's features before round 1, where
+Proposition 1 of `docs/Fixed_Neurons.md` makes them safe from forgetting.
+Working out what they could reach gave a result first
+(`docs/Latency_And_State.md`, Proposition 4): **six of the stream tasks cannot
+be computed at the experiments' timing by any network without a key**,
+whatever hidden neurons it has. The tasks ask for $y(t+1)$ as a function of
+the inputs up to $x(t)$, so the output must react to the current input
+through one fixed weight. Parity needs that weight to be positive when the
+parity so far is even and negative when it is odd.
+
+So every task is run twice: at *latency 0*, as before, and at *latency 1*,
+with the same outputs one step later.
+
+Layouts, all with the always-on input and all made of fixed neurons:
+- **shifts**: past shifts of depth 2 of every task neuron (4 fixed neurons, 6
+  for the adder). The reference.
+- **library**: the same, plus every feature template of the variant (copy,
+  latch, AND, OR, AND-NOT, set-reset) over all those neurons and pairs of
+  them: 105 fixed neurons (238 for the adder). It is the same for every
+  task; duplicates are removed on random probe sequences, not on training
+  data.
+- **states**: the state neurons of the task's own finite machine (3 to 11
+  fixed neurons), which is Minsky's construction. This layout is built from
+  the task's definition, so it shows what can be represented, not what is
+  found. Only the output neuron is trained.
+
+### 10.1 One round (128 training streams, 3 seeds)
+
+"yes" means no hidden neuron in any seed. A number in brackets is the
+fraction of unseen streams that are exact for the sampled weight matrices
+when that is below 1; the midpoint weights were exact on every unseen stream
+in all those cases.
+
+| task | machine states | possible at latency 0 | latency 0: shifts | latency 0: library | latency 0: states | latency 1: shifts | latency 1: library | latency 1: states |
+|---|---|---|---|---|---|---|---|---|
+| prev_input | 1 | yes | yes | yes | yes | yes | yes | yes |
+| tomita1 | 2 | yes | yes | yes | yes | yes | yes | yes |
+| delay2 | 2 | yes | yes | yes | yes | yes | yes | yes |
+| and2 | 2 | yes | yes | yes | yes | yes | yes | yes |
+| maj3 | 4 | yes | yes | yes (0.988) | yes | – | yes (0.999) | yes |
+| no000 | 3 | yes | yes | yes (0.997) | yes | – | yes (0.998) | yes |
+| tomita2 | 3 | yes | yes | yes | yes | – | yes (0.999) | yes |
+| tomita4 | 4 | yes | yes | yes | yes | – | yes | yes |
+| tomita7 | 5 | yes | – | – | **yes** | – | – | **yes** |
+| parity | 2 | **no** | – | – | – | – | **yes** (0.996) | **yes** |
+| xor2 | 2 | **no** | – | – | – | – | **yes** (0.997) | **yes** |
+| adder | 2 | **no** | – | – | – | – | – | **yes** |
+| tomita3 | 5 | **no** | – | – | – | – | – | **yes** |
+| tomita5 | 4 | **no** | – | – | – | – | – | **yes** |
+| tomita6 | 3 | **no** | – | – | – | – | – | **yes** |
+
+(Chain counts, scores and the 8- and 32-stream runs are in
+`experiments/results/exp10_one_round.csv`.)
+
+- **The theory predicted every run of the states layout** (270 of 270). At
+  latency 1 no hidden neuron was added for any of the 15 tasks. At latency 0
+  none was added for the 9 tasks that pass the test of Proposition 4, and a
+  full chain was added for the 6 that fail it, in all 54 runs. Wherever no
+  hidden neuron was added, every unseen stream was exact with 32 or 128
+  training streams (72 of 72 runs each; 57 of 72 with 8).
+- **Every task is now solved somewhere.** Parity, the adder and Tomita 3, 5
+  and 6 are exact on unseen streams at latency 1, and Tomita 7 at latency 0,
+  once the right state neurons exist.
+- **The library finds parity.** With the same 105 neurons it is given for
+  every task, the output learns parity at latency 1 with no hidden neuron.
+  It also finds xor2, and at latency 1 it solves Tomita 2, Tomita 4, maj3 and
+  no000, which shifts of depth 2 alone do not.
+- **The library does not find** the adder or Tomita 3, 5, 6 and 7. At latency
+  0 it solves exactly the tasks the shifts solve.
+- **The library's boxes are loose.** Of its 54 runs with no hidden neuron at
+  128 streams, the sampled weight matrices were exact on every unseen stream
+  in 41 and the midpoint weights in all 54. With 8 training streams parity is
+  exact on about half of the unseen streams.
+- **The same test decides the outcome** in all 810 runs: no hidden neuron when
+  the next output is a threshold function of the visible state (486 runs),
+  never exact on unseen streams when it is not (324).
+- Every training stream replayed from its key in every run. Training took at
+  most 2.4 s with the library and 0.3 s otherwise.
+
+### 10.2 Longer streams
+
+Networks trained on 128 streams of 13 vectors, tested on 200 streams of 101
+vectors (means over 3 seeds).
+
+| task | latency | layout | long streams exact, sampled weights | long streams exact, midpoint weights |
+|---|---|---|---|---|
+| parity | 1 | library | 0.925 | 1.000 |
+| xor2 | 1 | library | 0.961 | 1.000 |
+| tomita2 | 1 | library | 0.999 | 1.000 |
+| tomita4 | 1 | library | 1.000 | 1.000 |
+| maj3 | 1 | library | 0.896 | 1.000 |
+| no000 | 1 | library | 0.953 | 0.998 |
+| parity, adder, tomita3, tomita5, tomita6 | 1 | states | 1.000 | 1.000 |
+| tomita7 | 0 | states | 1.000 | 1.000 |
+
+- **What was learned is the machine**, not a trick for short streams. With
+  midpoint weights the library's parity network is exact on streams eight
+  times longer than any it was trained on. The sampled weights lose a little
+  more on long streams, which is the loose boxes again.
+
+### 10.3 Two-step rule 90 (the task and data of experiment 6, 3 seeds)
+
+Ring of 6 cells, two network steps per automaton step, library over the 6
+cells (102 fixed neurons). "none" is the baseline with the always-on input.
+
+| layout | training states | chain neurons | train s | unseen exact, sampled | unseen exact, midpoint | unseen cell accuracy | baseline |
+|---|---|---|---|---|---|---|---|
+| none | 8 | 26 | 0.15 | 0.054 | 0.054 | 0.749 | 0.749 |
+| none | 32 | 44 | 0.38 | 0.052 | 0.052 | 0.740 | 0.740 |
+| library | 2 | 0 | 0.03 | 0.044 | 0.048 | 0.686 | 0.749 |
+| library | 4 | 0 | 0.03 | 0.090 | 0.094 | 0.747 | 0.749 |
+| library | 8 | 0 | 0.04 | 0.287 | 0.357 | 0.838 | 0.749 |
+| library | 16 | 0 | 0.06 | 0.622 | 0.778 | 0.922 | 0.752 |
+| library | 32 | 0 | 0.10 | 0.869 | **0.990** | 0.977 | 0.740 |
+
+- **The library matches the variant's greedy search and is about 100 times
+  faster.** With 32 training states it is exact on 0.87 of the unseen states
+  (0.99 with midpoint weights), against 0.85 for the variant in section 6,
+  and trains in 0.1 s against 11 s, because nothing is searched. No hidden
+  neuron is added at any size.
+- It needs the data: with 8 training states it is exact on 0.29 of the unseen
+  states.
+
+### 10.4 Several rounds (32 training streams, 10 seeds)
+
+As in 8.2 and 9.2. The last column counts runs that are exact on every unseen
+stream at the end, with sampled weights and with midpoint weights.
+
+| task | latency | layout | rounds × streams | runs that add chains late | neurons at the end | recall of earlier rounds (min) | unseen exact after round 1 | unseen exact at the end | runs exact at the end (sampled / midpoint) |
+|---|---|---|---|---|---|---|---|---|---|
+| parity | 1 | states | 8 × 4 | 0 of 10 | 8 | 1 | 0.973 | 1.000 | 10 / 10 |
+| parity | 1 | states | 2 × 16 | 0 of 10 | 8 | 1 | 1.000 | 1.000 | 10 / 10 |
+| tomita7 | 0 | states | 8 × 4 | 1 of 10 | 16.4 | 1 | 0.753 | 0.958 | 9 / 9 |
+| tomita7 | 0 | states | 2 × 16 | 0 of 10 | 14 | 1 | 1.000 | 1.000 | 10 / 10 |
+| xor2 | 1 | library | 8 × 4 | 0 of 10 | 108 | 1 | 0.746 | 0.987 | 2 / 10 |
+| xor2 | 1 | library | 2 × 16 | 0 of 10 | 108 | 1 | 0.933 | 0.991 | 4 / 10 |
+| parity | 1 | library | 8 × 4 | **10 of 10** | 169.8 | 1 | 0.224 | 0.266 | 0 / 0 |
+| parity | 1 | library | 2 × 16 | 1 of 10 | 109.7 | 1 | 0.866 | 0.938 | 2 / 9 |
+| tomita4 | 0 | library | 8 × 4 | 5 of 10 | 124.6 | 1 | 0.649 | 0.847 | 1 / 4 |
+| tomita4 | 0 | library | 2 × 16 | 1 of 10 | 109.2 | 1 | 0.959 | 0.969 | 5 / 9 |
+
+- **No forgetting held in every check** (400 round checks of earlier rounds,
+  500 of the current round), with up to 105 fixed neurons in the network.
+- **With state neurons, learning continues across small rounds.** Parity
+  trained 4 streams per round never added a hidden neuron and was exact on
+  every unseen stream in all 10 runs. Tomita 7 went wrong in 1 of 10.
+- **With the library, small rounds mostly fail.** Parity went wrong in all 10
+  runs in rounds of 4 and Tomita 4 in 5 of 10. In rounds of 16 each went
+  wrong once. This is the wrong-box problem of 8.2 and 9.2 with 105
+  coordinates in place of a handful.
+- xor2 with the library never added a hidden neuron, and its score on unseen
+  streams rose from 0.75 after the first round to 0.99 after the last.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -869,6 +1024,28 @@ and hidden neuron at 0 (5 weight matrices).
   input shifts only) and in 3 of 10 with twins.
 - On random sequences shifts save a quarter to a third of the helper neurons
   per round, and almost every sequence still needs its key.
+
+**Latency, a feature library and state neurons (experiment 10,
+`docs/Latency_And_State.md`).**
+- Parity, the adder, `xor2` and Tomita 3, 5 and 6 cannot be computed at the
+  experiments' timing by any network without a key (Proposition 4). The output
+  at the next step would have to react to the current input through one fixed
+  weight, and these tasks need that weight to change sign. This is why nothing
+  moved them in experiments 4 and 7–9. One step later they are all possible.
+- With the state neurons of the task's own machine installed before round 1,
+  every one of the 15 tasks is solved exactly where the theory says it can be:
+  all of them at latency 1, and at latency 0 the 9 that pass the test,
+  Tomita 7 included (270 of 270 runs as predicted). These neurons are built
+  from the task's definition; only the output is trained.
+- A task-independent library of the variant's features, installed before
+  round 1, finds parity and `xor2` at latency 1 and matches the variant's
+  greedy search on two-step rule 90 at about 1% of the training time, with no
+  forgetting. It does not find the adder or Tomita 3, 5, 6 and 7.
+- What is learned is the machine: networks trained on streams of 13 vectors
+  are exact on streams of 101 with midpoint weights.
+- The library's 105 coordinates make the boxes loose and the wrong-box
+  problem severe: parity trained 4 streams per round went wrong in 10 of 10
+  runs with the library and in none with the 5 state neurons.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
