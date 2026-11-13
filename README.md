@@ -20,6 +20,9 @@ sequence does not fit.
   fixed-weight neurons installed before the first round: past shifts of the
   visible neurons, a start clock and twins. They work on unseen data and keep
   the no-forgetting guarantee; `dnn.py` is used unchanged.
+- `docs/Latency_And_State.md` — which stream tasks no network can compute at
+  the experiments' timing, and how fixed state neurons compute every
+  finite-state task one step later.
 - `experiments/` — experiment scripts; findings are in
   `experiments/RESULTS.md`.
 
