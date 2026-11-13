@@ -23,6 +23,10 @@ sequence does not fit.
 - `docs/Latency_And_State.md` — which stream tasks no network can compute at
   the experiments' timing, and how fixed state neurons compute every
   finite-state task one step later.
+- `dnn_box.py`, `dnn_buffer.py`, `docs/Box_Rule.md`, `tests/test_dnn_box.py` —
+  why a small training round can lock a neuron into a wrong box, a proof that
+  no rule for choosing the box avoids it, and a bounded buffer of exact
+  constraints that does.
 - `experiments/` — experiment scripts; findings are in
   `experiments/RESULTS.md`.
 
