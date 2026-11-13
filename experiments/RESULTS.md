@@ -636,6 +636,152 @@ run adds chain neurons after round 1.)
 - Parity is unchanged: about 9 chain neurons per round and no unseen stream
   right.
 
+## 9 Fixed neurons inside the network (`exp9_fixed_neurons.py`)
+
+The shifts are now computed by the network. `dnn_fixed.py` installs them
+before round 1 as visible neurons with fixed weights (a copy of a neuron, then
+a copy of the copy), and `dnn.py` trains, unchanged, on sequences extended with
+their values. `docs/Fixed_Neurons.md` proves that the Theorem still holds
+(Proposition 1) and that the fixed neurons compute their rule on any run that
+starts with the hidden neurons at 0 (Proposition 2). Unlike experiment 8, the
+shifts can follow the output neuron as well as the inputs.
+
+Configurations:
+- *sources*: `inputs` (shifts of the input neurons only, the in-network
+  version of experiment 8) or `all` (shifts of the output neuron too);
+- *extra*: `none`; `clock` (the always-on input and its shifts); or `twins`
+  (the always-on input and, for every shift neuron, a twin that is 1 exactly
+  when the shifted value is 0 and the stream has started).
+
+Unseen streams start from their first task state with every fixed and hidden
+neuron at 0.
+
+### 9.1 One round (tasks and data of experiment 8)
+
+Smallest depth at which a task is solved with 128 training streams: no hidden
+neuron, and every unseen stream exact for every sampled weight matrix in all
+3 seeds, at that depth and every larger one tested (up to 3).
+
+| task | inputs, none | inputs, clock | all, none | all, clock | all, twins |
+|---|---|---|---|---|---|
+| prev_input, tomita1 | 0 | 0 | 0 | 0 | 0 |
+| delay2, and2 | 1 | 1 | 1 | 1 | 1 |
+| maj3 | 2 | 2 | 2 | 2 | 2 |
+| tomita2 | never | never | **1** | **1** | **1** |
+| tomita4 | never | 2 | never | 2 | 2 |
+| no000 | never | 2 | **2** | 2 | 2 |
+| parity, adder, xor2, tomita3, tomita5, tomita6, tomita7 | never | never | never | never | never |
+
+(Chain counts and scores for every depth, size and seed are in
+`experiments/results/exp9_fixed_one_round.csv`; the script prints the full
+tables.)
+
+- **The guarantees held.** In all 2295 runs every training stream replayed
+  exactly from its key, and every fixed neuron's weights from the visible
+  neurons were unchanged after training.
+- **The same test decides the outcome.** Whenever the next output is a
+  threshold function of the visible state (873 runs), no hidden neuron was
+  added, and every unseen stream was exact in 291 of 291 such runs with 128
+  training streams (287 of 291 with 32, 157 of 291 with 8). Whenever it is not
+  (1422 runs), no run was exact on every unseen stream.
+- **Computing the shifts inside the network changes nothing.** The `inputs`
+  configurations match experiment 8 run for run (810 runs): the same chain
+  counts, the same threshold test and the same scores with midpoint weights.
+  Scores with sampled weights are identical in 775 runs and differ by at most
+  0.16 in the rest, because the random matrices are drawn in a different
+  column order.
+- **Tomita 2 is solved by a shift of the output**, at depth 1 and without a
+  clock: no hidden neuron, exact on every unseen stream. The baseline needed 6
+  chain neurons and only matched the majority class. For seed 0 the midpoint
+  weights into the output are −3 from the input, −2 from itself, and 0.5 each
+  from the input and the output one step earlier. So the output turns on
+  exactly when the current input is 0, the previous input was 1 and the output
+  was on two steps before, which is "the string so far is $(10)^*$".
+- **`no000` no longer needs the clock** once the output is shifted (depth 2).
+  Its output is 1 during the first steps, so its own shifts probably mark the
+  start of the stream; this explanation was not checked further. Tomita 4
+  still needs the clock or the twins.
+- **Twins and the clock solve the same tasks**, as Proposition 3 says. Over the
+  405 paired runs the threshold test agreed in every one, and one layout added
+  no hidden neuron exactly when the other added none. With 128 training
+  streams the outcomes are the same.
+- **With little data the twins did better than the clock.** With 8 training
+  streams, of the 63 runs where the task is a threshold function, the twins
+  were exact on every unseen stream in 33 and the clock in 20 (15 runs twins
+  only, 2 clock only). On the 57 of those runs that need neither, the count
+  with no extra neurons was 31, against 20 with the clock and 32 with the
+  twins. So the clock loosens the boxes, as the bias did in experiment 5, and
+  the twins did not. With 32 streams the difference is gone (61 against 62).
+- **Nothing else moves.** Parity, the adder, `xor2` and Tomita 3, 5, 6 and 7
+  keep their full chains and their scores in every configuration and at every
+  depth.
+- Training never took more than 0.8 s.
+
+### 9.2 Several rounds (shifts of all task neurons, 32 training streams, 10 seeds)
+
+As in 8.2: 4 streams per round for 8 rounds, or 16 per round for 2 rounds, with
+every stream trained so far replayed from its zero-padded key with 20 weight
+matrices after every round.
+
+| task | depth | extra | rounds × streams | chain neurons, round 1 | runs that add chains late | neurons at the end | recall of earlier rounds (min) | unseen exact after round 1 | unseen exact at the end | runs exact on every unseen stream |
+|---|---|---|---|---|---|---|---|---|---|---|
+| tomita2 | 1 | none | 8 × 4 | 0 | 1 of 10 | 11.5 | 1 | 0.892 | 0.963 | 9 of 10 |
+| tomita2 | 1 | none | 2 × 16 | 0 | 0 of 10 | 4 | 1 | 1.000 | 1.000 | 10 of 10 |
+| tomita4 | 2 | clock | 8 × 4 | 0 | **8 of 10** | 54 | 1 | 0.724 | 0.724 | 2 of 10 |
+| tomita4 | 2 | clock | 2 × 16 | 0 | 1 of 10 | 10.2 | 1 | 0.973 | 0.973 | 9 of 10 |
+| tomita4 | 2 | twins | 8 × 4 | 0 | 3 of 10 | 27.8 | 1 | 0.834 | 0.900 | 7 of 10 |
+| tomita4 | 2 | twins | 2 × 16 | 0 | 0 of 10 | 11 | 1 | 0.978 | 1.000 | 10 of 10 |
+| maj3 | 2 | none | 8 × 4 | 0 | 0 of 10 | 6 | 1 | 1.000 | 1.000 | 10 of 10 |
+| maj3 | 2 | none | 2 × 16 | 0 | 0 of 10 | 6 | 1 | 1.000 | 1.000 | 10 of 10 |
+| parity | 2 | none | 8 × 4 | 9.2 | 10 of 10 | 80.1 | 1 | 0.001 | 0.001 | 0 of 10 |
+| parity | 2 | none | 2 × 16 | 12 | 10 of 10 | 29.9 | 1 | 0.001 | 0.001 | 0 of 10 |
+
+- **No forgetting held in every check**: 400 round checks of earlier rounds
+  and 500 of the current round, with shifts of the output neuron in the
+  network.
+- **The wrong-box problem is worse with more fixed neurons.** With the clock,
+  Tomita 4 in rounds of 4 streams went wrong in 8 of 10 runs, against 4 of 10
+  in 8.2, where only the input was shifted. One run went wrong even in rounds
+  of 16. Every such run stayed below 1 on unseen streams to the end.
+- **The twins went wrong less often than the clock**: 3 of 10 runs in rounds
+  of 4 and none in rounds of 16. This fits 9.1, but 10 seeds are too few to be
+  sure of the size of the difference.
+- Tomita 2 went wrong in 1 of 10 runs in rounds of 4 and in none in rounds
+  of 16.
+
+### 9.3 Random sequences (design of experiment 2, means over 5 seeds)
+
+4 task neurons, with no input or with neuron 0 as an input, and shifts of all
+4 at depths 0–3. 10 rounds of 3 random sequences of 6 vectors. "Recall without
+a key" starts each trained sequence from its first task state with every fixed
+and hidden neuron at 0 (5 weight matrices).
+
+| inputs | depth | fixed neurons | chain neurons added per round | chain neurons after 10 rounds | total neurons after 10 rounds | stored numbers | recall from keys, every round (min) | recall without a key after 10 rounds |
+|---|---|---|---|---|---|---|---|---|
+| none | 0 | 0 | 7.48 | 74.8 | 78.8 | 12 514 | 1 | 0.000 |
+| none | 1 | 4 | 6.34 | 63.4 | 71.4 | 10 285 | 1 | 0.000 |
+| none | 2 | 8 | 5.56 | 55.6 | 67.6 | 9 228 | 1 | 0.040 |
+| none | 3 | 12 | 5.24 | 52.4 | 68.4 | 9 437 | 1 | 0.060 |
+| neuron 0 | 0 | 0 | 6.94 | 69.4 | 73.4 | 10 881 | 1 | 0.000 |
+| neuron 0 | 1 | 4 | 5.82 | 58.2 | 66.2 | 8 845 | 1 | 0.000 |
+| neuron 0 | 2 | 8 | 4.96 | 49.6 | 61.6 | 7 683 | 1 | 0.040 |
+| neuron 0 | 3 | 12 | 4.64 | 46.4 | 62.4 | 7 893 | 1 | 0.060 |
+
+- **No forgetting held on unstructured data too.** After every round of every
+  run, every sequence trained so far replayed exactly from its key for all 20
+  weight matrices (360 round checks of earlier rounds), and the fixed neurons'
+  weights were unchanged.
+- **Shifts save some helper neurons, but not many.** At depth 3 a round adds
+  about 5 chain neurons where the baseline adds about 7. The saving is largest
+  in round 1 (1.2 against 7.8 without inputs); later rounds add 5–6.5 against
+  6.4–8. After
+  10 rounds the network is about 15% smaller at depth 2, and depth 3 is no
+  better because its 4 extra fixed neurons cost as much as they save.
+- **Random sequences are still memorised.** Almost none of them replay
+  without a key (0–6%). A window of earlier states tells conflicting states
+  apart, but the successor is rarely a threshold function of it, so the chains
+  still do the work.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -702,8 +848,27 @@ run adds chain neurons after round 1.)
   (4 of 10 runs for Tomita 4 with 4 streams per round). The run then
   memorises later streams and never improves. Rounds of 16 streams avoided
   this in every run.
-- Not tested: shifts of the output and other non-input neurons, which need
-  fixed-weight neurons inside the network.
+- Shifts of the output and other non-input neurons need fixed-weight neurons
+  inside the network; these are tested in experiment 9.
+
+**Fixed neurons inside the network (experiment 9, `dnn_fixed.py`,
+`docs/Fixed_Neurons.md`).**
+- Fixed-weight neurons that exist before round 1 keep the Theorem
+  (Proposition 1), and they compute their rule on unseen runs
+  (Proposition 2). Both were confirmed in every run: no stream was forgotten,
+  and the in-network input shifts reproduced experiment 8 run for run.
+- Shifting the output as well adds **Tomita 2**, solved exactly with one shift
+  and no hidden neuron. Parity, the adder, `xor2` and Tomita 3, 5, 6 and 7 are
+  still unchanged.
+- **Twins** (a neuron that is on exactly when its shift neuron is off) solve
+  the same tasks as the start clock, which is what Proposition 3 says. They
+  cost more neurons, but with little data, and in small rounds, they went
+  wrong less often than the clock.
+- The wrong-box problem gets worse as fixed neurons are added: Tomita 4 in
+  rounds of 4 streams went wrong in 8 of 10 runs with the clock (4 of 10 with
+  input shifts only) and in 3 of 10 with twins.
+- On random sequences shifts save a quarter to a third of the helper neurons
+  per round, and almost every sequence still needs its key.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).

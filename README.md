@@ -16,6 +16,10 @@ sequence does not fit.
 - `dnn_causal.py`, `docs/Causal_Variant.md`, `tests/test_dnn_causal.py` — a
   variant with fixed-weight *feature* neurons computed from the past. They
   work on unseen data, but the variant gives up the no-forgetting guarantee.
+- `dnn_fixed.py`, `docs/Fixed_Neurons.md`, `tests/test_dnn_fixed.py` —
+  fixed-weight neurons installed before the first round: past shifts of the
+  visible neurons, a start clock and twins. They work on unseen data and keep
+  the no-forgetting guarantee; `dnn.py` is used unchanged.
 - `experiments/` — experiment scripts; findings are in
   `experiments/RESULTS.md`.
 
