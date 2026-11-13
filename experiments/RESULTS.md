@@ -497,6 +497,145 @@ are similar.)
 - With bias the variant sometimes finds fewer features (the always-on neuron
   makes some candidates duplicates). It changes no outcome.
 
+## 8 Past shifts of the inputs (`exp8_past_shift_inputs.py`)
+
+`dnn.py` is used unchanged. For a depth $d$, every input neuron gets $d$ extra
+input neurons carrying its earlier values $x(t-1), \dots, x(t-d)$, with 0
+before the stream starts. They exist before round 1 and are ordinary input
+neurons, clamped by RUN, so the Theorem of the notes applies as written and
+the caller supplies the sliding window. A copy neuron inside the network, with
+weight 1 from its predecessor, would have exactly the same activations.
+
+*Start clock.* In the "clock" configuration the always-on input neuron of
+experiment 5 is added and shifted like any other input. Its shifts are 0 for
+the first steps and 1 afterwards, so they tell the network how long ago the
+stream started.
+
+Tasks: the ten of experiment 4 on the same data, plus five that depend on the
+last few inputs: `delay2` ($y(t+1) = x(t-1)$), `and2` ($x(t) \wedge x(t-1)$),
+`maj3` (majority of the last three inputs), `xor2` ($x(t) \oplus x(t-1)$), and
+`no000` (0 exactly when the last three inputs read were all 0; the stateless
+core of Tomita 4). Scores are as in experiment 4, and unseen streams start
+with every hidden neuron at 0. With depth 0 and no clock the script reproduces
+the baseline rows of experiment 5 exactly (90 of 90 runs).
+
+### 8.1 One round (128 training streams, means over 3 seeds)
+
+Each cell lists depths 0 / 1 / 2 / 3. "Threshold from depth" is the smallest
+depth at which the next output is a threshold function of the visible state
+(inputs, shifts and current output) over all training and unseen transitions,
+checked with FEAS on an unbounded box.
+
+| task | chain neurons, no clock | unseen exact, no clock | chain neurons, clock | unseen exact, clock | threshold from depth (no clock / clock) |
+|---|---|---|---|---|---|
+| prev_input | 0 / 0 / 0 / 0 | 1 / 1 / 1 / 1 | 0 / 0 / 0 / 0 | 1 / 1 / 1 / 1 | 0 / 0 |
+| tomita1 | 0 / 0 / 0 / 0 | 1 / 1 / 1 / 1 | 0 / 0 / 0 / 0 | 1 / 1 / 1 / 1 | 0 / 0 |
+| delay2 | 12 / 0 / 0 / 0 | 0 / **1 / 1 / 1** | 12 / 0 / 0 / 0 | 0 / **1 / 1 / 1** | 1 / 1 |
+| and2 | 12 / 0 / 0 / 0 | 0.073 / **1 / 1 / 1** | 12 / 0 / 0 / 0 | 0.073 / **1 / 1 / 1** | 1 / 1 |
+| maj3 | 12 / 12 / 0 / 0 | 0.023 / 0.023 / **1 / 1** | 12 / 12 / 0 / 0 | 0.023 / 0.023 / **1 / 1** | 2 / 2 |
+| no000 | 12 / 12 / 12 / 12 | 0 / 0.013 / 0.163 / 0.193 | 12 / 12 / 0 / 0 | 0 / 0.019 / **1 / 1** | never / 2 |
+| tomita4 | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | 12 / 12 / 0 / 0 | 0 / 0 / **1 / 1** | never / 2 |
+| xor2 | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | never |
+| parity | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | never |
+| adder | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | never |
+| tomita2 | 6 / 6 / 6 / 6 | 0.787 at every depth | 6 / 6 / 6 / 6 | 0.787 at every depth | never |
+| tomita3 | 12 / 12 / 12 / 12 | 0.030 at every depth | 12 / 12 / 12 / 12 | 0 at every depth | never |
+| tomita5 | 12 / 12 / 12 / 12 | 0.017 at every depth | 12 / 12 / 12 / 12 | 0.017 at every depth | never |
+| tomita6 | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | never |
+| tomita7 | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | 12 / 12 / 12 / 12 | 0 / 0 / 0 / 0 | never |
+
+(Unseen accuracy, the 8- and 32-stream runs and the midpoint-weight scores are
+in `experiments/results/exp8_shift_one_round.csv`. Every training stream
+replayed exactly from its key in all 1080 runs.)
+
+- **The outcome is decided by one test.** Over all 1080 runs, whenever the
+  next output is a threshold function of the visible state (324 runs),
+  training added no hidden neuron. With 128 training streams all 108 of those
+  runs were exact on every unseen stream for every sampled weight matrix; with
+  32 streams 107 of 108; with 8 streams 73 of 108. Whenever it is not a
+  threshold function (756 runs), no run was exact on every unseen stream.
+- **Shifts widen the class as expected.** `delay2` and `and2` are solved from
+  depth 1 and `maj3` from depth 2, with no hidden neurons and no key. At depth
+  0 each needs a full chain of 12 and scores at the majority baseline.
+- **Tomita 4 is solved, with the clock and depth 2**: no hidden neurons and
+  exact on every unseen stream, where both trainers were below the majority
+  baseline before (0.33 against 0.69). For seed 0 the midpoint weights into
+  the output are 16 from itself, 5 from each of $x(t), x(t-1), x(t-2)$, 0.5
+  from the clock and its first shift, and −18.5 from the clock's second shift.
+  So once two steps have passed, the output stays on only if it was on and one
+  of the last three inputs was 1.
+- **Without the clock Tomita 4 and `no000` fail at every depth.** The shifts
+  are 0 before the stream starts, which looks the same as having read 0s, so
+  the next output is not a function of the visible state.
+- **What shifts do not fix.** `xor2` becomes a function of the visible state
+  at depth 1 and the adder does too, but neither is a threshold function, so
+  both keep a full chain. Parity depends on the whole history. Tomita 2, 3, 5,
+  6 and 7 are not functions of the last four inputs and the current output.
+  For all of these, the chain count and the unseen scores are the same at
+  every depth.
+- **More inputs need more data.** At depth 2 with the clock and only 8
+  training streams, `and2` is exact on 0.85 of unseen streams and Tomita 4 on
+  0.95; both reach 1 at 32 streams. Midpoint weights were not reliably better
+  here: over the 324 threshold-function runs they were exact in 302 against 288
+  for the sampled weights, but worse on `and2` with 8 streams (0.81 against
+  0.85).
+- Training never took more than 0.3 s.
+
+### 8.2 Several rounds (depth 2, the same 32 training streams, 10 seeds)
+
+The streams are fed 4 per round for 8 rounds, or 16 per round for 2 rounds.
+After every round, every stream trained so far is replayed from its zero-padded
+key with 20 weight matrices. A run "adds chains late" if any round after the
+first adds a hidden neuron.
+
+| task | clock | rounds × streams | chain neurons, round 1 | runs that add chains late | neurons at the end | recall of earlier rounds (min) | unseen exact after round 1 | unseen exact at the end | runs exact on every unseen stream |
+|---|---|---|---|---|---|---|---|---|---|
+| and2 | no | 8 × 4 | 0 | 0 of 10 | 4 | 1 | 1.000 | 1.000 | 10 of 10 |
+| and2 | no | 2 × 16 | 0 | 0 of 10 | 4 | 1 | 1.000 | 1.000 | 10 of 10 |
+| and2 | yes | 8 × 4 | 0 | 1 of 10 | 11.8 | 1 | 0.946 | 0.955 | 9 of 10 |
+| and2 | yes | 2 × 16 | 0 | 0 of 10 | 7 | 1 | 1.000 | 1.000 | 10 of 10 |
+| maj3 | no | 8 × 4 | 0 | 0 of 10 | 4 | 1 | 1.000 | 1.000 | 10 of 10 |
+| maj3 | no | 2 × 16 | 0 | 0 of 10 | 4 | 1 | 1.000 | 1.000 | 10 of 10 |
+| maj3 | yes | 8 × 4 | 0 | 0 of 10 | 7 | 1 | 0.983 | 1.000 | 10 of 10 |
+| maj3 | yes | 2 × 16 | 0 | 0 of 10 | 7 | 1 | 1.000 | 1.000 | 10 of 10 |
+| no000 | yes | 8 × 4 | 0 | **4 of 10** | 31.7 | 1 | 0.858 | 0.858 | 6 of 10 |
+| no000 | yes | 2 × 16 | 0 | 0 of 10 | 7 | 1 | 1.000 | 1.000 | 10 of 10 |
+| tomita4 | yes | 8 × 4 | 0 | **4 of 10** | 30.7 | 1 | 0.829 | 0.880 | 6 of 10 |
+| tomita4 | yes | 2 × 16 | 0 | 0 of 10 | 7 | 1 | 1.000 | 1.000 | 10 of 10 |
+| parity | no | 8 × 4 | 9.4 | 10 of 10 | 79.8 | 1 | 0.001 | 0.001 | 0 of 10 |
+| parity | no | 2 × 16 | 12 | 10 of 10 | 27.9 | 1 | 0.001 | 0.001 | 0 of 10 |
+
+(`no000` and Tomita 4 without the clock, and parity with it, are in
+`experiments/results/exp8_shift_rounds.csv`. They are not learnable, and every
+run adds chain neurons after round 1.)
+
+- **No forgetting held in every check.** After every round of every run, every
+  stream from every earlier round replayed exactly for all 20 weight matrices
+  (800 round checks), and so did the current round's streams (1000 checks).
+  This is the Theorem; the shifts are input neurons and change nothing in it.
+- **Learnable tasks in rounds of 16: learning continues with no growth.** In
+  all 10 runs of every learnable task, neither round added a hidden neuron,
+  the network stayed at its 4 or 7 visible neurons, and every unseen stream
+  was exact.
+- **A small first round can lock in a wrong box.** With 4 streams per round,
+  Tomita 4 and `no000` went wrong in 4 of 10 runs (the same four seeds, which
+  share input streams), and `and2` with the clock in 1 of 10. In those runs
+  round 1 fits its 4 streams with no hidden neuron, then most later rounds add
+  6–12 chain neurons, and the fraction of unseen streams that are exact stays
+  at its round-1 value (0.47–0.82) through round 8. The other 6 runs never add
+  a hidden neuron and are exact on every unseen stream by round 4 at the
+  latest.
+- **Why.** A chain is added only when FEAS fails, which means the box kept
+  from earlier rounds contains no weight vector that fits the new streams.
+  SUBBOX keeps one wide box out of the many that fit the first 4 streams, and
+  it can be one that contains no correct weight vector. Boxes only shrink, so
+  that run never recovers: every later stream that disagrees is memorised
+  through its key. This is the cost of the inner approximation described in
+  section 5 of the notes, showing up as a dependence on the size and order of
+  the rounds.
+- Parity is unchanged: about 9 chain neurons per round and no unseen stream
+  right.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -544,6 +683,27 @@ are similar.)
   greedy, one-step slack search is the bottleneck for anything deeper. Because
   nothing protects old sequences from new features, the variant is not usable
   for continual learning as it stands.
+
+**Past shifts of the inputs (experiment 8, `dnn.py` unchanged).**
+- Input neurons that carry the inputs of the last $d$ steps, present before
+  round 1, keep both guarantees: the Theorem applies as written, no stream was
+  forgotten in any check, and the visible size is fixed.
+- They extend what the baseline generalises on from threshold functions of
+  the current visible state to threshold functions of the last $d + 1$ inputs
+  and the current output. In 1080 runs that single test decided the outcome:
+  no hidden neurons and (given 128 training streams) every unseen stream exact
+  when it holds, never exact when it does not.
+- With a start clock (the always-on input, shifted too) this includes
+  **Tomita 4**, which is solved exactly with no hidden neurons.
+- They add memory, not new kinds of function. Parity, the adder, `xor2` and
+  Tomita 2, 3, 5, 6 and 7 are unchanged at every depth.
+- New limitation: when a learnable task is trained in several small rounds,
+  the box kept after the first round can exclude every correct weight vector
+  (4 of 10 runs for Tomita 4 with 4 streams per round). The run then
+  memorises later streams and never improves. Rounds of 16 streams avoided
+  this in every run.
+- Not tested: shifts of the output and other non-input neurons, which need
+  fixed-weight neurons inside the network.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
