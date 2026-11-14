@@ -1058,6 +1058,113 @@ neuron was added in any seed.
 - In all 183 runs with no hidden neuron the midpoint weights were exact on
   every unseen stream; in the 177 runs with hidden neurons none was.
 
+## 13 Finding the state neurons from the data (`exp13_state_merging.py`)
+
+Experiment 10 solved every task with the state neurons of the task's machine,
+but those were built from the task's definition. `dnn_merge.py` finds a
+machine from the training streams alone (`docs/State_Merging.md`): it builds
+the prefix tree of the streams, which is a machine that has memorised them,
+and merges its nodes into states wherever the data do not contradict it.
+This is the RPNI algorithm of Oncina and García (1992). The state neurons of
+the merged machine are installed before round 1 and the output is trained by
+`dnn.py`, unchanged. Nothing about the task is given. Output timing is
+$h = 2$ (experiment 10's "latency 1").
+
+### 13.1 One round (15 tasks, 10 seeds)
+
+Runs, of 10, that are exact on every unseen stream (midpoint weights), by
+number of training streams:
+
+| task | states of the task's machine | 4 | 8 | 16 | 32 | 64 | 128 |
+|---|---|---|---|---|---|---|---|
+| prev_input | 1 | 10 | 10 | 10 | 10 | 10 | 10 |
+| parity | 2 | 10 | 10 | 10 | 10 | 10 | 10 |
+| xor2 | 2 | 10 | 10 | 10 | 10 | 10 | 10 |
+| delay2 | 2 | 10 | 10 | 10 | 10 | 10 | 10 |
+| adder | 2 | 9 | 10 | 10 | 10 | 10 | 10 |
+| and2 | 2 | 9 | 9 | 10 | 10 | 10 | 10 |
+| tomita1 | 2 | 7 | 10 | 10 | 10 | 10 | 10 |
+| tomita6 | 3 | 8 | 9 | 10 | 10 | 10 | 10 |
+| tomita5 | 4 | 3 | 8 | 10 | 10 | 10 | 10 |
+| maj3 | 4 | 1 | 7 | 10 | 10 | 10 | 10 |
+| tomita7 | 5 | 0 | 5 | 10 | 10 | 10 | 10 |
+| tomita3 | 5 | 1 | 2 | 8 | 10 | 10 | 10 |
+| no000 | 3 | 5 | 5 | 9 | 9 | 10 | 10 |
+| tomita4 | 4 | 1 | 4 | 7 | 9 | 10 | 10 |
+| tomita2 | 3 | 0 | 4 | 5 | 9 | 9 | 10 |
+| **all 15, of 150** | | 84 | 113 | 139 | 147 | 149 | **150** |
+
+Totals over the 15 tasks. "tree" is the prefix tree with no merging, run up
+to 32 streams.
+
+| layout | training streams | runs | task's machine found | exact on every unseen stream, sampled weights | midpoint weights | exact on every stream of 101 vectors, midpoint weights | training streams exact without a key | hidden neurons added | states (mean) | fixed neurons (mean) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| merged | 4 | 150 | 83 | 67 | 84 | 84 | 150 | 0 | 3.2 | 7.7 |
+| merged | 8 | 150 | 113 | 100 | 113 | 113 | 150 | 0 | 3.3 | 7.8 |
+| merged | 16 | 150 | 139 | 139 | 139 | 139 | 150 | 0 | 3.0 | 7.3 |
+| merged | 32 | 150 | 147 | 147 | 147 | 147 | 150 | 0 | 2.9 | 7.2 |
+| merged | 64 | 150 | 149 | 149 | 149 | 149 | 150 | 0 | 2.9 | 7.2 |
+| merged | 128 | 150 | **150** | **150** | **150** | **150** | 150 | 0 | 2.9 | 7.1 |
+| tree | 4 | 150 | 0 | 0 | 0 | – | 150 | 0 | 40.1 | 87.1 |
+| tree | 8 | 150 | 0 | 0 | 0 | – | 150 | 0 | 72.0 | 156.1 |
+| tree | 16 | 150 | 0 | 0 | 0 | – | 150 | 0 | 130.8 | 283.4 |
+| tree | 32 | 150 | 0 | 0 | 0 | – | 150 | 0 | 232.9 | 506.3 |
+
+- **Every task is learned from the data.** With 128 training streams the
+  merged machine is the task's machine in all 150 runs, and the network is
+  exact on every unseen stream, including streams eight times longer than
+  the training streams. This includes the adder and Tomita 3, 5, 6 and 7,
+  which the feature library of experiment 10 did not find, and it uses about
+  7 fixed neurons where the library used 105.
+- **It needs little data.** 32 streams are enough in 147 of 150 runs, 16 in
+  139 and 8 in 113. Tasks with more states, or with states that are rarely
+  told apart (Tomita 2, 3, 4), need the most.
+- **Right machine, right answers.** In all 781 runs where the task's machine
+  was found, every unseen stream and every long stream was exact. In the
+  other 119 runs one was exact on the long streams. The machine found had
+  more states than the task's in 62 runs and fewer in 23.
+- **The training streams never need a key** (Proposition 8). In all 1500
+  runs, with the merged machine or with the tree, no hidden neuron was added
+  and every training stream was reproduced from its first state alone.
+- **The tree memorises and does not generalise.** It is exact on its training
+  streams and on 11 to 14% of unseen ones, and it grows with the data (233
+  states for 32 streams). Merging is what turns it into the task's machine.
+- Merging took at most 0.05 s and training the merged layout 0.06 s.
+
+### 13.2 Several rounds (32 training streams, 10 seeds)
+
+The first $S$ streams are trained together as round 1 and give the machine.
+The rest follow 4 per round. After every round every stream trained so far is
+replayed from its key with 20 weight matrices.
+
+| task | $S$ | runs with the task's machine | runs that add hidden neurons after round 1 | hidden neurons at the end (mean) | runs exact on every unseen stream at the end |
+|---|---|---|---|---|---|
+| parity | 4 | 10 | 0 | 0 | 10 |
+| adder | 4 | 8 | 1 | 7.1 | 9 |
+| tomita3 | 4 | 2 | 8 | 44 | 2 |
+| tomita4 | 4 | 1 | 8 | 49.8 | 2 |
+| tomita5 | 4 | 3 | 7 | 59.9 | 3 |
+| tomita7 | 4 | 2 | 8 | 53.1 | 2 |
+| **all six, of 60** | 4 | 26 | 32 | | 28 |
+| all six, of 60 | 8 | 42 | 15 | | 44 |
+| all six, of 60 | 16 | 56 | 4 | | 56 |
+| all six, of 60 | 32 | 59 | 0 | | 59 |
+
+(The rows for each task at $S$ = 8, 16 and 32 are printed by the script and
+are in `experiments/results/exp13_rounds.csv`.)
+
+- **No forgetting held in every check** (1020 round checks of earlier rounds,
+  1260 of the current round).
+- **The machine is settled by the first streams.** Found from 4 streams, it is
+  the task's machine in 26 of 60 runs. In 32 of the other 34, later streams
+  contradict it and are memorised through helper chains (67 hidden neurons on
+  average by the end), and unseen streams stay wrong. From 16 streams it is
+  right in 56 of 60 runs and from 32 in 59.
+- **This is the wrong-box problem one level up.** A merge, like a box, is a
+  commitment made from the data seen so far. The remedy is the same: keep the
+  first streams until there are enough to settle the machine. Here 16 to 32
+  streams of 13 vectors were enough.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1188,6 +1295,23 @@ neuron was added in any seed.
   is a parameter of the training data, and it matters: $h = 2$ was best,
   $h = 1$ makes six tasks impossible, and larger $h$ fails unless the network
   has neurons to hold the answer.
+
+**Finding the state neurons (experiment 13, `docs/State_Merging.md`).**
+- A state is a future: two input histories are in the same state when every
+  continuation gives the same outputs. Merging the nodes of the prefix tree
+  of the training streams, wherever the data do not contradict it, finds the
+  task's machine from the data alone.
+- With 128 training streams all 15 tasks are learned in every run (150 of
+  150), exactly, on unseen streams and on streams eight times longer. 32
+  streams are enough in 147 of 150 runs.
+- The training streams are reproduced without keys (Proposition 8), and no
+  stream was forgotten in later rounds.
+- The unmerged tree is the same network with nothing generalised: it
+  memorises its streams without keys and is right on 11 to 14% of unseen
+  ones.
+- The machine has to be settled by the first streams. Found from 4 streams it
+  was wrong in 34 of 60 runs; from 16, in 4. A bounded buffer of early streams
+  would postpone the merge in the way the constraint buffer postpones the box.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
