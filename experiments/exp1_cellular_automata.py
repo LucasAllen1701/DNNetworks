@@ -33,7 +33,8 @@ SEEDS = range(5)
 N_UNSEEN = 100
 WEIGHT_MODES = ["lower", "upper", "random", "random", "random"]
 EPS = 0.5
-OUT = os.path.join(ROOT, "experiments", "results", "exp1_cellular_automata.csv")
+OUT = os.path.join(os.environ.get("DNN_RESULTS_DIR") or os.path.join(ROOT, "experiments", "results"),
+                   "exp1_cellular_automata.csv")
 
 
 def ca_step(x, rule):

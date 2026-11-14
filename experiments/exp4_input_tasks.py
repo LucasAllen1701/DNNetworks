@@ -50,7 +50,8 @@ N_UNSEEN = 100
 SEEDS = range(3)
 WEIGHT_MODES = ["lower", "upper", "random", "random", "random"]
 EPS = 0.5
-OUT = os.path.join(ROOT, "experiments", "results", "exp4_input_tasks.csv")
+OUT = os.path.join(os.environ.get("DNN_RESULTS_DIR") or os.path.join(ROOT, "experiments", "results"),
+                   "exp4_input_tasks.csv")
 
 
 # ---- tasks: each maps an input stream (array of shape (T+1, n_in)) to y_0..y_T

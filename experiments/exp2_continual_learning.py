@@ -29,7 +29,8 @@ SEQ_LEN = 6
 SEEDS = range(5)
 CONFIGS = {"no_input": set(), "one_input": {0}}
 EPS = 0.5
-OUT = os.path.join(ROOT, "experiments", "results", "exp2_continual_learning.csv")
+OUT = os.path.join(os.environ.get("DNN_RESULTS_DIR") or os.path.join(ROOT, "experiments", "results"),
+                   "exp2_continual_learning.csv")
 
 
 def main():

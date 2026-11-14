@@ -32,7 +32,8 @@ N_SEQS = [1, 2, 4, 8, 16]
 K = [2, 4, 8, 16]               # transitions per sequence
 SEEDS = range(3)
 EPS = 0.5
-OUT = os.path.join(ROOT, "experiments", "results", "exp3_capacity.csv")
+OUT = os.path.join(os.environ.get("DNN_RESULTS_DIR") or os.path.join(ROOT, "experiments", "results"),
+                   "exp3_capacity.csv")
 
 
 def main():
