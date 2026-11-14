@@ -1,7 +1,7 @@
 """Discrete neural networks with box-valued weight regions.
 
 Reference implementation of the RUN and TRAIN algorithms described in
-docs/Discrete_Neural_Network_Notes_Corrected.md. Section numbers in the
+docs/DiscreteNeuralNetworkNotes151126.md. Section numbers in the
 comments refer to that document. Neurons are indexed from 0 here and from 1
 in the notes.
 """

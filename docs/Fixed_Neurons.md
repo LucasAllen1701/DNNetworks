@@ -1,7 +1,7 @@
 # Fixed neurons (`dnn_fixed.py`)
 
 This note adds *fixed neurons* to the networks of
-`docs/Discrete_Neural_Network_Notes_Corrected.md` (the *notes*) and proves that
+`docs/DiscreteNeuralNetworkNotes151126.md` (the *notes*) and proves that
 the Theorem of the notes still holds. A fixed neuron has fixed weights and
 exists before the first training round. Past shifts, the start clock and
 twins are all fixed neurons. Nothing in RUN or TRAIN changes, and `dnn.py` is

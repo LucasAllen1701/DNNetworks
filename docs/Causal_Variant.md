@@ -1,7 +1,7 @@
 # The causal variant (`dnn_causal.py`)
 
 This note describes the variant as implemented. It changes the training
-algorithm of `docs/Discrete_Neural_Network_Notes_Corrected.md` (the *notes*)
+algorithm of `docs/DiscreteNeuralNetworkNotes151126.md` (the *notes*)
 so that hidden neurons can compute from the past and therefore work on data that
 was never trained. The price is the no-forgetting guarantee. `dnn.py` is
 unchanged and remains the baseline; the variant imports its RUN, FEAS, SUBBOX,

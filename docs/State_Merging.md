@@ -7,7 +7,7 @@ Output timing is $h = 2$ throughout: the output that answers
 $x(0), \dots, x(t)$ appears at time $t + 2$.
 
 Lemma, Theorem and section numbers without a prefix refer to
-`docs/Discrete_Neural_Network_Notes_Corrected.md` (the *notes*). Propositions
+`docs/DiscreteNeuralNetworkNotes151126.md` (the *notes*). Propositions
 1–7 are in `docs/Fixed_Neurons.md`, `docs/Latency_And_State.md` and
 `docs/Box_Rule.md`.
 
