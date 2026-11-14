@@ -27,6 +27,9 @@ sequence does not fit.
   why a small training round can lock a neuron into a wrong box, a proof that
   no rule for choosing the box avoids it, and a bounded buffer of exact
   constraints that does.
+- `dnn_merge.py`, `docs/State_Merging.md`, `tests/test_dnn_merge.py` — finds
+  the state neurons of a task from its training streams, by merging the nodes
+  of their prefix tree.
 - `experiments/` — experiment scripts; findings are in
   `experiments/RESULTS.md`.
 
