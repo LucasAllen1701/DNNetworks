@@ -16,7 +16,10 @@ import dnn_causal  # noqa: E402
 
 WEIGHT_MODES = ["lower", "upper", "random", "random", "random"]
 EPS = 0.5
-RESULTS = os.path.join(ROOT, "experiments", "results")
+# Results go to experiments/results, or to the directory named by the environment
+# variable DNN_RESULTS_DIR (the dashboard sets it, so that a local run does not
+# overwrite the committed results).
+RESULTS = os.environ.get("DNN_RESULTS_DIR") or os.path.join(ROOT, "experiments", "results")
 
 
 def with_bias(seqs):
