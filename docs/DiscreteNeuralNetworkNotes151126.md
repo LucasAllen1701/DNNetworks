@@ -1,6 +1,6 @@
 # Discrete Neural Network Notes — corrected version
 
-Corrected version of `Neural_Network_Notes.pdf` (Lucas Allen, November 2026). Math is written in LaTeX notation.
+Corrected version of `Neural_Network_Notes.pdf` (Lucas Allen, November 2026). This version is dated 15 November 2026. Math is written in LaTeX notation.
 
 ## 0 What changed
 
@@ -20,7 +20,60 @@ Corrected version of `Neural_Network_Notes.pdf` (Lucas Allen, November 2026). Ma
 
 ## 1 Introduction
 
-These neural networks are designed to learn sequences. Notation: $[n] = \{1,\dots,n\}$ and time is $t \in \{0,1,2,\dots\}$.
+These neural networks learn sequences of activation vectors, in which every neuron is on or off. This section says where the design comes from, what it is for, and where the rest of the work is written down.
+
+### 1.1 Two ideas
+
+**Training by linear programming.** Take an ordinary network of threshold neurons. Finding the weights into one neuron is a linear program: every activation vector the network should respond to gives one linear constraint on those weights (section 4.1). If the program is infeasible, a neuron is added to make it feasible (section 4.3).
+
+The difficulty is that the program needs every activation vector the network is meant to learn, including those from earlier training. So a neuron does not store its weights. It stores the *feasible region* of its weights, in the hope that the region carries what the earlier vectors had to say. Storing that region exactly takes more than polynomial space, so it is stored as an inner approximation, a box (section 5).
+
+**Running the network repeatedly.** A network is not run once on one activation vector. It is run step after step, and each step depends on the activations of the step before (section 3). This gives the network a short-term memory. It also means that what is trained is a sequence of activation vectors and not a single one: a stream of inputs goes in and a stream of outputs comes out.
+
+### 1.2 Depth
+
+A layered network with $h$ layers needs $h$ steps to carry an input through to the output. So the number of steps $h$ between an input and the output that answers it is the depth of the computation. Nothing in RUN or TRAIN fixes $h$: the training sequences do, by the step at which each output appears.
+
+- $h = 1$ is a single layer. As with a single-layer perceptron, some tasks are then impossible whatever neurons are added (`docs/Latency_And_State.md`, Proposition 4).
+- $h = 2$ is one hidden layer. It is enough for every task with finitely many states, but it can need one hidden neuron for each state and each pattern of inputs (Proposition 5).
+- A larger $h$ leaves room for fewer and more general hidden neurons, provided something builds the layers in between. Nothing here does so yet.
+
+### 1.3 Which neuron to add
+
+When a linear program is infeasible, the choice that remains open is what the activations of the added neuron should be.
+
+These notes add *predictors*, which copy the answer from one step in the future (section 4.3). That always works, and nothing learned earlier is lost (the Theorem of section 4.5). But a predictor's activations cannot be computed during a run. They have to be supplied at the start, as a *key*, and a network that needs a key for a sequence has memorised it.
+
+A neuron whose activations can be computed from the past needs no key, and what it learns carries over to sequences that were never trained. The companion documents study such neurons:
+
+- `docs/Fixed_Neurons.md`: neurons that remember the last few steps, installed before training;
+- `docs/Latency_And_State.md`: the limit at $h = 1$, and state neurons, which track the state of a task's machine;
+- `docs/State_Merging.md`: finding the state neurons from the training sequences;
+- `docs/Box_Rule.md`: what the box costs when training is done in small rounds, and how keeping part of the exact region avoids it;
+- `docs/Causal_Variant.md`: an earlier variant that adds such neurons during training and gives up the no-forgetting guarantee;
+- `experiments/RESULTS.md`: everything that was measured.
+
+### 1.4 Related work
+
+The first idea has relatives in the constructive algorithms of 1989–90: the tiling algorithm (Mézard and Nadal, 1989), the upstart algorithm (Frean, 1990) and cascade-correlation (Fahlman and Lebiere, 1990). Each builds a network by adding units when the existing ones cannot fit the data. In the upstart algorithm an added unit corrects a unit that is wrongly on or wrongly off, much as the anti-predictor and the predictor do here, with the difference that it is computed from the inputs.
+
+What these notes add is the stored feasible region, which lets training continue in rounds without the earlier data, and the second idea: sequences and short-term memory.
+
+### 1.5 Goals
+
+The long-term goals of the project are three programs that run on a local machine and are built from discrete neural networks:
+
+1. one that plays Doom;
+2. one that writes Lean 4 proofs: given a goal and its local context, it constructs a proof, either with tactics or as a proof term;
+3. a chat bot.
+
+These are a long way from what has been shown. The networks in these notes and the companion documents have been tested on tasks with one or two input neurons, a handful of states and exact data. The goals need many input neurons, data that are not exact, and far larger networks.
+
+### 1.6 Notation and layout
+
+$[n] = \{1,\dots,n\}$ and time is $t \in \{0,1,2,\dots\}$. Section 2 defines the networks, section 3 runs them and section 4 trains them. Section 5 is the space bound, sections 6 and 7 answer the questions of the original notes and give examples, and section 8 lists limitations.
+
+**References for 1.4.** M. Mézard and J.-P. Nadal (1989), Learning in feedforward layered networks: the tiling algorithm, *Journal of Physics A* 22. M. Frean (1990), The upstart algorithm: a method for constructing and training feedforward neural networks, *Neural Computation* 2. S. Fahlman and C. Lebiere (1990), The cascade-correlation learning architecture, *Advances in Neural Information Processing Systems* 2.
 
 ## 2 Definitions
 

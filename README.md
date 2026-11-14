@@ -6,7 +6,7 @@ sequence does not fit.
 
 ## Contents
 
-- `docs/Discrete_Neural_Network_Notes_Corrected.md` — definitions, the RUN and
+- `docs/DiscreteNeuralNetworkNotes151126.md` — definitions, the RUN and
   TRAIN algorithms, and proofs that training learns new sequences without
   forgetting old ones.
 - `dnn.py` — reference implementation of both algorithms in Python.

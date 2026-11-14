@@ -8,7 +8,7 @@ why, shows that no rule for choosing the box can prevent it, and gives a
 bounded amount of extra storage that does.
 
 Lemma, Theorem and section numbers without a prefix refer to
-`docs/Discrete_Neural_Network_Notes_Corrected.md` (the *notes*).
+`docs/DiscreteNeuralNetworkNotes151126.md` (the *notes*).
 
 ## 1 What goes wrong
 

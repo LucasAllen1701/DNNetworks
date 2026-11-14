@@ -9,7 +9,7 @@ Together they sort the stream tasks of `experiments/RESULTS.md` into three
 groups and explain why six of them never moved in experiments 4 and 7–9.
 
 Lemma, Theorem and section numbers without a prefix refer to
-`docs/Discrete_Neural_Network_Notes_Corrected.md` (the *notes*). Propositions
+`docs/DiscreteNeuralNetworkNotes151126.md` (the *notes*). Propositions
 1–3 and Definitions F1–F3 are in `docs/Fixed_Neurons.md`.
 
 ## 1 Setting
