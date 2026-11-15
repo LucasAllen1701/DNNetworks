@@ -1301,6 +1301,99 @@ on average).
   neurons. The rule removes only neurons nothing uses; the compression in
   this experiment is entirely the rebuild.
 
+## 16 Helpers for OR-of-AND functions (`exp16_or_of_ands.py`)
+
+Next step 1. The tasks, data and scoring of experiment 14 (six inputs, 1 to
+16 training streams, 10 seeds, 200 random test streams), three layouts, all
+trained by `dnn.py` unchanged:
+
+- **upstart**: experiment 14's helpers (h = 2).
+- **cover**: a covering search (h = 2, `dnn_upstart.build_cover`). Each
+  helper is off on every negative pattern seen and on for one uncovered
+  positive (the seed), with the smallest sum of $|w_j|$; the output is then
+  the OR of the helpers. On the full truth table it finds the 3 terms of dnf3
+  and the 4 terms of mux.
+- **pairs3**: a second hidden layer (h = 3, `dnn_upstart.make_layout_h3`).
+  Layer 1 is every AND of two literals (60 fixed neurons, the same for every
+  task); layer 2 is built by upstart over the inputs and layer 1. The output
+  at $t + 3$ is $f(x(t))$, so a training stream labels 10 patterns, not 11.
+
+All helpers are fixed neurons, so nothing is forgotten. Run on Lucas's
+machine, commit `372dd49`. The upstart rows equal experiment 14's in every
+column except the timings.
+
+### 16.1 Results
+
+Mean accuracy on unseen patterns (midpoint weights). Unseen patterns per run
+(mean, h = 2 / h = 3): 54 / 55 at 1 stream, 32 / 35 at 4, 4 / 6 at 16, so
+the 16-stream column rests on a few patterns per run.
+
+| task | layout | 1 | 2 | 4 | 8 | 16 |
+|---|---|---|---|---|---|---|
+| majority | upstart | 0.703 | 0.887 | 0.965 | 1.000 | 1.000 |
+| majority | cover | 0.694 | 0.714 | 0.713 | 0.603 | 0.539 |
+| majority | pairs3 | 0.685 | 0.724 | 0.755 | 0.838 | 1.000 |
+| and3 | upstart | 0.866 | 0.946 | 1.000 | 1.000 | 1.000 |
+| and3 | cover | 0.822 | 0.900 | 1.000 | 1.000 | 1.000 |
+| and3 | pairs3 | 0.820 | 0.948 | 1.000 | 1.000 | 1.000 |
+| xor2 | upstart | 0.647 | 1.000 | 1.000 | 1.000 | 1.000 |
+| xor2 | cover | 0.688 | 0.982 | 1.000 | 1.000 | 1.000 |
+| xor2 | pairs3 | 0.798 | 1.000 | 1.000 | 1.000 | 1.000 |
+| dnf3 | upstart | 0.642 | 0.701 | 0.787 | 0.773 | 0.889 |
+| dnf3 | cover | 0.673 | 0.838 | 0.983 | 1.000 | 1.000 |
+| dnf3 | pairs3 | 0.656 | 0.743 | 1.000 | 1.000 | 1.000 |
+| mux | upstart | 0.569 | 0.619 | 0.643 | 0.730 | 0.667 |
+| mux | cover | 0.569 | 0.648 | 0.798 | 0.931 | 1.000 |
+| mux | pairs3 | 0.583 | 0.666 | 0.764 | 0.724 | 0.847 |
+| equal3 | upstart | 0.718 | 0.721 | 0.787 | 0.765 | 0.768 |
+| equal3 | cover | 0.669 | 0.676 | 0.636 | 0.510 | 0.597 |
+| equal3 | pairs3 | 0.713 | 0.765 | 0.824 | 0.903 | 1.000 |
+| parity6 | upstart | 0.440 | 0.434 | 0.345 | 0.518 | 0.531 |
+| parity6 | cover | 0.406 | 0.312 | 0.207 | 0.091 | 0.000 |
+| parity6 | pairs3 | 0.417 | 0.414 | 0.404 | 0.302 | 0.733 |
+| random | upstart | 0.482 | 0.467 | 0.455 | 0.506 | 0.387 |
+| random | cover | 0.490 | 0.476 | 0.458 | 0.425 | 0.424 |
+| random | pairs3 | 0.468 | 0.466 | 0.525 | 0.482 | 0.519 |
+
+Runs exact on every unseen pattern at 16 streams (of 10; upstart / cover /
+pairs3): majority 10 / 1 / 10, dnf3 6 / 10 / 10, mux 2 / 10 / 4, equal3
+4 / 3 / 10.
+
+Totals over the 8 tasks (mean unseen accuracy, midpoint):
+
+| layout | 1 | 2 | 4 | 8 | 16 | helpers at 16 (mean) |
+|---|---|---|---|---|---|---|
+| upstart | 0.633 | 0.722 | 0.748 | 0.787 | 0.780 | 13.4 |
+| cover | 0.626 | 0.693 | 0.724 | 0.695 | 0.695 | 10.4 |
+| pairs3 | 0.642 | 0.716 | 0.784 | 0.781 | 0.887 | 1.7 |
+
+Every layout recalls all training streams exactly without keys, and no run
+needed a hidden neuron from TRAIN. Mean accuracies with sampled and midpoint
+weights agree to within 0.003 (single runs differ by up to 0.19).
+
+### 16.2 Findings
+
+- **The covering search solves the OR-of-AND functions**: dnf3 is exact
+  from 8 streams and mux from 16 (all 10 runs), where upstart stops at 0.89
+  and 0.67. Each helper is a term.
+- **It is the wrong bias elsewhere.** On majority it gets worse with more
+  data (0.54 at 16 streams), and on parity6 it falls to 0: each pure helper
+  covers a small patch around its seed, so unseen patterns next to a positive
+  are called positive. Cover helps exactly when the function is a short OR of
+  ANDs.
+- **The second hidden layer is the best all-round layout** (0.887 mean at 16
+  streams, against 0.780), with 1 or 2 layer-2 helpers. It fixes equal3
+  (exact in all 10 runs at 16 streams, against 0.77): equal3 is a threshold
+  of the pair ANDs, since each "x_i = x_{i+3}" is the sum of two of them.
+  It is exact on dnf3 from 4 streams but only 0.85 on mux, whose terms have
+  three literals.
+- The pairs3 figure of 0.733 on parity6 at 16 streams rests on about 6
+  unseen patterns per run and is noise; parity6 and the random function gain
+  nothing from any layout, as they should not.
+- The two new layouts are complementary: cover for short ORs of ANDs,
+  pairs3 when the answer is a threshold of pairwise features. Neither alone
+  beats upstart on every task.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1465,6 +1558,14 @@ on average).
   forgotten.
 - A buffer of the 16 most recent streams loses 2 of these runs (tomita4).
   Safe deletion never fired: it removes only unused neurons.
+
+**Helpers for OR-of-AND functions (experiment 16).**
+- A covering search (each helper off on every negative, on for one seed,
+  smallest weights) makes dnf3 and mux exact on unseen patterns (from 8 and
+  16 streams), but is worse than upstart on majority, equal3 and parity6.
+- A second hidden layer over every AND of two literals (h = 3) has the best
+  mean (0.89 against 0.78 at 16 streams) and makes equal3 exact; mux reaches
+  0.85.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
