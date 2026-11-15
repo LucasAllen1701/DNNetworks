@@ -1165,6 +1165,80 @@ are in `experiments/results/exp13_rounds.csv`.)
   first streams until there are enough to settle the machine. Here 16 to 32
   streams of 13 vectors were enough.
 
+## 14 Boolean functions of six inputs at depth 2 (`exp14_boolean_functions.py`)
+
+Ladder rung 1. The output at time $t + 2$ is $f(x(t))$ for a fixed Boolean
+function $f$ of six inputs, so a hidden layer is needed between them. The
+network is layered: the output's weights from the inputs and from itself are
+fixed at 0. Three layouts, all trained by `dnn.py` unchanged; each has the
+always-on neuron and a "started" fixed neuron (0 at time 0, then 1), which
+gives the output a bias from time 2 on.
+
+- **baseline**: nothing else; TRAIN adds predictor chains.
+- **lookup**: one fixed helper per positive input pattern seen in training.
+- **upstart**: fixed helpers built from the training data by `dnn_upstart.py`
+  in the style of the upstart algorithm (Frean 1990): the best perceptron of
+  $f$, then helpers for the patterns that are wrongly on or wrongly off,
+  each itself a best-fit perceptron of the inputs (fewest violations, then
+  smallest sum of $|w_j|$). After 20 helpers the rest are indicators.
+
+The helpers read only the inputs, so they are fixed neurons installed before
+round 1 and `docs/Fixed_Neurons.md` applies: nothing is forgotten. Training: 1
+to 16 streams of 13 vectors (11 labelled patterns each, of 64 possible), 10
+seeds. Testing: 200 random streams, run with no key; each output from $t = 2$
+on is scored, split by whether its pattern was seen in training. Run on
+Lucas's machine (Python 3.14.10, scipy 1.18.1), commit `9a7f228`.
+
+### 14.1 Results
+
+Mean accuracy on unseen patterns (midpoint weights), upstart (lookup in
+brackets; the baseline equals lookup to within 0.02, except and3 at 1 stream).
+
+| task | 1 | 2 | 4 | 8 | 16 |
+|---|---|---|---|---|---|
+| majority | 0.703 (0.364) | 0.887 (0.343) | 0.965 (0.375) | 1.000 (0.427) | 1.000 (0.331) |
+| and3 | 0.866 (0.879) | 0.946 (0.887) | 1.000 (0.905) | 1.000 (0.933) | 1.000 (0.953) |
+| xor2 | 0.647 (0.520) | 1.000 (0.506) | 1.000 (0.484) | 1.000 (0.485) | 1.000 (0.552) |
+| dnf3 | 0.642 (0.414) | 0.701 (0.406) | 0.787 (0.423) | 0.773 (0.452) | 0.889 (0.364) |
+| mux | 0.569 (0.484) | 0.619 (0.469) | 0.643 (0.468) | 0.730 (0.435) | 0.667 (0.337) |
+| equal3 | 0.718 (0.887) | 0.721 (0.882) | 0.787 (0.873) | 0.765 (0.865) | 0.768 (0.878) |
+| parity6 | 0.440 (0.501) | 0.434 (0.507) | 0.345 (0.518) | 0.518 (0.513) | 0.531 (0.531) |
+| random | 0.482 (0.452) | 0.467 (0.451) | 0.455 (0.455) | 0.506 (0.466) | 0.387 (0.527) |
+
+Totals over the 8 tasks:
+
+| layout | streams | patterns seen | helpers | hidden neurons added | seen acc | unseen acc (mid / sampled) | training exact without key |
+|---|---|---|---|---|---|---|---|
+| baseline | 4 | 31.7 | 0 | 708 | 0.558 | 0.563 / 0.563 | 0 of 80 |
+| baseline | 16 | 59.9 | 0 | 891 | 0.561 | 0.559 / 0.559 | 0 of 80 |
+| lookup | 4 | 31.7 | 14.0 | 0 | 1.000 | 0.563 / 0.563 | 80 of 80 |
+| lookup | 16 | 59.9 | 26.3 | 0 | 1.000 | 0.559 / 0.559 | 80 of 80 |
+| upstart | 4 | 31.7 | 4.6 | 0 | 1.000 | 0.748 / 0.746 | 80 of 80 |
+| upstart | 16 | 59.9 | 13.4 | 0 | 1.000 | 0.780 / 0.780 | 80 of 80 |
+
+Upstart needed no hidden neuron from TRAIN in any of 400 runs.
+
+### 14.2 Findings
+
+- **Helpers computed from the inputs generalise across input vectors**,
+  which state merging cannot do. xor2 is exact on unseen patterns from 2
+  streams (19 of 64 patterns seen), and3 from 4, majority from 8;
+  lookup and the baseline stay at the constant answer.
+- dnf3 (an OR of three ANDs) improves steadily, to 0.89; mux stops near 0.7.
+  Both need several helpers that must be found together, and the
+  one-error-set-at-a-time search finds them only partly.
+- **equal3 is worse than the constant answer** (0.72–0.79 against about
+  0.88): its positives are 8 isolated patterns, and helpers fitted to them
+  fire on neighbours. Parity6 and the random function gain nothing, as they
+  should not.
+- Upstart uses about half as many helpers as lookup and recalls the training
+  streams exactly without keys. The baseline needs keys for every stream.
+- Sampled and midpoint weights agree to within 0.004: the output's box is
+  tight once the helpers are fixed.
+- An earlier version (first run, commit `5665b6d`) let the output read its
+  own last value and required it to be 0 when every helper was 0. Seen
+  accuracy was 0.994–0.998 and majority reached only 0.72. Both are fixed.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1312,6 +1386,15 @@ are in `experiments/results/exp13_rounds.csv`.)
 - The machine has to be settled by the first streams. Found from 4 streams it
   was wrong in 34 of 60 runs; from 16, in 4. A bounded buffer of early streams
   would postpone the merge in the way the constraint buffer postpones the box.
+
+**Boolean functions at depth 2 (experiment 14, `dnn_upstart.py`).**
+- Upstart-style helpers, built from the data and installed as fixed neurons,
+  generalise across input vectors: majority, and3 and xor2 are exact on unseen
+  patterns from 8 streams, dnf3 reaches 0.89, with no hidden neurons from
+  TRAIN and nothing forgotten. Mean unseen accuracy 0.78 against 0.56.
+- They lose to the constant answer on equal3 (isolated positives) and gain
+  nothing on parity6, as expected. OR-of-AND functions (dnf3, mux) need a
+  better search for groups of helpers, or a second hidden layer.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
