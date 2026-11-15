@@ -1394,6 +1394,94 @@ weights agree to within 0.003 (single runs differ by up to 0.19).
   pairs3 when the answer is a threshold of pairwise features. Neither alone
   beats upstart on every task.
 
+## 17 State neurons that read helpers (`exp17_helpers_and_state.py`)
+
+Next step 2: hidden neurons that carry state **and** generalise across input
+vectors. Each task is a machine of experiment 13 (parity or a Tomita
+language) run on a binary letter $l(x(t))$ of six input bits; the other
+inputs are distractors. Training: 2 to 32 streams of 13 vectors, 10 seeds.
+Testing: 200 random streams of 13 vectors, run with no key; a stream counts
+if every output is right (midpoint weights). Layouts (`dnn_letters.py`):
+
+- **merged**: experiment 13 (h = 2), state merging with the 64 raw input
+  patterns as letters.
+- **letters** (h = 3): the letter is chosen from a fixed library of 101
+  candidates (each input, each AND of two literals, each XOR of two inputs,
+  each majority of three) as the consistent one whose merged machine has the
+  fewest states. Helpers compute it, and each state neuron is the AND of "in
+  state q" and "the letter is l", read from the helpers, in one neuron.
+- **true_letter** (h = 3): the same with the true letter given, so only the
+  machine comes from the data.
+
+The last task's letter, $(x_0 \wedge x_1) \vee (x_2 \wedge x_3)$, is not in
+the library. Run on Lucas's machine, commit `6b3f02f`.
+
+### 17.1 Results
+
+Runs that found the true machine (of 10) / mean fraction of unseen streams
+exact, by number of training streams.
+
+| task | layout | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|
+| parity/maj012 | merged | 0 / 0.00 | 0 / 0.00 | 0 / 0.00 | 0 / 0.00 | 0 / 0.01 |
+| parity/maj012 | letters | 8 / 0.80 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| parity/maj012 | true_letter | 8 / 0.85 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| tomita3/xor01 | merged | 0 / 0.03 | 0 / 0.02 | 0 / 0.01 | 0 / 0.01 | 0 / 0.01 |
+| tomita3/xor01 | letters | 0 / 0.09 | 0 / 0.54 | 5 / 0.81 | 8 / 0.96 | 10 / 1.00 |
+| tomita3/xor01 | true_letter | 0 / 0.34 | 0 / 0.59 | 5 / 0.81 | 8 / 0.96 | 10 / 1.00 |
+| tomita4/and01 | merged | 0 / 0.01 | 0 / 0.01 | 0 / 0.01 | 0 / 0.00 | 0 / 0.01 |
+| tomita4/and01 | letters | 0 / 0.14 | 0 / 0.53 | 5 / 0.85 | 9 / 0.98 | 10 / 1.00 |
+| tomita4/and01 | true_letter | 0 / 0.45 | 0 / 0.66 | 5 / 0.85 | 9 / 0.98 | 10 / 1.00 |
+| tomita5/x0 | merged | 0 / 0.01 | 0 / 0.01 | 0 / 0.01 | 0 / 0.01 | 0 / 0.01 |
+| tomita5/x0 | letters | 0 / 0.02 | 3 / 0.41 | 6 / 0.73 | 10 / 1.00 | 10 / 1.00 |
+| tomita5/x0 | true_letter | 0 / 0.08 | 3 / 0.44 | 6 / 0.73 | 10 / 1.00 | 10 / 1.00 |
+| tomita7/maj345 | merged | 0 / 0.02 | 0 / 0.04 | 0 / 0.02 | 0 / 0.01 | 0 / 0.02 |
+| tomita7/maj345 | letters | 0 / 0.12 | 0 / 0.15 | 4 / 0.77 | 10 / 1.00 | 10 / 1.00 |
+| tomita7/maj345 | true_letter | 0 / 0.30 | 0 / 0.45 | 4 / 0.81 | 10 / 1.00 | 10 / 1.00 |
+| tomita4/dnf2 | merged | 0 / 0.11 | 0 / 0.10 | 0 / 0.05 | 0 / 0.05 | 0 / 0.04 |
+| tomita4/dnf2 | letters | 0 / 0.18 | 0 / 0.19 | 0 / 0.27 | 0 / 0.28 | – |
+| tomita4/dnf2 | true_letter | 0 / 0.30 | 4 / 0.68 | 5 / 0.81 | 7 / 0.92 | 10 / 1.00 |
+
+"letters": runs whose chosen letter is the true one (2 / 4 / 8 / 16 / 32
+streams): parity/maj012 8 / 10 / 10 / 10 / 10, tomita3/xor01 1 / 9 / 10 /
+10 / 10, tomita4/and01 0 / 7 / 10 / 10 / 10, tomita5/x0 1 / 8 / 10 / 10 /
+10, tomita7/maj345 0 / 0 / 9 / 10 / 10, tomita4/dnf2 never.
+
+Means over all tasks (unseen streams exact): merged 0.03 / 0.03 / 0.02 /
+0.01 / 0.01, letters 0.23 / 0.47 / 0.74 / 0.93 / 1.00, true_letter 0.39 /
+0.64 / 0.83 / 0.98 / 1.00 (the letters mean leaves out the 15 runs with no
+consistent letter). No run needed a hidden neuron from TRAIN; recall from
+keys is 1.000 in every run.
+
+### 17.2 Findings
+
+- **State neurons that read helpers generalise across input vectors.**
+  Patterns never seen in training (mean of 64): 42 at 2 streams, 29 at 4,
+  12 at 8, 3 at 16, 0 at 32; so about 94% of test streams contain an unseen
+  pattern at 8 streams and 42% at 16. At 16 streams letters is exact on
+  every unseen stream for parity, tomita5 and tomita7 (all 10 runs) and
+  0.96–0.98 on tomita3 and tomita4. This answers open problem 1 for this
+  class of tasks; at 32 streams every pattern has been seen, so that column
+  tests only the machine.
+- **Merging on raw patterns fails completely**, even at 32 streams when
+  every pattern has been seen (at most 4% of unseen streams, 55% of single
+  outputs): with 64 letters most (state, pattern) transitions are never
+  observed.
+- **Once the letter is right, nothing else is lost.** In all 193 runs where
+  the search chose the true letter, the result is identical to
+  true_letter. The remaining errors at 8 and 16 streams are the merging's,
+  as in experiment 13. With 2 to 4 streams a wrong letter is often
+  consistent and gives a smaller machine.
+- **A letter outside the library is not found, and the search says so when
+  it has enough data**: on tomita4/dnf2 a wrong but consistent letter is
+  chosen up to 8 streams; at 16 streams 5 runs and at 32 all 10 find no
+  consistent letter (the 15 runs scored "–"). With the true letter given,
+  the same task is exact from 32 streams.
+- Limits: the letter is one bit and comes from a fixed library; the helpers
+  are built on its full truth table, not from data. Learning the letter from
+  data (for example the cover or pairs3 helpers of experiment 16) is the
+  next step. Depth is h = 3.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1566,6 +1654,14 @@ weights agree to within 0.003 (single runs differ by up to 0.19).
 - A second hidden layer over every AND of two literals (h = 3) has the best
   mean (0.89 against 0.78 at 16 streams) and makes equal3 exact; mux reaches
   0.85.
+
+**State neurons that read helpers (experiment 17).**
+- A finite-state task on a binary letter of six input bits: choosing the
+  letter from a library (fewest merged states) and letting state neurons
+  read its helpers makes the five library tasks exact or nearly exact on
+  unseen streams from 16 streams, when 42% of test streams still hold an
+  unseen pattern; merging on the raw patterns gets at most 4%. A letter
+  outside the library is not found. Depth h = 3.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
