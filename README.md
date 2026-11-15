@@ -30,6 +30,15 @@ sequence does not fit.
 - `dnn_merge.py`, `docs/State_Merging.md`, `tests/test_dnn_merge.py` — finds
   the state neurons of a task from its training streams, by merging the nodes
   of their prefix tree.
+- `dnn_upstart.py`, `tests/test_dnn_upstart.py` — helper neurons built from
+  the data for Boolean functions of the inputs: upstart-style helpers, a
+  covering search, and a second hidden layer.
+- `dnn_sleep.py`, `tests/test_dnn_sleep.py` — sleep (rebuild from a buffer
+  of streams), safe deletion, and policies for which streams leave a bounded
+  buffer.
+- `dnn_letters.py`, `tests/test_dnn_letters.py` — state neurons that read
+  helpers, so that a finite-state task on several input bits generalises
+  across input patterns.
 - `experiments/` — experiment scripts; findings are in
   `experiments/RESULTS.md`.
 - `dashboard.py` — a local web page for running the experiments (see below).

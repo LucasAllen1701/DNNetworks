@@ -25,6 +25,19 @@ Building the helpers (`build`), on the distinct training pairs (x, f(x)):
 
 The first helper is therefore the best perceptron of f, as in upstart.
 `lookup` gives the comparison layer: one indicator per positive pattern seen.
+
+Added for experiment 16 (OR-of-AND functions):
+- `build_cover`: a covering search. Each new helper must be off on every
+  pattern whose answer is 0 and on for one uncovered positive pattern (the
+  seed), with the smallest sum of |weights|; that makes it as general as the
+  negatives allow. The output is then the OR of the helpers. On the full
+  truth table this finds the 3 terms of dnf3 and the 4 terms of mux.
+- `pair_rules` and `make_layout_h3`: a second hidden layer, at h = 3. Layer 1
+  is a fixed library (every AND of two literals); layer 2 is built by `build`
+  over the inputs and layer 1. Layer 2 reads the inputs through one-step
+  copies (past shifts), so both layers see the same x(t). Layer-2 neurons are
+  held at 0 until the "started" neuron is 1, so that the output is 0 at
+  times 0 to 2. All are fixed neurons, so docs/Fixed_Neurons.md applies.
 """
 import numpy as np
 from scipy.optimize import linprog
@@ -143,3 +156,116 @@ def make_layout(n_in, rules=()):
             row[lay.on] = int(bi)
         lay.add_fixed(row, f"helper{k}")
     return lay
+
+
+# ---- experiment 16: a covering search, and a second hidden layer
+
+def pure_fit(X, y, cost_pos, eps=EPS, bound=None, weight_cost=0.01):
+    """Weights (w, b) with w.x + b <= 1 - eps on every pattern with y = 0
+    (hard), and w.x + b >= 1 on the positive patterns as far as possible: the
+    slack of positive i costs cost_pos[i], and each |w_j| costs
+    `weight_cost`."""
+    X = np.asarray(X, float)
+    neg, pos = X[y == 0], X[y == 1]
+    m, k = X.shape[1], len(pos)
+    bound = bound or m + 1
+    I, Zn, Zp = np.eye(m), np.zeros((len(neg), k)), np.zeros((k, m))
+    A = np.vstack([
+        np.hstack([neg, np.ones((len(neg), 1)), Zn, np.zeros((len(neg), m))]),
+        np.hstack([-pos, -np.ones((k, 1)), -np.eye(k), Zp]),
+        np.hstack([I, np.zeros((m, 1 + k)), -I]),
+        np.hstack([-I, np.zeros((m, 1 + k)), -I])])
+    rhs = np.r_[np.full(len(neg), 1.0 - eps), -np.ones(k), np.zeros(2 * m)]
+    cost = np.r_[np.zeros(m + 1), cost_pos, weight_cost * np.ones(m)]
+    bounds = [(-bound, bound)] * (m + 1) + [(0, None)] * (k + m)
+    res = linprog(cost, A_ub=A, b_ub=rhs, bounds=bounds)
+    if res.status != 0:
+        raise RuntimeError(res.message)
+    return res.x[:m], res.x[m]
+
+
+def pure_helper(X, y, covered, seed, eps=EPS):
+    """One helper for the covering search: the rule with the smallest sum of
+    |w_j| that is off on every negative pattern and on for the seed pattern
+    (slack cost 1000), with a small reward for also covering other positives
+    (slack cost 0.01 if uncovered, 0.001 if covered). Small weights make the
+    rule as general as the negatives allow: for an OR of ANDs it is a term
+    containing the seed."""
+    pos = np.flatnonzero(y == 1)
+    cost = np.where(covered[pos], 0.001, 0.01)
+    cost[np.searchsorted(pos, seed)] = 1000.0
+    r = integer_rule(*pure_fit(X, y, cost, eps, weight_cost=1.0), eps)
+    c = fire(r, X)
+    return r if c[seed] and not c[y == 0].any() else indicator(X[seed])
+
+
+def build_cover(X, y, eps=EPS, max_helpers=20):
+    """Helpers that are each off on every negative pattern and together on
+    for every positive one (sequential covering). Each new helper is seeded
+    with the first uncovered positive pattern (`pure_helper`)."""
+    X, y = np.asarray(X, int), np.asarray(y, int)
+    rules = []
+    covered = np.zeros(len(X), bool)
+    while not covered[y == 1].all():
+        seed = np.flatnonzero((y == 1) & ~covered)[0]
+        r = pure_helper(X, y, covered, seed, eps) if len(rules) < max_helpers else indicator(X[seed])
+        rules.append(r)
+        covered |= fire(r, X).astype(bool)
+    return rules
+
+
+def pair_rules(n_in):
+    """Every AND of two literals: 4 sign patterns for each pair of inputs.
+    Returns [(rule over the inputs, name)]."""
+    out = []
+    for i in range(n_in):
+        for j in range(i + 1, n_in):
+            for si in (1, 0):
+                for sj in (1, 0):
+                    w = np.zeros(n_in, int)
+                    w[i], w[j] = (1 if si else -1), (1 if sj else -1)
+                    out.append(((w, 1 - si - sj), f"{'' if si else '~'}x{i}&{'' if sj else '~'}x{j}"))
+    return out
+
+
+def layer1_values(X, layer1):
+    """Features seen by layer 2: the inputs, then the layer-1 helpers."""
+    X = np.asarray(X, int)
+    return np.c_[X, np.array([fire(r, X) for r in layer1]).T] if layer1 else X
+
+
+def gate(rule):
+    """Weights K and bias shift so that the rule fires only when the gating
+    neuron is 1: w.x + b + K g - K >= 1. K is at least the largest value of
+    w.x + b on 0/1 points."""
+    w, b = rule
+    return max(int(np.maximum(w, 0).sum()) + int(b), 1)
+
+
+def make_layout_h3(n_in, layer1, layer2):
+    """Depth h = 3. Inputs 0 ... n_in - 1, output n_in, the always-on neuron,
+    "started" (0 at time 0), "started2" (0 at times 0 and 1), one-step copies
+    of the inputs, the layer-1 helpers (rules over the inputs), then the
+    layer-2 helpers (rules over the copies and layer 1, held at 0 while
+    "started" is 0). Returns (layout, columns the output may read)."""
+    lay = F.Layout(n_in + 1, range(n_in), {n_in})
+    lay.add_on()
+    started = lay.add_fixed({lay.on: 1}, "started")
+    started2 = lay.add_fixed({started: 1}, "started2")
+    copies = [lay.add_fixed({i: 1}, f"x{i}-1") for i in range(n_in)]
+    l1 = []
+    for k, (wi, bi) in enumerate(layer1):
+        row = {j: int(wi[j]) for j in range(n_in) if wi[j]}
+        if bi:
+            row[lay.on] = int(bi)
+        l1.append(lay.add_fixed(row, f"layer1 {k}"))
+    sources = copies + l1
+    l2 = []
+    for k, (wi, bi) in enumerate(layer2):
+        K = gate((wi, bi))
+        row = {sources[j]: int(wi[j]) for j in range(len(sources)) if wi[j]}
+        row[started] = K
+        if int(bi) - K:
+            row[lay.on] = int(bi) - K
+        l2.append(lay.add_fixed(row, f"layer2 {k}"))
+    return lay, [started2] + l2
