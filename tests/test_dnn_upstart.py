@@ -25,4 +25,4 @@ def test_build_makes_the_output_exact():
         _, exact = U._output_errors(H, y, U.EPS)
         assert exact
         lay = U.make_layout(6, rules)
-        assert len(lay.fixed) == len(rules)
+        assert len(lay.fixed) == len(rules) + 1      # + the started neuron

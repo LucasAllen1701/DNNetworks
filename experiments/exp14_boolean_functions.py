@@ -2,8 +2,8 @@
 
 The output at time t + 2 is f(x(t)) for a fixed Boolean function f of the
 six inputs; it is 0 at times 0 and 1. The network is layered: the output's
-weights from the inputs are fixed at 0 (x(t + 1) carries nothing about the
-answer). Three layouts, all trained by `dnn.py` unchanged:
+weights from the inputs and from itself are fixed at 0 (x(t + 1) and the
+last answer carry nothing about this answer). Three layouts, all trained by `dnn.py` unchanged:
   "baseline": the always-on neuron only; TRAIN adds predictor chains.
   "lookup":   one fixed helper per positive input pattern seen in training.
   "upstart":  fixed helpers built from the training data by dnn_upstart.py.
@@ -92,7 +92,8 @@ def one_run(args):
     build_secs = time.perf_counter() - t0
     lay = U.make_layout(N_IN, rules)
     net = F.make_net(lay)
-    net.L[N_IN, :N_IN] = net.U[N_IN, :N_IN] = 0.0   # layered: the output does not read x(t + 1)
+    # layered: the output reads neither x(t + 1) nor its own last value
+    net.L[N_IN, :N_IN + 1] = net.U[N_IN, :N_IN + 1] = 0.0
     t0 = time.perf_counter()
     trained = F.train(net, lay, V, H.EPS)
     train_secs = time.perf_counter() - t0
