@@ -1455,14 +1455,18 @@ keys is 1.000 in every run.
 
 ### 17.2 Findings
 
-- **State neurons that read helpers generalise across input vectors.** With
-  the letter found from the library, all five library tasks are exact on
-  every unseen stream from 16 or 32 training streams, though most test
-  streams contain input patterns never seen in training. This is open
-  problem 1 solved for this class of tasks.
-- **Merging on raw patterns fails completely** (at most 4% of unseen
-  streams, 55% of single outputs): with 64 letters most transitions are
-  never seen.
+- **State neurons that read helpers generalise across input vectors.**
+  Patterns never seen in training (mean of 64): 42 at 2 streams, 29 at 4,
+  12 at 8, 3 at 16, 0 at 32; so about 94% of test streams contain an unseen
+  pattern at 8 streams and 42% at 16. At 16 streams letters is exact on
+  every unseen stream for parity, tomita5 and tomita7 (all 10 runs) and
+  0.96–0.98 on tomita3 and tomita4. This answers open problem 1 for this
+  class of tasks; at 32 streams every pattern has been seen, so that column
+  tests only the machine.
+- **Merging on raw patterns fails completely**, even at 32 streams when
+  every pattern has been seen (at most 4% of unseen streams, 55% of single
+  outputs): with 64 letters most (state, pattern) transitions are never
+  observed.
 - **Once the letter is right, nothing else is lost.** In all 193 runs where
   the search chose the true letter, the result is identical to
   true_letter. The remaining errors at 8 and 16 streams are the merging's,
@@ -1654,8 +1658,9 @@ keys is 1.000 in every run.
 **State neurons that read helpers (experiment 17).**
 - A finite-state task on a binary letter of six input bits: choosing the
   letter from a library (fewest merged states) and letting state neurons
-  read its helpers makes all five library tasks exact on unseen streams from
-  16 to 32 streams; merging on the raw patterns gets at most 4%. A letter
+  read its helpers makes the five library tasks exact or nearly exact on
+  unseen streams from 16 streams, when 42% of test streams still hold an
+  unseen pattern; merging on the raw patterns gets at most 4%. A letter
   outside the library is not found. Depth h = 3.
 
 **Deviations from the specification.**
