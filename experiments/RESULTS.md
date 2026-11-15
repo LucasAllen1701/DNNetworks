@@ -1239,6 +1239,68 @@ Upstart needed no hidden neuron from TRAIN in any of 400 runs.
   own last value and required it to be 0 when every helper was 0. Seen
   accuracy was 0.994–0.998 and majority reached only 0.72. Both are fixed.
 
+## 15 Wake-and-sleep cycles (`exp15_wake_sleep.py`)
+
+Lucas's idea 2 (expansion and compression), one version. `dnn_sleep.py`
+gives the sleep step: state merging on a buffer of streams, a fresh network
+trained on the buffer, then safe deletion of every neuron whose outgoing
+weight ranges all contain 0 (safe by the Theorem; the argument is in the
+module docstring). The six tasks of experiment 13 part B, 32 streams arriving
+4 per round (8 rounds), 10 seeds. Round 1 builds the network from its 4
+streams by state merging. Strategies:
+
+- **fixed**: wake only; the machine from the first 4 streams is kept
+  (experiment 13 part B with S = 4).
+- **sleep**: sleep after every even round, buffer of every stream so far.
+- **sleep16**: the same, with a buffer of the 16 most recent streams.
+
+Run on Lucas's machine, commit `138d06d`. The "fixed" rows reproduce
+experiment 13 part B, S = 4 (26 true machines, 28 runs exact at the end).
+
+### 15.1 Results (60 runs per row; * = a sleep round)
+
+| strategy | round | streams seen | buffer | true machine | exact on every unseen stream (midpoint) | recall from keys (min) | recall of all streams seen, no key (mean) | hidden neurons (mean) |
+|---|---|---|---|---|---|---|---|---|
+| fixed | 2 | 8 | – | 26 | 27 | 1.000 | 0.848 | 5.2 |
+| fixed | 4 | 16 | – | 26 | 27 | 1.000 | 0.773 | 14.3 |
+| fixed | 8 | 32 | – | 26 | 28 | 1.000 | 0.734 | 35.6 |
+| sleep | 2* | 8 | 8 | 42 | 42 | 1.000 | 1.000 | 0.0 |
+| sleep | 3 | 12 | 12 | 42 | 42 | 1.000 | 0.972 | 1.6 |
+| sleep | 4* | 16 | 16 | 56 | 56 | 1.000 | 1.000 | 0.0 |
+| sleep | 8* | 32 | 32 | 59 | 59 | 1.000 | 1.000 | 0.0 |
+| sleep16 | 6* | 24 | 16 | 57 | 57 | 1.000 | 0.995 | 0.0 |
+| sleep16 | 8* | 32 | 16 | 57 | 57 | 1.000 | 0.996 | 0.0 |
+
+Runs exact on every unseen stream at the end, by task (fixed / sleep /
+sleep16): parity 10 / 10 / 10, adder 9 / 10 / 10, tomita3 2 / 10 / 10,
+tomita4 2 / 9 / 7, tomita5 3 / 10 / 10, tomita7 2 / 10 / 10.
+
+Safe deletion: 0 neurons deleted in 600 sleeps, and 0 deletable after any
+wake round in any strategy (the "fixed" networks then had 20 hidden neurons
+on average).
+
+### 15.2 Findings
+
+- **Sleep undoes a wrong early commitment.** Rebuilding from the buffer
+  finds the true machine in 59 of 60 runs by round 6, against 26 for the
+  machine kept from round 1, and the rebuilt network needs no hidden neurons.
+  This is experiment 13 part A reached incrementally.
+- **Nothing in the buffer is forgotten**: recall from keys is 1.000 in every
+  row. Between sleeps, streams the machine does not fit are memorised with
+  keys (the dip to 0.972 without keys at round 3), and the next sleep absorbs
+  them.
+- **Without sleep, memory grows and unkeyed recall falls**: 36 hidden
+  neurons by round 8, and only 73% of the streams seen replay without keys.
+- **A bounded buffer forgets a little.** With the 16 most recent streams, 3
+  runs end with a wrong machine (all tomita4), built from a buffer that no
+  longer holds the streams that ruled it out; about 0.4% of the streams seen
+  are then wrong without keys. What may safely leave the buffer is still
+  open.
+- **Safe deletion found nothing to delete.** Every memorised neuron is read
+  by the neuron it was added for, and after a sleep there are no silent
+  neurons. The rule removes only neurons nothing uses; the compression in
+  this experiment is entirely the rebuild.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1395,6 +1457,14 @@ Upstart needed no hidden neuron from TRAIN in any of 400 runs.
 - They lose to the constant answer on equal3 (isolated positives) and gain
   nothing on parity6, as expected. OR-of-AND functions (dnf3, mux) need a
   better search for groups of helpers, or a second hidden layer.
+
+**Wake-and-sleep cycles (experiment 15, `dnn_sleep.py`).**
+- Sleeping (state merging on a buffer, then a rebuild) corrects the wrong
+  machine of an early commitment: 59 of 60 runs end with the true machine,
+  against 26 without sleep, with no hidden neurons and nothing in the buffer
+  forgotten.
+- A buffer of the 16 most recent streams loses 2 of these runs (tomita4).
+  Safe deletion never fired: it removes only unused neurons.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
