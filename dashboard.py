@@ -15,6 +15,7 @@ and the test suite of this repository.
 import argparse
 import ast
 import csv
+import hashlib
 import json
 import os
 import platform
@@ -126,8 +127,11 @@ def compare(run_dir):
     for name in sorted(os.listdir(run_dir)):
         if not name.endswith(".csv"):
             continue
-        cols, rows = read_csv(os.path.join(run_dir, name))
-        entry = dict(file=name, rows=len(rows), differences={})
+        path = os.path.join(run_dir, name)
+        cols, rows = read_csv(path)
+        with open(path, "rb") as f:
+            digest = hashlib.sha256(f.read()).hexdigest()[:16]
+        entry = dict(file=name, rows=len(rows), sha256=digest, differences={})
         ref = os.path.join(COMMITTED, name)
         if not os.path.exists(ref):
             entry["status"] = "new"
@@ -177,7 +181,7 @@ def report(meta, comparison):
                 detail = "DIFFERS: " + c["note"]
             else:
                 detail = "DIFFERS in " + ", ".join(f"{col} ({n} cells)" for col, n in c["differences"].items())
-            lines.append(f"  {c['file']}: {c['rows']} rows, {detail}")
+            lines.append(f"  {c['file']}: {c['rows']} rows, sha256 {c.get('sha256', '?')}, {detail}")
     elif meta["exp"] != TESTS:
         lines.append("no result files were written")
     return "\n".join(lines)

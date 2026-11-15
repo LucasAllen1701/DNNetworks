@@ -36,7 +36,7 @@ def test_compare_reports_identical_differing_and_new_files(tmp_path, monkeypatch
     assert result["d.csv"]["status"] == "new"
     meta = dict(id="r", exp="exp0", state="ok", exit_code=0, seconds=75.0, versions=dashboard.versions())
     text = dashboard.report(meta, list(result.values()))
-    assert "1 min 15 s" in text and "a.csv: 2 rows, identical" in text and "DIFFERS in exact (1 cells)" in text
+    assert "1 min 15 s" in text and "a.csv: 2 rows, sha256 " in text and ", identical" in text and "DIFFERS in exact (1 cells)" in text
 
 
 def test_server_answers_locally_and_refuses_everything_else():

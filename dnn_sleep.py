@@ -88,3 +88,42 @@ def sleep(buffer, out, eps=0.5, pruning=True):
     if pruning:
         net, lay, trained, df, dh = prune(net, lay, trained)
     return net, lay, trained, delta, m_out, df, dh, before
+
+
+# ---- experiment 18: which streams may leave a bounded buffer
+
+def _same(m1, m2):
+    return M.same_machine(*m1, *m2) and M.same_machine(*m2, *m1)
+
+
+def evict(buffer, cap, n_in, policy, rng=None):
+    """The streams kept when `buffer` (oldest first) must shrink to `cap`.
+
+    "recent":  the cap most recent streams (experiment 15's sleep16).
+    "random":  cap streams chosen at random, kept in order.
+    "witness": streams are removed oldest first, but only while the machine
+               merged from what is left equals the machine merged from the
+               whole buffer (both partial machines give the same outputs
+               wherever either is defined). Streams whose removal would
+               change it are the witnesses of that machine: they ruled out a
+               merge or showed a transition. If the buffer is still too big,
+               the oldest witnesses go. Returns (kept, witnesses dropped);
+               the second is None for the other policies."""
+    if len(buffer) <= cap:
+        return list(buffer), None
+    if policy == "recent":
+        return list(buffer[-cap:]), None
+    if policy == "random":
+        keep = sorted(rng.choice(len(buffer), cap, replace=False))
+        return [buffer[i] for i in keep], None
+    assert policy == "witness"
+    ref = M.learn_machine(buffer, n_in)
+    keep = list(range(len(buffer)))
+    for i in range(len(buffer)):
+        if len(keep) <= cap:
+            break
+        trial = [j for j in keep if j != i]
+        if _same(M.learn_machine([buffer[j] for j in trial], n_in), ref):
+            keep = trial
+    dropped = max(len(keep) - cap, 0)
+    return [buffer[j] for j in keep[-cap:]], dropped
