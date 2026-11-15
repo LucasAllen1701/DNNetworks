@@ -11,7 +11,8 @@ then trained by `dnn.train`, unchanged.
 
 Building the helpers (`build`), on the distinct training pairs (x, f(x)):
 1. Fit the output as well as it can be fitted over the helpers so far (an LP
-   that minimises the total violation). With no helpers this is a constant.
+   that minimises the total violation, then the sum of |weights|), with a
+   free bias. With no helpers this is a constant.
 2. If the fit is exact, stop.
 3. Otherwise the wrongly-off patterns get a helper that should be on for them
    and off for every pattern whose answer is 0; the wrongly-on patterns get a
@@ -33,18 +34,21 @@ import dnn_fixed as F
 EPS = 0.5
 
 
-def best_fit(X, y, eps=EPS, bound=None):
+def best_fit(X, y, eps=EPS, bound=None, slack_cost=1000.0):
     """Weights w and bias b minimising the total violation of
-    w.x + b >= 1 (y = 1) and w.x + b <= 1 - eps (y = 0). Returns (w, b)."""
+    w.x + b >= 1 (y = 1) and w.x + b <= 1 - eps (y = 0), and among those the
+    sum of |w_j| (which favours few, small weights). Returns (w, b)."""
     X = np.asarray(X, float)
     k, m = X.shape
     bound = bound or m + 1
     sign = np.where(y == 1, -1.0, 1.0)
-    # variables: w (m), b (1), slack (k)
-    A = np.hstack([sign[:, None] * X, sign[:, None], -np.eye(k)])
-    rhs = np.where(y == 1, -1.0, 1.0 - eps)
-    cost = np.r_[np.zeros(m + 1), np.ones(k)]
-    bounds = [(-bound, bound)] * (m + 1) + [(0, None)] * k
+    # variables: w (m), b (1), slack (k), a (m) with a_j >= |w_j|
+    A = np.hstack([sign[:, None] * X, sign[:, None], -np.eye(k), np.zeros((k, m))])
+    I, Z = np.eye(m), np.zeros((m, 1 + k))
+    A = np.vstack([A, np.hstack([I, Z, -I]), np.hstack([-I, Z, -I])])
+    rhs = np.r_[np.where(y == 1, -1.0, 1.0 - eps), np.zeros(2 * m)]
+    cost = np.r_[np.zeros(m + 1), slack_cost * np.ones(k), np.ones(m)]
+    bounds = [(-bound, bound)] * (m + 1) + [(0, None)] * (k + m)
     res = linprog(cost, A_ub=A, b_ub=rhs, bounds=bounds)
     if res.status != 0:
         raise RuntimeError(res.message)
@@ -72,14 +76,12 @@ def indicator(p):
 
 
 def _output_errors(H, y, eps):
-    """Best fit of the output over the helper values H, with an extra row of
-    all-zero helpers that must give 0 (the output at time 1). Returns the
-    predictions on the real rows and whether the fit is exact everywhere."""
-    Hz = np.vstack([H, np.zeros((1, H.shape[1]))])
-    yz = np.r_[y, 0]
-    w, b = best_fit(Hz, yz, eps)
-    pred = fire(integer_rule(w, b, eps), Hz)
-    return pred[:-1], bool((pred == yz).all())
+    """Best fit of the output over the helper values H, with a free bias (in
+    the network it comes from the "started" neuron). Returns the predictions
+    and whether the fit is exact."""
+    w, b = best_fit(H, y, eps)
+    pred = fire(integer_rule(w, b, eps), H)
+    return pred, bool((pred == y).all())
 
 
 def build(X, y, eps=EPS, max_helpers=20):
@@ -128,10 +130,13 @@ def lookup(X, y):
 
 
 def make_layout(n_in, rules=()):
-    """Inputs 0 ... n_in - 1, output n_in, the always-on neuron, then one
-    fixed neuron per helper rule (reading the inputs and the always-on neuron)."""
+    """Inputs 0 ... n_in - 1, output n_in, the always-on neuron, the "started"
+    neuron (0 at time 0, then 1: the output's bias from time 2 on, while the
+    output at time 1 must be 0), then one fixed neuron per helper rule
+    (reading the inputs and the always-on neuron)."""
     lay = F.Layout(n_in + 1, range(n_in), {n_in})
     lay.add_on()
+    lay.add_fixed({lay.on: 1}, "started")
     for k, (wi, bi) in enumerate(rules):
         row = {j: int(wi[j]) for j in range(n_in) if wi[j]}
         if bi:
