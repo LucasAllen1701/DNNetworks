@@ -1482,6 +1482,80 @@ keys is 1.000 in every run.
   data (for example the cover or pairs3 helpers of experiment 16) is the
   next step. Depth is h = 3.
 
+## 18 Which streams may leave a bounded buffer (`exp18_buffer_policy.py`)
+
+Next step 3. Experiment 15 rebuilt the network from a buffer at every sleep;
+with the 16 most recent streams, 3 of 60 runs (all tomita4) ended with a
+wrong machine. Here the buffer is cut to its cap just before every sleep by
+one of four policies (`dnn_sleep.evict`):
+
+- **all**: no cap (experiment 15's "sleep").
+- **recent**: the most recent streams (experiment 15's "sleep16" for cap 16).
+- **random**: a random subset.
+- **witness**: streams are dropped oldest first, but only while the machine
+  merged from the rest equals the machine merged from the whole buffer. The
+  streams that cannot go are that machine's witnesses; if there are more
+  witnesses than the cap, the oldest go.
+
+The six tasks of experiment 15, 32 streams arriving 4 per round, a sleep
+after every second round (4 sleeps), caps 16 and 8, 20 seeds (seeds 0–9 are
+experiment 15's data). Wake rounds are left out, since a sleep rebuilds from
+the buffer alone. Run on Lucas's machine, commit `6b3f02f`. Check: recent 16
+on seeds 0–9 finds the true machine at the end in 57 of 60 runs, as
+experiment 15's sleep16.
+
+### 18.1 Results
+
+Runs with the true machine after each sleep (of 120: 6 tasks × 20 seeds),
+and means at the end.
+
+| policy | cap | round 2 | round 4 | round 6 | round 8 | unseen streams exact | recall of all streams seen, no key |
+|---|---|---|---|---|---|---|---|
+| all | – | 86 | 115 | 118 | 119 | 0.999 | 1.000 |
+| recent | 16 | 86 | 115 | 115 | 112 | 0.983 | 0.993 |
+| random | 16 | 86 | 115 | 113 | 112 | 0.984 | 0.994 |
+| witness | 16 | 86 | 115 | 118 | 119 | 0.999 | 0.999 |
+| recent | 8 | 86 | 84 | 93 | 79 | 0.875 | 0.901 |
+| random | 8 | 86 | 94 | 89 | 89 | 0.894 | 0.914 |
+| witness | 8 | 86 | 115 | 118 | 119 | 0.999 | 0.995 |
+
+At the end, runs with the true machine by task (of 20):
+
+| task | all | recent 16 | random 16 | witness 16 | recent 8 | random 8 | witness 8 |
+|---|---|---|---|---|---|---|---|
+| parity | 20 | 20 | 20 | 20 | 20 | 20 | 20 |
+| adder | 20 | 20 | 20 | 20 | 19 | 20 | 20 |
+| tomita3 | 20 | 20 | 18 | 20 | 10 | 14 | 20 |
+| tomita4 | 19 | 14 | 14 | 19 | 6 | 9 | 19 |
+| tomita5 | 20 | 19 | 20 | 20 | 12 | 13 | 20 |
+| tomita7 | 20 | 19 | 20 | 20 | 12 | 13 | 20 |
+
+No run needed hidden neurons. No witness run ever had more witnesses than
+its cap.
+
+### 18.2 Findings
+
+- **Keeping the witnesses loses nothing.** At both caps, in every one of the
+  960 sleeps, the witness buffer gives the same machine and the same
+  unseen-stream score as the unbounded buffer. The one failure (tomita4,
+  seed 2) fails with every policy, including no cap.
+- **Eight streams are enough** when they are the right eight: at cap 8 the
+  witness buffer keeps 119 of 120 runs right, against 79 for recent and 89
+  for random. A machine with 2 to 5 states is fixed by a few streams.
+- **Recent and random lose the hard Tomita tasks**, worst on tomita4 (6 and
+  9 of 20 at cap 8), and the number right can fall from one sleep to the
+  next (recent 8: 93 at round 6, 79 at round 8).
+- Recall without key dips slightly at cap 8 even for witness (0.995): in
+  those runs (adder, tomita3, tomita4) the machine is right and every unseen
+  stream is exact with midpoint weights; the dip comes from sampled weights,
+  since an output trained on 8 streams has wider boxes.
+- Cost: the witness check merges the buffer once per candidate stream,
+  up to 24 merges per sleep here (cap + 8 streams). Cheap at these sizes; it grows
+  with the buffer.
+- Open: the witness test compares machines, so it applies only when the
+  sleep is state merging. A policy for helpers (experiments 14, 16) would
+  keep the patterns whose removal changes a helper.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1662,6 +1736,11 @@ keys is 1.000 in every run.
   unseen streams from 16 streams, when 42% of test streams still hold an
   unseen pattern; merging on the raw patterns gets at most 4%. A letter
   outside the library is not found. Depth h = 3.
+
+**Bounded buffers (experiment 18).**
+- Keeping the witnesses (drop a stream only if the merged machine stays the
+  same) matches the unbounded buffer in every sleep, even with 8 streams:
+  119 of 120 runs end right, against 79 (most recent 8) and 89 (random 8).
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
