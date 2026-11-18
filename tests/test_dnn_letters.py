@@ -48,3 +48,49 @@ def test_choose_letter_finds_the_letter():
     assert name == "x2^x4"
     assert L.same_composite(d, o, lambda x: (int(g(np.array([x]))[0]),), delta, out,
                             lambda x: (int(f(np.array([x]))[0]),), [tuple(p) for p in np.ndindex(*[2] * 6)])
+
+
+def _dnf2(X):
+    return (X[:, 0] & X[:, 1]) | (X[:, 2] & X[:, 3])
+
+
+def test_compose_letter_finds_an_or_of_two_library_letters():
+    delta, out, _ = e10.machine("tomita4")
+    V = _streams(_dnf2, delta, out, np.random.default_rng(1), 32)
+    assert L.choose_letter(V, 6) is None or L.choose_letter(V, 6)[0] != "(x0&x1)|(x2&x3)"
+    name, f, d, o, level, _ = L.compose_letter(V, 6)
+    X = np.array(list(np.ndindex(*(2,) * 6)))
+    assert level == 2 and (f(X) == _dnf2(X)).all() and len(d) == len(delta)
+
+
+def test_joint_search_reproduces_every_output():
+    delta, out, _ = e10.machine("parity")
+    f = lambda X: X[:, 0]
+    V = _streams(f, delta, out, np.random.default_rng(2), 6)
+    X, seqs = L._indexed(V, 6)
+    assert L.joint_search(seqs, len(X), 1, np.zeros(len(X), int)) is None
+    z, d, o = L.joint_search(seqs, len(X), 2, np.zeros(len(X), int))
+    for w, outs in seqs:
+        q = 0
+        for p, y in zip(w, outs):
+            assert o[q][z[p]] == y
+            q = d[q][z[p]]
+    found = L.learn_letter(V, 6)
+    assert found["states_search"] == 2 and len(L._machine(found["f"](X), seqs)[0]) == len(found["delta"])
+
+
+def test_bit_state_neurons_track_the_machine():
+    rules = [(np.array([1, 1, 0, 0, 0, 0]), 0), (np.array([0, 0, 1, 0, 0, 1]), -1)]   # x0 or x1; x2 and x5
+    letters = [(0, 0), (0, 1), (1, 0), (1, 1)]
+    delta = [{a: (q + a[0] + 2 * a[1]) % 3 for a in letters} for q in range(3)]
+    lay, idx = L.make_layout_bits(6, rules, delta)
+    rng = np.random.default_rng(3)
+    for _ in range(20):
+        x = rng.integers(0, 2, (13, 6))
+        e = F.extend(lay, np.c_[x, np.zeros(13, int)])
+        assert not e[:2, list(idx.values())].any()
+        q = 0
+        for t in range(11):
+            a = tuple(int((x[t] @ w + b) >= 1) for w, b in rules)
+            assert [k for k, m in idx.items() if e[t + 2, m]] == [(q, a)]
+            q = delta[q][a]

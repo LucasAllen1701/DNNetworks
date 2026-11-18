@@ -61,3 +61,11 @@ def test_h3_layout_computes_layer2_two_steps_later():
     want = np.array([U.fire(r, Fv[rows]) for r in l2]).T
     assert (e[2:, allowed[1:]] == want[:-2]).all()
     assert not e[:2, allowed].any()
+
+
+def test_neighbour_pairs_are_next_to_each_other():
+    rules = U.neighbour_pair_rules(4)
+    assert len(rules) == 24 * 4
+    for (w, b), _ in rules:
+        i, j = np.flatnonzero(w)
+        assert (j - i == 1 and i % 4 != 3) or j - i == 4
