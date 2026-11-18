@@ -1556,6 +1556,81 @@ its cap.
   sleep is state merging. A policy for helpers (experiments 14, 16) would
   keep the patterns whose removal changes a helper.
 
+## 19 Small black-and-white images (`exp19_small_images.py`)
+
+Next step 4, ladder rung 2. The input $x(t)$ is a 4 × 4 image (16 inputs)
+and the output at $t + 2$ is a fixed property of it: hline (some row all
+black), vline (some column), block (some 2 × 2 square), ink8 (at least 8
+black pixels), top (more black in the top half than in the bottom half),
+mirror (left-right symmetric). Pixels are black with a random density per
+image; for hline, vline, block and mirror half the images get the shape
+planted, so that both answers are common. Layouts as in experiments 14 and
+16 (h = 2, the output reads only its helpers): lookup (one indicator per
+positive image seen: the constant-answer reference), upstart and cover; both
+of the last two switch to indicators after 20 helpers. Training: 2 to 32
+streams of 13 images (22 to 333 distinct images), 10 seeds. Testing: 200
+streams of 13 images. "Base rate" is the accuracy of the better constant
+answer. Run on Lucas's machine, commit `6b3f02f`.
+
+### 19.1 Results
+
+Mean accuracy on unseen images (midpoint weights).
+
+| task | base rate | layout | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|---|
+| hline | 0.536 | lookup | 0.464 | 0.466 | 0.465 | 0.467 | 0.470 |
+| hline | 0.536 | upstart | 0.640 | 0.648 | 0.693 | 0.565 | 0.470 |
+| hline | 0.536 | cover | 0.672 | 0.737 | 0.784 | 0.865 | 0.875 |
+| vline | 0.536 | lookup | 0.464 | 0.465 | 0.466 | 0.466 | 0.470 |
+| vline | 0.536 | upstart | 0.648 | 0.658 | 0.708 | 0.607 | 0.470 |
+| vline | 0.536 | cover | 0.660 | 0.749 | 0.804 | 0.865 | 0.861 |
+| block | 0.551 | lookup | 0.448 | 0.448 | 0.447 | 0.448 | 0.444 |
+| block | 0.551 | upstart | 0.682 | 0.680 | 0.736 | 0.664 | 0.447 |
+| block | 0.551 | cover | 0.704 | 0.741 | 0.805 | 0.824 | 0.791 |
+| ink8 | 0.542 | lookup | 0.458 | 0.458 | 0.457 | 0.457 | 0.457 |
+| ink8 | 0.542 | upstart | 0.817 | 0.855 | 0.927 | 0.987 | 1.000 |
+| ink8 | 0.542 | cover | 0.775 | 0.826 | 0.857 | 0.897 | 0.883 |
+| top | 0.605 | lookup | 0.604 | 0.605 | 0.604 | 0.605 | 0.604 |
+| top | 0.605 | upstart | 0.737 | 0.825 | 0.945 | 1.000 | 1.000 |
+| top | 0.605 | cover | 0.661 | 0.745 | 0.784 | 0.805 | 0.785 |
+| mirror | 0.512 | lookup | 0.520 | 0.551 | 0.590 | 0.645 | 0.716 |
+| mirror | 0.512 | upstart | 0.521 | 0.653 | 0.792 | 0.811 | 0.856 |
+| mirror | 0.512 | cover | 0.541 | 0.563 | 0.599 | 0.689 | 0.740 |
+
+Means over the 6 tasks (unseen accuracy, midpoint), with mean helpers:
+
+| layout | 2 | 4 | 8 | 16 | 32 | helpers at 8 / 16 / 32 |
+|---|---|---|---|---|---|---|
+| lookup | 0.493 | 0.499 | 0.505 | 0.515 | 0.527 | 44 / 87 / 167 |
+| upstart | 0.674 | 0.720 | 0.800 | 0.772 | 0.707 | 3.5 / 41.5 / 109 |
+| cover | 0.669 | 0.727 | 0.772 | 0.824 | 0.822 | 12.9 / 24.4 / 52.4 |
+
+Every run recalls all training streams exactly without keys; no run needed a
+hidden neuron from TRAIN. Upstart passed 20 helpers (and switched to
+indicators) in 22 of 60 runs at 16 streams and 35 at 32; cover in 44 and
+all 60.
+
+### 19.2 Findings
+
+- **Threshold properties are learned exactly.**
+  ink8 and top need one upstart helper (the best perceptron) and are exact on
+  unseen images in all 10 runs at 32 streams (top already at 16).
+- **Shape properties are ORs of ANDs, and cover is the method for them**:
+  hline and vline reach 0.87, block 0.82, against base rates 0.54–0.55.
+  Each helper is a row, a column or a square, or part of one.
+- **Upstart collapses on shapes as data grows**: 0.69–0.74 at 8 streams, the
+  constant answer's level at 32. Its best perceptron is not exact, it passes
+  the 20-helper limit, and the remaining errors become indicators (about 200
+  of them at 32 streams), which is lookup.
+- **Cover stops improving at 16 streams** for the same reason: it also
+  reaches the limit, and its later helpers are indicators. A larger limit,
+  or the second hidden layer of experiment 16, is the next thing to try.
+- Mirror (a test of equality between pixel pairs, like equal3) is hard for
+  all. Lookup's rise to 0.72 is not learning: mirrored images repeat, so the
+  unseen ones are increasingly negative and the constant answer 0 gains.
+- No single layout wins every task. Rung 2 is reached for threshold
+  properties; shapes need helpers for groups of pixels beyond 20 at a time.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1741,6 +1816,12 @@ its cap.
 - Keeping the witnesses (drop a stream only if the merged machine stays the
   same) matches the unbounded buffer in every sleep, even with 8 streams:
   119 of 120 runs end right, against 79 (most recent 8) and 89 (random 8).
+
+**Small images (experiment 19, ladder rung 2).**
+- On 4 × 4 images, threshold properties (ink count, top heavier than
+  bottom) are exact on unseen images with one upstart helper. Shapes (lines,
+  2 × 2 blocks) reach 0.82–0.87 with the cover search; upstart falls to the
+  constant answer when its helpers run out. Mirror symmetry is hard for all.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
