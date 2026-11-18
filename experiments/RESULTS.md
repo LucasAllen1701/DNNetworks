@@ -1550,7 +1550,7 @@ its cap.
   stream is exact with midpoint weights; the dip comes from sampled weights,
   since an output trained on 8 streams has wider boxes.
 - Cost: the witness check merges the buffer once per candidate stream,
-  about 24 merges per sleep here. This is cheap for these sizes but grows
+  up to 24 merges per sleep here (cap + 8 streams). Cheap at these sizes; it grows
   with the buffer.
 - Open: the witness test compares machines, so it applies only when the
   sleep is state merging. A policy for helpers (experiments 14, 16) would
