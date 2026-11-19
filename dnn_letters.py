@@ -48,6 +48,7 @@ Added for experiment 23 (a tiny grid game):
 - letters of several bits, each bit one fixed neuron over the inputs
   (`choose_bits`, `make_layout_bits`). State neuron (q, a) is the AND of
   "in state q" and "the bits equal a", again one threshold, so h = 3.
+  Experiment 26 adds several output bits (`n_out`, `learn_machine_multi`).
 """
 from itertools import combinations, product
 
@@ -396,26 +397,41 @@ def compose_letter(V, n_in, h=H, lib=None, beam=None):
 
 # ---- experiment 23: letters of several bits
 
-def bit_streams(V, n_in, bits):
+def learn_machine_multi(seqs, n_in, n_out, h=H):
+    """dnn_merge.learn_machine for streams with n_out output columns: the
+    outputs are tuples."""
+    obs = []
+    for s in seqs:
+        s = np.asarray(s, int)
+        steps = len(s) - h
+        obs.append(([tuple(int(v) for v in s[t, :n_in]) for t in range(steps)],
+                    [tuple(int(v) for v in s[t + h, n_in:n_in + n_out]) for t in range(steps)]))
+    return M.merge(*M.prefix_tree(obs))
+
+
+def bit_streams(V, n_in, bits, n_out=1):
     """Training streams with the inputs replaced by the letter bits (each a
     function of an array of patterns)."""
-    return [np.c_[np.array([b(np.asarray(s)[:, :n_in]) for b in bits]).T, np.asarray(s)[:, n_in]] for s in V]
+    return [np.c_[np.array([b(np.asarray(s)[:, :n_in]) for b in bits]).T, np.asarray(s)[:, n_in:n_in + n_out]]
+            for s in V]
 
 
-def choose_bits(V, n_in, features, h=H, max_bits=2):
+def choose_bits(V, n_in, features, h=H, max_bits=2, n_out=1):
     """(indices, delta, out, candidates consistent) for the set of at most
     `max_bits` features (name, rule over the inputs) whose letter streams are
     consistent and merge into the fewest states (ties: fewer bits, then the
-    earlier set). None if no set is consistent."""
+    earlier set). None if no set is consistent. With n_out > 1 the streams
+    have n_out output columns and the machine's outputs are tuples."""
     from itertools import combinations
     X = [np.asarray(s, int)[:, :n_in] for s in V]
     cols = [[U.fire(r, x) for x in X] for _, r in features]
     best, consistent = None, 0
     for k in range(1, max_bits + 1):
         for idx in combinations(range(len(features)), k):
-            seqs = [np.c_[np.array([cols[i][j] for i in idx]).T, np.asarray(s)[:, n_in]] for j, s in enumerate(V)]
+            seqs = [np.c_[np.array([cols[i][j] for i in idx]).T, np.asarray(s)[:, n_in:n_in + n_out]]
+                    for j, s in enumerate(V)]
             try:
-                delta, out = M.learn_machine(seqs, k, h)
+                delta, out = M.learn_machine(seqs, k, h) if n_out == 1 else learn_machine_multi(seqs, k, n_out, h)
             except ValueError:
                 continue
             consistent += 1
@@ -424,13 +440,14 @@ def choose_bits(V, n_in, features, h=H, max_bits=2):
     return None if best is None else best + (consistent,)
 
 
-def make_layout_bits(n_in, bit_rules, delta):
+def make_layout_bits(n_in, bit_rules, delta, n_out=1):
     """Layout for a letter of k bits, each bit one fixed neuron (a rule over
     the inputs). delta: a complete machine over the k-bit tuples. State
     neuron (q, a) = S_q + lin_a - 1 >= 1, where lin_a = sum of (b_i if a_i
     else -b_i) + 1 - |a| is 1 exactly when the bits equal a and at most 0
-    otherwise. Returns (layout, state neurons {(q, a): index})."""
-    lay = F.Layout(n_in + 1, range(n_in), {n_in})
+    otherwise. The n_out output neurons follow the inputs. Returns (layout,
+    state neurons {(q, a): index})."""
+    lay = F.Layout(n_in + n_out, range(n_in), set(range(n_in, n_in + n_out)))
     lay.add_on()
     started = lay.add_fixed({lay.on: 1}, "started")
     started2 = lay.add_fixed({started: 1}, "started2")

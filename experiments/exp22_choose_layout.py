@@ -60,7 +60,7 @@ def training_inputs(family, task, n_train, seed):
 
 
 def depth(kind):
-    return 3 if kind in ("pairs3", "nbr3_cover") else 2
+    return 3 if kind in ("pairs3", "nbr3_cover", "nbr3_upstart") else 2
 
 
 def build_and_train(family, kind, xs, f):
@@ -75,9 +75,10 @@ def build_and_train(family, kind, xs, f):
     if kind == "pairs3":
         layer2 = U.build(U.layer1_values(X, e16.PAIRS), y, H.EPS)
         lay, allowed = U.make_layout_h3(n_in, e16.PAIRS, layer2)
-    elif kind == "nbr3_cover":
+    elif kind in ("nbr3_cover", "nbr3_upstart"):
         layer1 = e21.LAYER1["nbr3"]
-        layer2 = U.build_cover(U.layer1_values(X, layer1), y, H.EPS, max_helpers=e21.LIMIT)
+        search = U.build_cover if kind == "nbr3_cover" else U.build
+        layer2 = search(U.layer1_values(X, layer1), y, H.EPS, max_helpers=e21.LIMIT)
         lay, allowed = U.make_layout_h3(n_in, layer1, layer2)
     else:
         rules = (U.build if kind == "upstart" else U.build_cover)(X, y, H.EPS)
@@ -118,7 +119,7 @@ def heldout(family, task, n_train, seed, kind):
 
 def one_run(args):
     family, task, n_train, seed, kind = args
-    run = {"boolean": e16.one_run, "images": e21.one_run if kind == "nbr3_cover" else e19.one_run}[family]
+    run = {"boolean": e16.one_run, "images": e21.one_run if kind.startswith("nbr3") else e19.one_run}[family]
     row = dict(family=family)
     row.update(run((task, n_train, seed, kind)))
     t0 = time.perf_counter()
@@ -178,7 +179,7 @@ def summarise(rows):
     print(f"\nmax seconds: held-out {max(r['heldout_seconds'] for r in rows):.2f}")
 
 
-def main(seeds=SEEDS, families=tuple(FAMILIES)):
+def main(seeds=SEEDS, families=tuple(FAMILIES), name="exp22_choose_layout.csv"):
     jobs = [(fam, t, n, s, k) for fam in families for t in FAMILIES[fam]["tasks"] for n in FAMILIES[fam]["sizes"]
             for s in seeds for k in FAMILIES[fam]["layouts"]]
     jobs.sort(key=lambda j: (-j[2], j[4] != "nbr3_cover"))          # big runs first
@@ -187,7 +188,7 @@ def main(seeds=SEEDS, families=tuple(FAMILIES)):
     fam_order = list(FAMILIES)
     rows.sort(key=lambda r: (fam_order.index(r["family"]), list(FAMILIES[r["family"]]["tasks"]).index(r["task"]),
                              r["n_train"], r["seed"], FAMILIES[r["family"]]["layouts"].index(r["layout"])))
-    H.write_csv("exp22_choose_layout.csv", rows)
+    H.write_csv(name, rows)
     summarise(rows)
 
 

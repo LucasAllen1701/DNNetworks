@@ -221,6 +221,18 @@ def witness_evict(buffer, cap, bit_rules):
     return [buffer[j] for j in keep[-cap:]], max(len(keep) - cap, 0)
 
 
+def cut_recent(buffer, cap, layout, task):
+    return buffer[-cap:], ""
+
+
+def cut_witness(buffer, cap, layout, task):
+    """Witnesses of the whole buffer's machine (most recent if no letter)."""
+    full = build(buffer, layout, task)
+    if full is None:
+        return buffer[-cap:], ""
+    return witness_evict(buffer, cap, full[1])
+
+
 def build(buffer, layout, task):
     """(bit names, bit rules, delta, out, consistent letters) from the buffer."""
     if layout == "true_bits":
@@ -256,11 +268,7 @@ def one_run(args):
                    streams_seen=len(seen))
         dropped = ""
         if cap and len(buffer) > cap:
-            full = None if policy == "recent" else build(buffer, layout, task)
-            if full is None:
-                buffer = buffer[-cap:]
-            else:                               # witnesses of the whole buffer's machine
-                buffer, dropped = witness_evict(buffer, cap, full[1])
+            buffer, dropped = CUTS[policy](buffer, cap, layout, task)
         t0 = time.perf_counter()
         found = build(buffer, layout, task)
         row.update(buffer=len(buffer), witnesses_dropped=dropped)
@@ -292,6 +300,10 @@ def one_run(args):
                    unseen_exact_mid=float(np.mean(exact)))
         rows.append(row)
     return rows
+
+
+# buffer policies: (buffer, cap, layout, task) -> (kept streams, witnesses dropped)
+CUTS = {"recent": cut_recent, "witness": cut_witness}
 
 
 def _sel(rows, **kw):
