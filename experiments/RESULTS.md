@@ -1834,7 +1834,8 @@ layouts under 4 s.
   keeps improving (lines 0.90–0.92, blocks 0.88). Both now use fewer helpers
   than with the limit, since no indicators are added.
 - **Neighbouring-pixel pairs plus cover is best on shapes**: lines 0.96,
-  blocks 0.94 at 32 streams, the best on these three tasks at every size.
+  blocks 0.94 at 32 streams, the best (or tied best) on these three tasks
+  at every size.
   All pairs (480 neurons) is a little worse and ten times slower: the extra
   pairs are mostly noise for local shapes.
 - **Neighbour pairs plus upstart is the best layout overall** (0.913 mean
@@ -1845,8 +1846,8 @@ layouts under 4 s.
 - **Still no layout wins every task**: plain upstart is exact on the
   threshold tasks; nbr3_cover wins the shapes; nbr3_upstart wins mirror.
   Experiment 22 tests choosing between them from the training data.
-- Rung 2 now stands at 0.94–1.00 on five of the six tasks and 0.89–0.96 on
-  the sixth (ink8 needs plain upstart), each with the right layout.
+- With the right layout for each task, every task of rung 2 is now at 0.94
+  or better at 32 streams (ink8 and top exact).
 
 ## Summary
 
