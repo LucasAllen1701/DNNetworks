@@ -2239,6 +2239,64 @@ streams seen (no key), runs that dropped a witness.
   sleep needs on these tasks; the old buffer of everything is no longer
   required here.
 
+## 26 Imitating an expert, then playing (`exp26_imitate_expert.py`)
+
+Path to Doom, step 2: acting with multi-bit outputs. On experiment 23's
+4 × 4 two-plane grid, an expert fetches the key (top-right quadrant) and
+takes it to the door (bottom-left quadrant), again and again. Key and door
+are not drawn, so the expert must remember whether it holds the key. Its
+move is 2 output bits. This is a 2-state machine reading the letter (player
+in top half, player in right half). Layout (h = 3, `make_layout_bits` with 2
+output neurons reading only the state neurons): **bits** chooses the letter
+from experiment 23's 32 regions; **true_bits** is given (P:top, P:right).
+Trained on 8 to 32 expert episodes; scored on unseen episodes (every move
+right) and in closed-loop play: the network's moves drive the player for 60
+steps, counted in laps. Because the output comes h = 3 steps after the
+input, the same lag is given to an "expert with lag" reference. 10 seeds.
+Run on Lucas's machine, commit `f18d7b2`, 25 seconds; 80 rows, sha256
+`03005b04077f3e8b`. No earlier rows to reproduce.
+
+### 26.1 Results
+
+Runs with the true machine (of 10) / mean fraction of unseen episodes with
+every move right:
+
+| layout | 8 | 16 | 24 | 32 |
+|---|---|---|---|---|
+| bits | 8 / 0.89 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| true_bits | 7 / 0.86 | 8 / 0.99 | 8 / 0.99 | 9 / 0.99 |
+
+Mean laps per game of 60 steps (network / expert with lag 3 / expert /
+random):
+
+| layout | 8 | 16 | 24 | 32 |
+|---|---|---|---|---|
+| bits | 2.49 / 2.74 / 14.28 / 1.45 | 2.74 / 2.74 / 14.28 / 1.45 | 2.74 / 2.74 / 14.28 / 1.45 | 2.74 / 2.74 / 14.28 / 1.45 |
+| true_bits | 2.49 / 2.74 / 14.28 / 1.45 | 2.77 / 2.74 / 14.28 / 1.45 | 2.77 / 2.74 / 14.28 / 1.45 | 2.76 / 2.74 / 14.28 / 1.45 |
+
+bits always chose (P:top, P:left): P:left is the complement of P:right, so
+the letter is equivalent to the true one. No hidden neurons were added by
+training; recall from keys 1.000.
+
+### 26.2 Findings
+
+- **Imitation works.** From 16 episodes the network finds the expert's
+  machine in every run and gets every move of every unseen episode right.
+  At 8 episodes 2 runs are wrong; one (seed 4) found 3 states and plays
+  badly (0.23 laps).
+- **Given the true regions it does slightly worse** (true machine in 9 of
+  10 at 32 episodes): seeds 1 and 6 merge into 3 states instead of 2, with
+  every training episode still right. This is the labelling dependence of
+  merging seen in experiment 23. Those wrong machines happen to play a
+  little better than the lagged expert (2.85–2.88 laps against 2.72–2.76).
+- **The lag is the bottleneck for acting.** The network plays exactly as
+  well as the expert does with a 3-step lag (2.74 laps), which is a fifth
+  of the expert without lag (14.28) and not far above random (1.45). The
+  network copies the expert's decisions correctly, but by the time it acts
+  on a screen the player has moved on. Next step: a shorter latency
+  (h = 2, or outputs read directly from letter neurons) or a game that
+  waits for the move.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -2473,6 +2531,13 @@ streams seen (no key), runs that dropped a witness.
   letters (letter_witness) makes a buffer of 16 as good as keeping
   everything (58 of 60 true machines) and one of 8 nearly so (55, against 47
   for witnesses alone). With 4 it gets 41, against 33 and 21.
+
+**Imitating an expert (experiment 26).**
+- On a key-and-door game with 2-bit moves, the network learns the expert's
+  2-state machine from 16 episodes in every run (every unseen move right).
+  In closed-loop play it equals the expert with the same 3-step lag (2.74
+  laps per 60 steps), a fifth of the expert without lag (14.28): latency,
+  not learning, limits acting.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
