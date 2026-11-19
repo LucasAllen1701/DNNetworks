@@ -1946,6 +1946,108 @@ evaluation: 9.3 s.
   not among the choices (experiment 22 was written before experiment 21's
   results).
 
+## 23 A tiny grid game (`exp23_grid_game.py`)
+
+Next step 4, ladder rung 3. The screen is a 4 × 4 grid in two planes (32
+inputs): a player and a monster, one black pixel each, both walking at
+random (up, down, left, right; a move into a wall stays put). An episode is
+25 screens. The output at $t + 3$ is a game signal that needs memory:
+key_door (on the door, bottom-left quadrant, after the key, top-right),
+lap (enters the right half after the left), count2 (every second entry into
+the top row), monster_key (monster in the left half after the player took
+the key), parity_top (odd number of steps in the top half), both_bottom
+(game still on: player and monster never in the bottom row together). Each
+is a machine of 2 to 4 states reading a letter of 1 or 2 bits, each bit a
+region of one plane.
+
+Layout (h = 3): each letter bit is one fixed neuron (the OR of the region's
+pixels); state neurons read the bits. **bits** chooses the letter from 32
+regions (rows, columns, halves, quadrants of each plane): every set of 1 or
+2 regions (528 letters) with consistent letter streams is merged, fewest
+states win. **true_bits** is given the true regions. Raw state merging is
+not possible (2^32 letters). Data arrive as 32 episodes, 4 per round; after
+every second round the network is rebuilt from the buffer (a sleep). Buffer
+policies: all, recent (16 or 8), witness (16 or 8: choose the letter on the
+whole buffer, keep the streams its machine needs, rebuild from those). 10
+seeds; 200 test episodes, no key, midpoint weights. Run on Lucas's machine,
+commit `64f3838`, 3 minutes.
+
+### 23.1 Results
+
+After each sleep: runs with the true machine (of 10) / mean fraction of
+unseen episodes exact. "True machine" is judged on every sequence of
+screens, so a different letter can give it.
+
+| task | layout | buffer | 8 streams | 16 streams | 24 streams | 32 streams |
+|---|---|---|---|---|---|---|
+| key_door | bits | all | 3 / 0.78 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| key_door | true_bits | all | 8 / 0.97 | 9 / 0.98 | 10 / 1.00 | 10 / 1.00 |
+| key_door | bits | recent 16 | 3 / 0.78 | 10 / 1.00 | 8 / 0.95 | 8 / 0.96 |
+| key_door | bits | witness 16 | 3 / 0.78 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| key_door | bits | recent 8 | 3 / 0.78 | 5 / 0.83 | 2 / 0.79 | 7 / 0.89 |
+| key_door | bits | witness 8 | 3 / 0.78 | 9 / 0.98 | 6 / 0.91 | 8 / 0.95 |
+| lap | all layouts and buffers | | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| count2 | bits | all | 2 / 0.76 | 7 / 0.93 | 8 / 0.97 | 8 / 0.97 |
+| count2 | true_bits | all | 6 / 0.90 | 8 / 0.98 | 9 / 0.99 | 9 / 0.99 |
+| count2 | bits | recent 16 | 2 / 0.76 | 7 / 0.93 | 6 / 0.93 | 4 / 0.86 |
+| count2 | bits | witness 16 | 2 / 0.76 | 7 / 0.93 | 7 / 0.95 | 5 / 0.89 |
+| count2 | bits | recent 8 | 2 / 0.76 | 2 / 0.77 | 1 / 0.76 | 2 / 0.77 |
+| count2 | bits | witness 8 | 2 / 0.76 | 3 / 0.81 | 2 / 0.73 | 2 / 0.77 |
+| monster_key | bits | all | 3 / 0.82 | 5 / 0.94 | 9 / 0.99 | 10 / 1.00 |
+| monster_key | true_bits | all | 3 / 0.90 | 4 / 0.93 | 7 / 0.96 | 8 / 0.98 |
+| monster_key | bits | recent 16 | 3 / 0.82 | 5 / 0.94 | 6 / 0.95 | 6 / 0.95 |
+| monster_key | bits | witness 16 | 3 / 0.82 | 5 / 0.94 | 9 / 0.99 | 10 / 1.00 |
+| monster_key | bits | recent 8 | 3 / 0.82 | 1 / 0.67 | 4 / 0.83 | 1 / 0.76 |
+| monster_key | bits | witness 8 | 3 / 0.82 | 5 / 0.90 | 9 / 0.99 | 7 / 0.94 |
+| parity_top | all layouts and buffers | | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| both_bottom | bits | all | 5 / 0.77 | 8 / 0.98 | 9 / 0.98 | 10 / 1.00 |
+| both_bottom | true_bits | all | 5 / 0.88 | 8 / 0.98 | 9 / 0.98 | 10 / 1.00 |
+| both_bottom | bits | recent 16 | 5 / 0.77 | 8 / 0.98 | 7 / 0.93 | 9 / 0.97 |
+| both_bottom | bits | witness 16 | 5 / 0.77 | 8 / 0.98 | 9 / 0.98 | 10 / 1.00 |
+| both_bottom | bits | recent 8 | 5 / 0.77 | 4 / 0.86 | 5 / 0.85 | 6 / 0.85 |
+| both_bottom | bits | witness 8 | 5 / 0.77 | 7 / 0.91 | 9 / 0.98 | 10 / 1.00 |
+
+At the end (of 60 runs): letter is the true regions / true machine / mean
+unseen exact / mean recall without key of every episode seen:
+
+| layout | buffer | true regions | true machine | unseen exact | recall |
+|---|---|---|---|---|---|
+| bits | all | 37 | 58 | 0.995 | 1.000 |
+| true_bits | all | 60 | 57 | 0.994 | 1.000 |
+| bits | recent 16 | 35 | 47 | 0.959 | 0.976 |
+| bits | witness 16 | 33 | 55 | 0.981 | 0.992 |
+| bits | recent 8 | 35 | 36 | 0.879 | 0.907 |
+| bits | witness 8 | 30 | 47 | 0.943 | 0.966 |
+
+No sleep needed a hidden neuron from TRAIN; every sleep found a consistent
+letter (71 of 528 on average at the end). The witnesses always fitted in the
+cap. Longest build: 3.8 s.
+
+### 23.2 Findings
+
+- **Rung 3 works for game signals that need memory.** With the whole
+  buffer, the learned letter gives the true machine in 58 of 60 runs and
+  0.995 of unseen episodes exact; screen helpers, state neurons and merging
+  together, with nothing forgotten.
+- **The learned letter is often a different but equivalent one.** For
+  key_door it is always "top half + left half", whose 4 values include the
+  key and door quadrants exactly. Only 37 of 60 letters are the true
+  regions, but 58 machines are right.
+- **Merging, not the letter, limits the hard cases**, as in experiment 13:
+  given the true regions, merging still errs in 3 runs. In monster_key the
+  two failures with the true regions are the seeds where "bits" chose the
+  opposite half (monster right, not left) and merged correctly: merging
+  depends on how the letter is labelled.
+- **Witnesses help, but less than in experiment 18.** With 16 streams they
+  nearly match the whole buffer (55 against 47 for recent, of 60); with 8,
+  47 against 36. They protect the machine of the current letter but not the
+  streams that ruled out other letters: in 17 of the 18 capped witness runs
+  that end wrong, the letter chosen from the kept streams differs from the
+  one chosen from the whole buffer. A witness rule for the letter choice is
+  the missing piece.
+- count2 (4 states, rare outputs) is the hardest task; lap and parity_top
+  are exact in every run and every buffer.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -2158,6 +2260,13 @@ evaluation: 9.3 s.
   streams (0.954 at 32, against 0.886 for the best single layout). On the
   Boolean functions it helps at 4 and 8 streams; fewest helpers is as good
   with very few streams.
+
+**A tiny grid game (experiment 23, ladder rung 3).**
+- On a 4 × 4 two-plane game with random walkers, letters chosen from screen
+  regions plus state neurons give the true machine in 58 of 60 runs (0.995
+  of unseen episodes exact). Witnesses keep a bounded buffer close to that
+  with 16 streams (55), less so with 8 (47): they do not protect the
+  streams that ruled out other letters.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
