@@ -2340,8 +2340,8 @@ where it is the oracle's layout:
 ### 27.2 Findings
 
 - **Adding nbr3_upstart helps the held-out choice** by about 0.01 from 4
-  streams on (0.966 at 32, against 0.954 with three layouts), and it stays
-  within 0.003 to 0.03 of the oracle. nbr3_upstart is the best single
+  streams on (0.966 at 32, against 0.954 with three layouts). It is within
+  0.02 of the oracle from 8 streams on (0.003 at 32), 0.05 below at 2–4. nbr3_upstart is the best single
   layout at every size (0.913 at 32), but choosing per task is still better
   by 0.05.
 - The held-out rule picks nbr3_upstart mostly for mirror (34 of 50),
