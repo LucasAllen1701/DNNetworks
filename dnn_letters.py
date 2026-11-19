@@ -288,8 +288,8 @@ def cover_letter(X, z):
     the letter's rule over them: the OR of the helpers, or the NOR if the
     complement needs fewer helpers. Returns (rules, (v, c))."""
     X, z = np.asarray(X, int), np.asarray(z, int)
-    if z.min() == z.max():
-        return [], (np.zeros(0, int), int(z[0]))
+    if len(z) == 0 or z.min() == z.max():          # no labels, or one value: a constant letter
+        return [], (np.zeros(0, int), int(z[0]) if len(z) else 0)
     pos, neg = U.build_cover(X, z), U.build_cover(X, 1 - z)
     if len(neg) < len(pos):
         return neg, (-np.ones(len(neg), int), 1)
@@ -341,6 +341,8 @@ def learn_letter(V, n_in, h=H, lib=None, max_states=6, budget=300_000):
     z, delta, out = sol
     must = forced(z, delta, out, seqs)
     for fit_on in (must & (z >= 0), z >= 0):
+        if not fit_on.any():                # nothing forced: fit every label
+            continue
         rules, rule = cover_letter(X[fit_on], z[fit_on])
         f = letter_function(rules, rule)
         try:
