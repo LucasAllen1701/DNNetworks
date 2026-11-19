@@ -1631,6 +1631,115 @@ all 60.
 - No single layout wins every task. Rung 2 is reached for threshold
   properties; shapes need helpers for groups of pixels beyond 20 at a time.
 
+## 20 Learning the letter from the data (`exp20_learned_letter.py`)
+
+Next step 1 (follow-up to experiment 17). Experiment 17 chose the letter
+of a finite-state task from a fixed library of 101 functions of the 6 input
+bits; its tomita4/dnf2 letter, (x0 ∧ x1) ∨ (x2 ∧ x3), is not in the library
+and was never found. Two ways to learn the letter, both h = 3:
+
+- **composed**: the library grown by one step, the OR and the AND of every
+  pair of library letters (about 10,000 letters). The consistent letter of
+  either level whose merged machine has the fewest states wins (ties: the
+  library letter). Helpers as in experiment 17.
+- **search**: no library. The smallest machine and a letter label for every
+  training pattern are found together by backtracking, so that every
+  training output is reproduced (at most 6 states, 300,000 search nodes per
+  size; the library only orders the free label choices). The labels the
+  machine forces are fitted by the covering search of experiment 16, so
+  unseen patterns get the helpers' answer.
+
+"letters" and "true_letter" are experiment 17's layouts. Tasks: experiment
+17's six, plus tomita7/or3 (x0 ∨ x1 ∨ x2, also outside the library).
+Training: 2 to 32 streams of 13 vectors, 10 seeds; testing: 200 streams, no
+key, midpoint weights. Run on Lucas's machine, commit `64f3838` (with the
+fix of PR #23). The 600 letters and true_letter rows equal experiment 17's.
+
+### 20.1 Results
+
+Runs with the true machine (of 10) / mean fraction of unseen streams exact,
+by number of training streams ("–": no letter found in any run).
+
+| task | layout | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|
+| parity/maj012 | letters | 8 / 0.80 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| parity/maj012 | true_letter | 8 / 0.85 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| parity/maj012 | composed | 8 / 0.83 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| parity/maj012 | search | 0 / 0.04 | 9 / 0.90 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| tomita3/xor01 | letters | 0 / 0.09 | 0 / 0.54 | 5 / 0.81 | 8 / 0.96 | 10 / 1.00 |
+| tomita3/xor01 | true_letter | 0 / 0.34 | 0 / 0.59 | 5 / 0.81 | 8 / 0.96 | 10 / 1.00 |
+| tomita3/xor01 | composed | 0 / 0.09 | 0 / 0.50 | 5 / 0.81 | 8 / 0.96 | 10 / 1.00 |
+| tomita3/xor01 | search | 0 / 0.04 | 0 / 0.03 | 0 / 0.32 | 2 / 1.00 | – |
+| tomita4/and01 | letters | 0 / 0.14 | 0 / 0.53 | 5 / 0.85 | 9 / 0.98 | 10 / 1.00 |
+| tomita4/and01 | true_letter | 0 / 0.45 | 0 / 0.66 | 5 / 0.85 | 9 / 0.98 | 10 / 1.00 |
+| tomita4/and01 | composed | 0 / 0.12 | 0 / 0.35 | 5 / 0.84 | 9 / 0.98 | 10 / 1.00 |
+| tomita4/and01 | search | 0 / 0.02 | 0 / 0.05 | 1 / 0.27 | – | – |
+| tomita5/x0 | letters | 0 / 0.02 | 3 / 0.41 | 6 / 0.73 | 10 / 1.00 | 10 / 1.00 |
+| tomita5/x0 | true_letter | 0 / 0.08 | 3 / 0.44 | 6 / 0.73 | 10 / 1.00 | 10 / 1.00 |
+| tomita5/x0 | composed | 0 / 0.01 | 4 / 0.48 | 8 / 0.87 | 10 / 1.00 | 10 / 1.00 |
+| tomita5/x0 | search | 0 / 0.01 | 0 / 0.02 | 1 / 0.51 | – | – |
+| tomita7/maj345 | letters | 0 / 0.12 | 0 / 0.15 | 4 / 0.77 | 10 / 1.00 | 10 / 1.00 |
+| tomita7/maj345 | true_letter | 0 / 0.30 | 0 / 0.45 | 4 / 0.81 | 10 / 1.00 | 10 / 1.00 |
+| tomita7/maj345 | composed | 0 / 0.11 | 0 / 0.15 | 3 / 0.68 | 10 / 1.00 | 10 / 1.00 |
+| tomita7/maj345 | search | 0 / 0.04 | 0 / 0.09 | – | – | – |
+| tomita4/dnf2 | letters | 0 / 0.18 | 0 / 0.19 | 0 / 0.27 | 0 / 0.28 | – |
+| tomita4/dnf2 | true_letter | 0 / 0.30 | 4 / 0.68 | 5 / 0.81 | 7 / 0.92 | 10 / 1.00 |
+| tomita4/dnf2 | composed | 0 / 0.18 | 0 / 0.21 | 3 / 0.64 | 7 / 0.92 | 10 / 1.00 |
+| tomita4/dnf2 | search | 0 / 0.16 | 0 / 0.14 | 0 / 0.12 | – | – |
+| tomita7/or3 | letters | 0 / 0.52 | 0 / 0.48 | 0 / 0.53 | 0 / 0.61 | 0 / 0.57 |
+| tomita7/or3 | true_letter | 0 / 0.75 | 0 / 0.79 | 0 / 0.75 | 0 / 0.88 | 4 / 0.93 |
+| tomita7/or3 | composed | 0 / 0.53 | 0 / 0.45 | 0 / 0.64 | 0 / 0.79 | 3 / 0.94 |
+| tomita7/or3 | search | 0 / 0.55 | 0 / 0.55 | 0 / 0.77 | – | – |
+
+Runs whose letter is the true one on all 64 patterns: letters / composed /
+search.
+
+| task | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|
+| parity/maj012 | 8 / 8 / 0 | 10 / 10 / 9 | 10 / 10 / 10 | 10 / 10 / 10 | 10 / 10 / 10 |
+| tomita3/xor01 | 1 / 1 / 0 | 9 / 8 / 0 | 10 / 10 / 1 | 10 / 10 / 2 | 10 / 10 / 0 |
+| tomita4/and01 | 0 / 0 / 0 | 7 / 2 / 0 | 10 / 9 / 1 | 10 / 10 / 0 | 10 / 10 / 0 |
+| tomita5/x0 | 1 / 1 / 0 | 8 / 7 / 0 | 10 / 10 / 1 | 10 / 10 / 0 | 10 / 10 / 0 |
+| tomita7/maj345 | 0 / 0 / 0 | 0 / 0 / 0 | 9 / 7 / 0 | 10 / 10 / 0 | 10 / 10 / 0 |
+| tomita4/dnf2 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 6 / 0 | 0 / 10 / 0 | 0 / 10 / 0 |
+| tomita7/or3 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 3 / 0 | 0 / 7 / 0 | 0 / 10 / 0 |
+
+No letter found: letters 15 runs, composed 0, search 159 (by streams: 0,
+7, 34, 58, 60). Composed chose a two-letter combination in 115 of 350 runs;
+on the five library tasks only at 2 to 8 streams (51 runs). Where search
+found a machine, it had fewer states than the true machine in 131 of 191
+runs; its letter agreed with the true one on 0.71 of the patterns on
+average. Every run recalls its training streams from keys; no run needed a
+hidden neuron from TRAIN. Longest build: 8.5 s (composed).
+
+### 20.2 Findings
+
+- **The composed library finds both letters outside the library.** dnf2's
+  letter is found in 6 of 10 runs at 8 streams and all 10 from 16, and
+  composed then matches true_letter exactly (7 / 0.92 at 16, 10 / 1.00 at
+  32) where experiment 17's library gets 0.28 or nothing. For or3 the letter
+  is found in 3, 7 and 10 runs at 8, 16 and 32 streams, and composed matches
+  true_letter at 32 (0.94 against 0.93). What still limits or3 is merging:
+  its letter is 0 only one time in 8, so even the true letter gives the true
+  machine in only 4 of 10 runs.
+- **The bigger library costs a little with few streams.** On the five
+  library tasks composed sometimes prefers a two-letter combination with a
+  smaller machine at 2 to 8 streams (and01 at 4: 0.35 against 0.53; maj345
+  at 8: 0.68 against 0.77; x0 at 8 gains: 0.87 against 0.73). From 16
+  streams it equals experiment 17 on all five.
+- **Learning the letter with no prior on its form fails.** The joint search
+  gives each training pattern its own free label, so a small wrong machine
+  plus a letter that copies the outputs fits the data: its machines are
+  usually smaller than the true one, and only parity/maj012 (2 states) is
+  learned. With more data a consistent labelling exists only at the true
+  size, and the backtracking search runs out of budget there (no letter in
+  58 of 70 runs at 16 streams, all 70 at 32). A SAT solver might reach the
+  true size, but the overfitting at small sizes would remain.
+- So the letter must come from a class of simple functions (the library,
+  grown by combination) chosen by the data, not from free labels. This is
+  the same lesson as experiments 9 to 15: generalisation comes from neurons
+  computed from the inputs, not from labels copied from the outputs.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1822,6 +1931,14 @@ all 60.
   bottom) are exact on unseen images with one upstart helper. Shapes (lines,
   2 × 2 blocks) reach 0.82–0.87 with the cover search; upstart falls to the
   constant answer when its helpers run out. Mirror symmetry is hard for all.
+
+**Learning the letter (experiment 20).**
+- Growing the library by one step (OR and AND of two library letters) finds
+  both letters outside it, (x0 ∧ x1) ∨ (x2 ∧ x3) and x0 ∨ x1 ∨ x2, and
+  then matches the true letter's results (dnf2 exact from 32 streams). A
+  joint search with a free label per pattern overfits (small wrong machines)
+  and runs out of budget with more data: the letter needs a class of simple
+  functions.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
