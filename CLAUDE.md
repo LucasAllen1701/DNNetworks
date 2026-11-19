@@ -1,0 +1,63 @@
+# Instructions for Claude Code in this repository
+
+This is Lucas Allen's research code for discrete neural networks (weights are
+boxes found by linear programming; neurons are added when an LP is
+infeasible). Read `docs/Handoff_Notes.md` first: it has the state of the work,
+the decisions, and the path we are following. Results are in
+`experiments/RESULTS.md` (about 2,500 lines): read only the section you need
+and its Summary entry, never the whole file.
+
+## Where we are going
+
+Lucas's long-term goal is programs that run locally, built from discrete
+neural networks: first an agent that plays Doom, later Lean 4 proofs and a
+chat bot. The path to Doom is in `docs/Handoff_Notes.md` section 4. Steps 1-2
+are done (experiments 24-27). Work moves forward in **batches**: several
+experiments designed, run and written up together, aimed at the next steps
+of the path.
+
+## How a batch runs
+
+1. **Plan.** Propose the batch in a few lines (which experiments, what
+   question each answers, rough run time on this machine) and wait for
+   Lucas's OK before writing code.
+2. **Branch.** One branch per batch, `claude/batch-<short-name>`, from an
+   up-to-date `main`. Never commit to `main`.
+3. **Write** each experiment as `experiments/exp<N>_<name>.py`, numbering on
+   from the last one. Follow the dashboard conventions in the handoff notes
+   (docstring title, `harness.write_csv`, module-level workers,
+   `main()` under `if __name__ == "__main__"`), and the two pitfalls:
+   read committed CSVs from `experiments/results/`, not `harness.RESULTS`;
+   pass patched tables explicitly instead of relying on default arguments.
+   Add tests for new library code; keep `dnn.py` unchanged unless Lucas asks.
+4. **Small run first**: call `main()` with small sizes and check it works
+   with `DNN_RESULTS_DIR` set to a temporary folder (as the dashboard does).
+5. **Full runs on this machine** (12 CPUs). Run one experiment at a time:
+   `nice python experiments/exp<N>_<name>.py > runs/exp<N>.log 2>&1`
+   (`runs/` is git-ignored). Look only at the end of the log (`tail -40`), not
+   all of it. If a run will take more than about an hour, say so first.
+6. **Check every CSV by script**, never by reading it: row count, expected
+   rows per setting, 16-character sha256, and exact reproduction of any rows
+   that repeat an earlier experiment's settings (timing columns ignored).
+   A failed reproduction is a bug to find before writing up.
+7. **Write up** each experiment as a `RESULTS.md` section (setup, tables,
+   findings, with h stated) plus a Summary entry, matching earlier sections.
+   State negative results plainly. Say when a result depends on building
+   blocks Claude designed.
+8. **Finish the batch**: run the tests (`python -m pytest -q`), update
+   `docs/Handoff_Notes.md` (state, next steps, open problems), commit, push
+   the branch, open one pull request for the batch, and give Lucas a short
+   plain summary: what each experiment showed and what you suggest next.
+
+Stop and ask Lucas when a result changes the plan, when a design choice is
+his to make (anything in the notes' "Decisions" section), or before anything
+hard to undo.
+
+## Conventions
+
+- Fixed seeds; CSVs in `experiments/results/`; experiments that reuse
+  earlier layouts must reproduce the earlier rows exactly.
+- Commit with the git identity configured on this machine; do not change git
+  config. Do not put email addresses in files or commit messages.
+- Lucas's usage is limited: keep replies short and plain, keep command output
+  trimmed (`tail`, `grep`, `head`), and do not read large files whole.
