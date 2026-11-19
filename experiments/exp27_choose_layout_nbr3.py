@@ -19,7 +19,7 @@ e22.FAMILIES = {"images": dict(tasks=e19.TASKS, sizes=e19.SIZES, layouts=["upsta
 
 
 def main():
-    e22.main(name="exp27_choose_layout_nbr3.csv")
+    e22.main(families=("images",), name="exp27_choose_layout_nbr3.csv")   # e22.main's default was fixed at import
 
 
 if __name__ == "__main__":
