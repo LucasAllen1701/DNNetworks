@@ -1740,6 +1740,115 @@ hidden neuron from TRAIN. Longest build: 8.5 s (composed).
   the same lesson as experiments 9 to 15: generalisation comes from neurons
   computed from the inputs, not from labels copied from the outputs.
 
+## 21 More helpers for shapes (`exp21_more_helpers_images.py`)
+
+Next step 2 (follow-up to experiment 19). In experiment 19 the helper
+searches stopped at 20 helpers and then added one indicator per remaining
+positive image; upstart fell to the constant answer on lines and blocks, and
+cover stopped improving at 16 streams. Same tasks, images, seeds and scoring
+as experiment 19. Layouts:
+
+- **upstart, cover**: experiment 19's (limit 20).
+- **upstart200, cover200**: the same searches with a limit of 200 (never
+  reached: at most 97 and 57 helpers), so in effect no limit.
+- **nbr3_upstart, nbr3_cover**: a second hidden layer (h = 3, as
+  experiment 16's pairs3). Layer 1 is the AND of two literals for every pair
+  of neighbouring pixels (24 pairs × 4 = 96 fixed neurons); layer 2 is built
+  over the inputs and layer 1 by upstart or cover.
+- **pairs3_cover**: the same with every pair of pixels in layer 1 (120 pairs
+  × 4 = 480 fixed neurons), layer 2 by cover.
+
+Run on Lucas's machine, commit `64f3838`, 35 minutes. The 600 upstart and
+cover rows equal experiment 19's.
+
+### 21.1 Results
+
+Mean accuracy on unseen images (midpoint weights).
+
+| task | base rate | layout | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|---|
+| hline | 0.536 | upstart | 0.640 | 0.648 | 0.693 | 0.565 | 0.470 |
+| hline | 0.536 | cover | 0.672 | 0.737 | 0.784 | 0.865 | 0.875 |
+| hline | 0.536 | upstart200 | 0.640 | 0.648 | 0.693 | 0.739 | 0.763 |
+| hline | 0.536 | cover200 | 0.672 | 0.737 | 0.784 | 0.873 | 0.917 |
+| hline | 0.536 | nbr3_upstart | 0.641 | 0.728 | 0.821 | 0.846 | 0.860 |
+| hline | 0.536 | nbr3_cover | 0.691 | 0.765 | 0.832 | 0.901 | 0.958 |
+| hline | 0.536 | pairs3_cover | 0.645 | 0.731 | 0.786 | 0.877 | 0.940 |
+| vline | 0.536 | upstart | 0.648 | 0.658 | 0.708 | 0.607 | 0.470 |
+| vline | 0.536 | cover | 0.660 | 0.749 | 0.804 | 0.865 | 0.861 |
+| vline | 0.536 | upstart200 | 0.648 | 0.658 | 0.708 | 0.739 | 0.764 |
+| vline | 0.536 | cover200 | 0.660 | 0.749 | 0.804 | 0.876 | 0.904 |
+| vline | 0.536 | nbr3_upstart | 0.674 | 0.768 | 0.809 | 0.843 | 0.838 |
+| vline | 0.536 | nbr3_cover | 0.703 | 0.797 | 0.817 | 0.906 | 0.957 |
+| vline | 0.536 | pairs3_cover | 0.639 | 0.739 | 0.817 | 0.901 | 0.927 |
+| block | 0.551 | upstart | 0.682 | 0.680 | 0.736 | 0.664 | 0.447 |
+| block | 0.551 | cover | 0.704 | 0.741 | 0.805 | 0.824 | 0.791 |
+| block | 0.551 | upstart200 | 0.682 | 0.680 | 0.736 | 0.761 | 0.794 |
+| block | 0.551 | cover200 | 0.704 | 0.741 | 0.805 | 0.848 | 0.882 |
+| block | 0.551 | nbr3_upstart | 0.702 | 0.776 | 0.811 | 0.854 | 0.879 |
+| block | 0.551 | nbr3_cover | 0.709 | 0.802 | 0.842 | 0.901 | 0.943 |
+| block | 0.551 | pairs3_cover | 0.687 | 0.754 | 0.791 | 0.859 | 0.886 |
+| ink8 | 0.542 | upstart | 0.817 | 0.855 | 0.927 | 0.987 | 1.000 |
+| ink8 | 0.542 | cover | 0.775 | 0.826 | 0.857 | 0.897 | 0.883 |
+| ink8 | 0.542 | upstart200 | 0.817 | 0.855 | 0.927 | 0.987 | 1.000 |
+| ink8 | 0.542 | cover200 | 0.775 | 0.826 | 0.857 | 0.898 | 0.909 |
+| ink8 | 0.542 | nbr3_upstart | 0.786 | 0.836 | 0.881 | 0.921 | 0.958 |
+| ink8 | 0.542 | nbr3_cover | 0.721 | 0.780 | 0.832 | 0.868 | 0.888 |
+| ink8 | 0.542 | pairs3_cover | 0.717 | 0.780 | 0.813 | 0.880 | 0.902 |
+| top | 0.605 | upstart | 0.737 | 0.825 | 0.945 | 1.000 | 1.000 |
+| top | 0.605 | cover | 0.661 | 0.745 | 0.784 | 0.805 | 0.785 |
+| top | 0.605 | upstart200 | 0.737 | 0.825 | 0.945 | 1.000 | 1.000 |
+| top | 0.605 | cover200 | 0.661 | 0.745 | 0.784 | 0.820 | 0.845 |
+| top | 0.605 | nbr3_upstart | 0.680 | 0.759 | 0.839 | 0.910 | 1.000 |
+| top | 0.605 | nbr3_cover | 0.617 | 0.693 | 0.739 | 0.771 | 0.805 |
+| top | 0.605 | pairs3_cover | 0.648 | 0.709 | 0.772 | 0.806 | 0.836 |
+| mirror | 0.513 | upstart | 0.521 | 0.653 | 0.792 | 0.811 | 0.856 |
+| mirror | 0.513 | cover | 0.541 | 0.563 | 0.599 | 0.689 | 0.740 |
+| mirror | 0.513 | upstart200 | 0.521 | 0.653 | 0.792 | 0.824 | 0.870 |
+| mirror | 0.513 | cover200 | 0.541 | 0.563 | 0.599 | 0.685 | 0.719 |
+| mirror | 0.513 | nbr3_upstart | 0.644 | 0.757 | 0.822 | 0.906 | 0.941 |
+| mirror | 0.513 | nbr3_cover | 0.592 | 0.605 | 0.669 | 0.714 | 0.767 |
+| mirror | 0.513 | pairs3_cover | 0.566 | 0.564 | 0.629 | 0.697 | 0.748 |
+
+Means over the 6 tasks (unseen accuracy, midpoint), with mean helpers at 32
+streams (layer 2 at h = 3):
+
+| layout | 2 | 4 | 8 | 16 | 32 | helpers at 32 |
+|---|---|---|---|---|---|---|
+| upstart | 0.674 | 0.720 | 0.800 | 0.772 | 0.707 | 109 |
+| cover | 0.669 | 0.727 | 0.772 | 0.824 | 0.822 | 52.4 |
+| upstart200 | 0.674 | 0.720 | 0.800 | 0.842 | 0.865 | 38.5 |
+| cover200 | 0.669 | 0.727 | 0.772 | 0.833 | 0.863 | 38.7 |
+| nbr3_upstart | 0.688 | 0.771 | 0.831 | 0.880 | **0.913** | 1.9 |
+| nbr3_cover | 0.672 | 0.740 | 0.788 | 0.843 | 0.886 | 35.0 |
+| pairs3_cover | 0.651 | 0.713 | 0.768 | 0.837 | 0.873 | 34.2 |
+
+Every run recalls all training streams exactly without keys; no run needed a
+hidden neuron from TRAIN. Longest build: 43 s (pairs3_cover); the other
+layouts under 4 s.
+
+### 21.2 Findings
+
+- **The limit was the problem.** Without it, upstart no longer collapses
+  (lines and blocks 0.76–0.79 at 32 streams, against 0.45–0.47) and cover
+  keeps improving (lines 0.90–0.92, blocks 0.88). Both now use fewer helpers
+  than with the limit, since no indicators are added.
+- **Neighbouring-pixel pairs plus cover is best on shapes**: lines 0.96,
+  blocks 0.94 at 32 streams, the best (or tied best) on these three tasks
+  at every size.
+  All pairs (480 neurons) is a little worse and ten times slower: the extra
+  pairs are mostly noise for local shapes.
+- **Neighbour pairs plus upstart is the best layout overall** (0.913 mean
+  at 32 streams) with 1 to 5 helpers. It is exact on top, 0.96 on ink8, and
+  0.94 on mirror, the task that was hard for all before (0.86 at best). Its
+  helpers are best perceptrons over pixels and pair ANDs: equal neighbouring
+  pixels are pair ANDs, so a single threshold over them goes a long way.
+- **Still no layout wins every task**: plain upstart is exact on the
+  threshold tasks; nbr3_cover wins the shapes; nbr3_upstart wins mirror.
+  Experiment 22 tests choosing between them from the training data.
+- With the right layout for each task, every task of rung 2 is now at 0.94
+  or better at 32 streams (ink8 and top exact).
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -1939,6 +2048,12 @@ hidden neuron from TRAIN. Longest build: 8.5 s (composed).
   joint search with a free label per pattern overfits (small wrong machines)
   and runs out of budget with more data: the letter needs a class of simple
   functions.
+
+**More helpers for shapes (experiment 21).**
+- Removing the 20-helper limit stops upstart's collapse and lets cover keep
+  improving. A layer of neighbouring-pixel pair ANDs (h = 3) is better
+  still: with cover, lines 0.96 and blocks 0.94; with upstart, 0.91 mean
+  over all six tasks from 1 to 5 helpers, and mirror 0.94.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
