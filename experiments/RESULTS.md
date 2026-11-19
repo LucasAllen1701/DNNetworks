@@ -1849,6 +1849,103 @@ layouts under 4 s.
 - With the right layout for each task, every task of rung 2 is now at 0.94
   or better at 32 streams (ink8 and top exact).
 
+## 22 Choosing the layout from the training data (`exp22_choose_layout.py`)
+
+Next step 3. Different layouts win different tasks (experiments 16, 19,
+21). Two rules choose the layout from the training streams alone:
+
+- **heldout**: the streams are split into k = min(streams, 4) folds; for each
+  fold every layout is built and trained on the other streams and scored on
+  the held-out ones (outputs whose input pattern the other streams lack,
+  midpoint weights). Best pooled score wins (ties: fewer helpers). With 1
+  stream it falls back to the next rule.
+- **fewest**: the layout with the fewest helpers built from the data (at
+  h = 3, layer 2 only).
+
+The chosen layout, built on all the training streams, is scored on the test
+streams and compared with each fixed layout and with **oracle** (the best
+layout of each run on the test streams, which a learner cannot know).
+Tasks: experiment 16's eight Boolean functions of 6 inputs (1 to 16 streams;
+upstart, cover, pairs3) and experiment 19's six image tasks (2 to 32
+streams; upstart, cover and experiment 21's nbr3_cover). 10 seeds. Run on
+Lucas's machine, commit `64f3838`, 11 minutes. Every row's test columns equal
+experiment 16's (1200 rows), 19's (600) or 21's (900).
+
+### 22.1 Results
+
+Mean accuracy on unseen patterns (midpoint), over all tasks and seeds.
+
+Boolean functions:
+
+| layout or rule | 1 | 2 | 4 | 8 | 16 |
+|---|---|---|---|---|---|
+| upstart | 0.633 | 0.722 | 0.748 | 0.787 | 0.780 |
+| cover | 0.626 | 0.693 | 0.724 | 0.695 | 0.695 |
+| pairs3 | 0.642 | 0.716 | 0.784 | 0.781 | 0.887 |
+| heldout | 0.642 | 0.720 | 0.791 | 0.824 | 0.884 |
+| fewest | 0.642 | 0.734 | 0.806 | 0.810 | 0.887 |
+| oracle | 0.685 | 0.766 | 0.824 | 0.868 | 0.929 |
+
+Images:
+
+| layout or rule | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|
+| upstart | 0.674 | 0.720 | 0.800 | 0.772 | 0.707 |
+| cover | 0.669 | 0.727 | 0.772 | 0.824 | 0.822 |
+| nbr3_cover | 0.672 | 0.740 | 0.788 | 0.843 | 0.886 |
+| heldout | 0.681 | 0.754 | 0.854 | 0.918 | 0.954 |
+| fewest | 0.674 | 0.720 | 0.802 | 0.893 | 0.955 |
+| oracle | 0.717 | 0.790 | 0.864 | 0.921 | 0.956 |
+
+Layout chosen by the held-out rule (runs per task over all sizes, of 50) and
+runs where it is the oracle's layout:
+
+| task | upstart | cover | pairs3 / nbr3_cover | same as oracle |
+|---|---|---|---|---|
+| majority | 43 | 3 | 4 | 37 |
+| and3 | 44 | 2 | 4 | 42 |
+| xor2 | 8 | 1 | 41 | 46 |
+| dnf3 | 11 | 11 | 28 | 34 |
+| mux | 14 | 24 | 12 | 28 |
+| equal3 | 20 | 2 | 28 | 22 |
+| parity6 | 14 | 7 | 29 | 21 |
+| random | 19 | 11 | 20 | 18 |
+| hline | 1 | 8 | 41 | 38 |
+| vline | 6 | 6 | 38 | 34 |
+| block | 4 | 6 | 40 | 41 |
+| ink8 | 34 | 7 | 9 | 34 |
+| top | 43 | 4 | 3 | 43 |
+| mirror | 33 | 4 | 13 | 33 |
+
+Head to head (runs where held-out's choice scores higher minus runs where it
+scores lower than fewest's): Boolean −11, −6, +2, −1 at 2, 4, 8, 16 streams;
+images +15, +16, +28, +9, 0 at 2 to 32 streams. Longest held-out
+evaluation: 9.3 s.
+
+### 22.2 Findings
+
+- **On images, choosing by held-out streams is nearly as good as knowing
+  the answer**: 0.918 and 0.954 at 16 and 32 streams against the oracle's
+  0.921 and 0.956, and 0.03–0.07 above the best fixed layout from 8 streams.
+  At 32 streams it matches the best layout on every task (lines and blocks
+  nbr3_cover, ink8 and top upstart) and beats it on mirror (0.87).
+- **On the Boolean functions it is less clear-cut**: held-out beats every
+  fixed layout at 4 and 8 streams (0.82 against 0.79 at 8) but is about
+  equal to pairs3 at 16. Fewest helpers does as well or better with 2 to 4
+  streams, where folds of one or two streams are too small to score.
+- **Each rule has a blind spot at 16 Boolean streams**: fewest helpers
+  picks wrongly on mux (0.85 against 1.00); held-out picks wrongly on equal3
+  (0.96 against 1.00) and on the random function (0.38 against 0.52), where
+  there is nothing to learn and only a few unseen patterns are scored.
+- **Fewest helpers is a good cheap rule once data are plentiful** (images
+  0.955 at 32 streams) but poor with few streams (images 0.72 at 4, the
+  upstart level, since upstart starts with one helper).
+- The gap to the oracle is largest with few streams (0.04–0.05 at 2 to 4
+  streams), where the held-out folds are smallest.
+- Not tried: experiment 21's best overall image layout, nbr3_upstart, was
+  not among the choices (experiment 22 was written before experiment 21's
+  results).
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -2054,6 +2151,13 @@ layouts under 4 s.
   improving. A layer of neighbouring-pixel pair ANDs (h = 3) is better
   still: with cover, lines 0.96 and blocks 0.94; with upstart, 0.91 mean
   over all six tasks from 1 to 5 helpers, and mirror 0.94.
+
+**Choosing the layout (experiment 22).**
+- Choosing between layouts by scoring them on held-out training streams
+  comes within 0.003 of the best possible choice on images at 16 and 32
+  streams (0.954 at 32, against 0.886 for the best single layout). On the
+  Boolean functions it helps at 4 and 8 streams; fewest helpers is as good
+  with very few streams.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
