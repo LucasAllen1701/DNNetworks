@@ -2297,6 +2297,61 @@ training; recall from keys 1.000.
   (h = 2, or outputs read directly from letter neurons) or a game that
   waits for the move.
 
+## 27 Choosing the image layout with nbr3_upstart among the choices (`exp27_choose_layout_nbr3.py`)
+
+Closes a gap in experiment 22: its image choices were upstart, cover and
+nbr3_cover, but experiment 21's best layout overall, nbr3_upstart
+(neighbouring-pixel pair ANDs in layer 1, upstart in layer 2, h = 3), was
+not among them. Same method as experiment 22 (held-out training streams, or
+fewest helpers, against each fixed layout and the oracle), image tasks only,
+with four layouts. 10 seeds. Run on Lucas's machine, commit `01f1d34`
+(after the fix in PR #32: the first run stopped at once with a KeyError),
+12 minutes; 1,200 rows, sha256 `24c1a3df66b59d7c`. The 900 rows of upstart,
+cover and nbr3_cover equal experiment 22's image rows, and all 1,200 equal
+experiment 21's on the columns they share (timing columns ignored).
+
+### 27.1 Results
+
+Mean accuracy on unseen patterns (midpoint), over all tasks and seeds:
+
+| layout or rule | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|
+| upstart | 0.674 | 0.720 | 0.800 | 0.772 | 0.707 |
+| cover | 0.669 | 0.727 | 0.772 | 0.824 | 0.822 |
+| nbr3_cover | 0.672 | 0.740 | 0.788 | 0.843 | 0.886 |
+| nbr3_upstart | 0.688 | 0.771 | 0.831 | 0.880 | 0.913 |
+| heldout | 0.677 | 0.765 | 0.858 | 0.929 | 0.966 |
+| fewest | 0.674 | 0.760 | 0.857 | 0.906 | 0.920 |
+| oracle | 0.729 | 0.810 | 0.876 | 0.936 | 0.969 |
+| heldout, experiment 22 (3 layouts) | 0.681 | 0.754 | 0.854 | 0.918 | 0.954 |
+
+Layout chosen by the held-out rule, runs per task (all sizes), and runs
+where it is the oracle's layout:
+
+| task | upstart | cover | nbr3_cover | nbr3_upstart | same as oracle | of |
+|---|---|---|---|---|---|---|
+| hline | 1 | 5 | 33 | 11 | 31 | 50 |
+| vline | 6 | 5 | 30 | 9 | 28 | 50 |
+| block | 3 | 2 | 34 | 11 | 32 | 50 |
+| ink8 | 30 | 5 | 6 | 9 | 31 | 50 |
+| top | 40 | 4 | 1 | 5 | 40 | 50 |
+| mirror | 9 | 4 | 3 | 34 | 29 | 50 |
+
+### 27.2 Findings
+
+- **Adding nbr3_upstart helps the held-out choice** by about 0.01 from 4
+  streams on (0.966 at 32, against 0.954 with three layouts), and it stays
+  within 0.003 to 0.03 of the oracle. nbr3_upstart is the best single
+  layout at every size (0.913 at 32), but choosing per task is still better
+  by 0.05.
+- The held-out rule picks nbr3_upstart mostly for mirror (34 of 50),
+  nbr3_cover for lines and blocks, and upstart for ink8 and top.
+- **Fewest helpers gets worse with the fourth layout** at 32 streams (0.920,
+  against 0.955 in experiment 22): fewest helpers is not a reliable rule
+  across layouts of different depth.
+- For the comparison of experiment 24, the discrete networks' image score at
+  32 streams becomes 0.97 against the MLP's 0.95.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -2538,6 +2593,12 @@ training; recall from keys 1.000.
   In closed-loop play it equals the expert with the same 3-step lag (2.74
   laps per 60 steps), a fifth of the expert without lag (14.28): latency,
   not learning, limits acting.
+
+**Choosing the image layout with nbr3_upstart (experiment 27).**
+- With nbr3_upstart as a fourth choice, choosing the layout by held-out
+  training streams reaches 0.966 on images at 32 streams (0.954 with three
+  layouts; oracle 0.969; best single layout 0.913). Fewest helpers drops to
+  0.920.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
