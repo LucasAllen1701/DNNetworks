@@ -1926,7 +1926,7 @@ evaluation: 9.3 s.
 
 - **On images, choosing by held-out streams is nearly as good as knowing
   the answer**: 0.918 and 0.954 at 16 and 32 streams against the oracle's
-  0.921 and 0.956, and 0.03–0.07 above the best fixed layout from 8 streams.
+  0.921 and 0.956, and 0.05–0.08 above the best fixed layout from 8 streams.
   At 32 streams it matches the best layout on every task (lines and blocks
   nbr3_cover, ink8 and top upstart) and beats it on mirror (0.87).
 - **On the Boolean functions it is less clear-cut**: held-out beats every
@@ -1940,7 +1940,7 @@ evaluation: 9.3 s.
 - **Fewest helpers is a good cheap rule once data are plentiful** (images
   0.955 at 32 streams) but poor with few streams (images 0.72 at 4, the
   upstart level, since upstart starts with one helper).
-- The gap to the oracle is largest with few streams (0.04–0.05 at 2 to 4
+- The gap to the oracle is largest with few streams (0.03–0.05 at 1 to 4
   streams), where the held-out folds are smallest.
 - Not tried: experiment 21's best overall image layout, nbr3_upstart, was
   not among the choices (experiment 22 was written before experiment 21's
