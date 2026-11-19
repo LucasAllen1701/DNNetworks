@@ -385,7 +385,9 @@ header .env { color: var(--text-2); font-size: 13px; }
 main { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 16px; padding: 16px 20px; align-items: start; }
 @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
-#list { padding: 6px; }
+#list { padding: 6px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto;
+  overscroll-behavior: contain; }
+@media (max-width: 860px) { #list { position: static; max-height: 40vh; } }
 #list button { display: block; width: 100%; text-align: left; background: none; border: 0; color: inherit;
   font: inherit; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
 #list button:hover { background: var(--page); }
