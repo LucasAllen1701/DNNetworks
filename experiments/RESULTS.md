@@ -2155,6 +2155,90 @@ Mean over 10 seeds: gradient network / discrete network.
 - **Fixed in this PR:** the summary now reads the committed CSVs from
   `experiments/results/` even when the dashboard sets `DNN_RESULTS_DIR`.
 
+## 25 Witnesses for the letter choice (`exp25_letter_witnesses.py`)
+
+Follow-up to experiment 23, path to Doom step 2. There, a bounded buffer that
+kept the merged machine's witnesses still ended wrong when the letter chosen
+from the kept streams differed from the one chosen from the whole buffer: the
+streams that ruled out other letters had been dropped. The new policy
+**letter_witness** chooses the letter on the whole buffer, keeps the
+machine's witnesses (the newest, if they exceed the cap), fills up to the cap
+with recent streams, then, while the letter chosen from the kept streams is
+a different one (the rival), swaps the oldest filler for the stream that
+makes the rival inconsistent, or else gives it the most states. Same game,
+tasks, seeds and schedule as experiment 23 (32 episodes, 4 per round, a
+sleep every 2 rounds; h = 3). Buffers: all; witness and letter_witness with
+caps 16, 8, 4; recent with cap 4. Run on Lucas's machine, commit `f18d7b2`,
+6 minutes; 1,920 rows, sha256 `52133f7cb3db0fba`. The 720 rows for all,
+witness 16 and witness 8 equal experiment 23's exactly (timing columns
+ignored).
+
+### 25.1 Results
+
+After each sleep: runs with the true machine (of 10) / mean fraction of
+unseen episodes exact. lap and parity_top are 10 / 1.00 at every size for
+every buffer except recent 4 (lap 7–10, parity_top 9–10).
+
+| task | buffer | 8 streams | 16 streams | 24 streams | 32 streams |
+|---|---|---|---|---|---|
+| key_door | all | 3 / 0.78 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| key_door | witness 8 | 3 / 0.78 | 9 / 0.98 | 6 / 0.91 | 8 / 0.95 |
+| key_door | letter_witness 8 | 3 / 0.78 | 10 / 1.00 | 10 / 1.00 | 10 / 1.00 |
+| key_door | recent 4 | 1 / 0.55 | 1 / 0.59 | 0 / 0.59 | 0 / 0.50 |
+| key_door | witness 4 | 1 / 0.67 | 2 / 0.73 | 0 / 0.59 | 3 / 0.74 |
+| key_door | letter_witness 4 | 2 / 0.73 | 3 / 0.76 | 1 / 0.62 | 4 / 0.85 |
+| count2 | all | 2 / 0.76 | 7 / 0.93 | 8 / 0.97 | 8 / 0.97 |
+| count2 | witness 16 | 2 / 0.76 | 7 / 0.93 | 7 / 0.95 | 5 / 0.89 |
+| count2 | letter_witness 16 | 2 / 0.76 | 7 / 0.93 | 8 / 0.97 | 8 / 0.97 |
+| count2 | witness 8 | 2 / 0.76 | 3 / 0.81 | 2 / 0.73 | 2 / 0.77 |
+| count2 | letter_witness 8 | 2 / 0.76 | 7 / 0.93 | 8 / 0.97 | 7 / 0.94 |
+| count2 | recent 4 | 0 / 0.58 | 0 / 0.53 | 0 / 0.58 | 0 / 0.53 |
+| count2 | witness 4 | 0 / 0.59 | 1 / 0.62 | 0 / 0.57 | 1 / 0.67 |
+| count2 | letter_witness 4 | 1 / 0.71 | 2 / 0.69 | 0 / 0.49 | 3 / 0.71 |
+| monster_key | all | 3 / 0.82 | 5 / 0.94 | 9 / 0.99 | 10 / 1.00 |
+| monster_key | witness 8 | 3 / 0.82 | 5 / 0.90 | 9 / 0.99 | 7 / 0.94 |
+| monster_key | letter_witness 8 | 3 / 0.82 | 5 / 0.94 | 9 / 0.99 | 8 / 0.98 |
+| monster_key | recent 4 | 0 / 0.60 | 0 / 0.35 | 1 / 0.60 | 1 / 0.51 |
+| monster_key | witness 4 | 2 / 0.64 | 0 / 0.49 | 5 / 0.73 | 3 / 0.71 |
+| monster_key | letter_witness 4 | 2 / 0.62 | 1 / 0.56 | 7 / 0.85 | 4 / 0.78 |
+| both_bottom | all | 5 / 0.77 | 8 / 0.98 | 9 / 0.98 | 10 / 1.00 |
+| both_bottom | witness 8 | 5 / 0.77 | 7 / 0.91 | 9 / 0.98 | 10 / 1.00 |
+| both_bottom | letter_witness 8 | 5 / 0.77 | 8 / 0.98 | 9 / 0.98 | 10 / 1.00 |
+| both_bottom | recent 4 | 1 / 0.65 | 2 / 0.62 | 2 / 0.60 | 2 / 0.58 |
+| both_bottom | witness 4 | 3 / 0.63 | 5 / 0.81 | 6 / 0.75 | 6 / 0.74 |
+| both_bottom | letter_witness 4 | 4 / 0.72 | 8 / 0.98 | 9 / 0.98 | 10 / 1.00 |
+
+Rows not shown (key_door, monster_key and both_bottom with cap 16) are the
+same for all three policies.
+
+At the end (of 60 runs): true machine, mean unseen exact, mean recall of all
+streams seen (no key), runs that dropped a witness.
+
+| buffer | true machine | unseen exact | recall | dropped a witness |
+|---|---|---|---|---|
+| all | 58 | 0.995 | 1.000 | – |
+| witness 16 | 55 | 0.981 | 0.992 | 0 |
+| letter_witness 16 | 58 | 0.995 | 1.000 | 0 |
+| witness 8 | 47 | 0.943 | 0.966 | 0 |
+| letter_witness 8 | 55 | 0.987 | 0.996 | 0 |
+| recent 4 | 21 | 0.672 | 0.710 | – |
+| witness 4 | 33 | 0.811 | 0.842 | 6 |
+| letter_witness 4 | 41 | 0.890 | 0.908 | 5 |
+
+### 25.2 Findings
+
+- **Keeping the streams that rule out rival letters fixes most of
+  experiment 23's gap.** With 16 streams letter_witness equals the whole
+  buffer (58 of 60, 0.995); with 8 it gets 55 (witness: 47). The 3 runs
+  short of the whole buffer are count2 (1) and monster_key (2).
+- **A buffer of 4 is too small for every policy**, but letter_witness is
+  still best (41 of 60, against 33 for witness and 21 for recent). It
+  solves both_bottom fully; key_door and count2 fail in most runs. At this
+  cap the machine's witnesses alone overflow it in 5–6 runs.
+- So a buffer of about 8 streams, chosen by letter_witness, holds what the
+  sleep needs on these tasks; the old buffer of everything is no longer
+  required here.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -2383,6 +2467,12 @@ Mean over 10 seeds: gradient network / discrete network.
   exact, against 0.99 and 1.00. The RNN is untuned and the discrete networks
   use designed building blocks, so this is a sanity check, not proof of a
   better learner.
+
+**Witnesses for the letter choice (experiment 25).**
+- Keeping, besides the machine's witnesses, the streams that rule out rival
+  letters (letter_witness) makes a buffer of 16 as good as keeping
+  everything (58 of 60 true machines) and one of 8 nearly so (55, against 47
+  for witnesses alone). With 4 it gets 41, against 33 and 21.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
