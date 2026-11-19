@@ -108,7 +108,8 @@ def one_run(args):
 
 
 def _read(name):
-    path = os.path.join(H.RESULTS, name)
+    # The committed CSVs, not H.RESULTS: the dashboard points H.RESULTS at its run folder.
+    path = os.path.join(H.ROOT, "experiments", "results", name)
     if not os.path.exists(path):
         return []
     rows = list(csv.DictReader(open(path)))

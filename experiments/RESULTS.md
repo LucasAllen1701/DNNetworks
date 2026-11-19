@@ -2048,6 +2048,113 @@ cap. Longest build: 3.8 s.
 - count2 (4 states, rare outputs) is the hardest task; lap and parity_top
   are exact in every run and every buffer.
 
+## 24 An ordinary network trained by gradient descent (`exp24_gradient_baseline.py`)
+
+Path to Doom, step 1: the first comparison with ordinary networks. Same
+training and test data, seeds and scores as the earlier experiments.
+boolean: experiment 16's eight functions of 6 inputs, 1 to 16 streams;
+images: experiment 19's six 4 × 4 image tasks, 2 to 32 streams; for both an
+MLP is trained on the labelled patterns and scored by accuracy on test
+patterns not seen in training. state: experiment 20's seven finite-state
+tasks, 2 to 32 streams; game: experiment 23's six grid-game tasks, the first
+8 to 32 of its episodes; for both an Elman RNN reads x(t) and is trained to
+give the output that answers x(0..t), scored by the fraction of unseen test
+streams with every output right. Networks (`baseline_gd.py`, numpy only):
+64 tanh hidden units, sigmoid output, cross-entropy, full-batch Adam (MLP
+2000 steps at 0.01, RNN 3000 steps at 0.005), not tuned per task. 10 seeds.
+
+The discrete networks' numbers come from the committed CSVs: experiment 22's
+held-out layout choice (boolean, images; h = 2 or 3 as chosen), experiment
+20's composed letters (state, h = 3) and experiment 23's learned bits with
+the whole buffer (game, h = 3). Run on Lucas's machine, commit `f18d7b2`,
+6 minutes; 1,290 rows, sha256 `8612c1ee088afe62`. Every gradient network
+fitted its training data exactly (mean 1.000).
+
+The dashboard run printed "?" for the discrete column: the script looked
+for the committed CSVs in the dashboard's run folder. Fixed in this PR; the
+discrete column below was filled in from the committed CSVs by the fixed
+summary, without rerunning. The MLP and RNN rows are unaffected.
+
+### 24.1 Results
+
+Mean over 10 seeds: gradient network / discrete network.
+
+**boolean** (accuracy on unseen patterns)
+
+| task | 1 | 2 | 4 | 8 | 16 |
+|---|---|---|---|---|---|
+| majority | 0.71 / 0.70 | 0.81 / 0.85 | 0.94 / 0.93 | 1.00 / 1.00 | 1.00 / 1.00 |
+| and3 | 0.80 / 0.87 | 0.91 / 0.95 | 0.99 / 1.00 | 1.00 / 1.00 | 1.00 / 1.00 |
+| xor2 | 0.59 / 0.78 | 0.76 / 1.00 | 0.97 / 1.00 | 1.00 / 1.00 | 1.00 / 1.00 |
+| dnf3 | 0.61 / 0.64 | 0.70 / 0.74 | 0.86 / 0.98 | 0.97 / 1.00 | 0.96 / 1.00 |
+| mux | 0.57 / 0.55 | 0.61 / 0.65 | 0.73 / 0.76 | 0.83 / 0.89 | 0.91 / 1.00 |
+| equal3 | 0.71 / 0.68 | 0.75 / 0.75 | 0.83 / 0.76 | 0.92 / 0.88 | 0.96 / 0.96 |
+| parity6 | 0.42 / 0.43 | 0.38 / 0.35 | 0.35 / 0.40 | 0.39 / 0.35 | 0.36 / 0.73 |
+| random | 0.48 / 0.49 | 0.47 / 0.47 | 0.43 / 0.50 | 0.48 / 0.47 | 0.53 / 0.38 |
+| mean | 0.61 / 0.64 | 0.67 / 0.72 | 0.76 / 0.79 | 0.82 / 0.82 | 0.84 / 0.88 |
+
+**images** (accuracy on unseen patterns)
+
+| task | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|
+| hline | 0.61 / 0.68 | 0.71 / 0.76 | 0.79 / 0.83 | 0.89 / 0.90 | 0.92 / 0.96 |
+| vline | 0.63 / 0.69 | 0.71 / 0.72 | 0.81 / 0.81 | 0.89 / 0.91 | 0.93 / 0.96 |
+| block | 0.67 / 0.70 | 0.72 / 0.78 | 0.80 / 0.82 | 0.86 / 0.90 | 0.90 / 0.94 |
+| ink8 | 0.70 / 0.78 | 0.80 / 0.80 | 0.89 / 0.90 | 0.94 / 0.99 | 0.96 / 1.00 |
+| top | 0.79 / 0.68 | 0.89 / 0.82 | 0.96 / 0.95 | 1.00 / 1.00 | 1.00 / 1.00 |
+| mirror | 0.52 / 0.55 | 0.62 / 0.65 | 0.75 / 0.81 | 0.91 / 0.81 | 0.98 / 0.87 |
+| mean | 0.65 / 0.68 | 0.74 / 0.75 | 0.83 / 0.85 | 0.91 / 0.92 | 0.95 / 0.95 |
+
+**state** (fraction of unseen streams exact)
+
+| task | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|
+| parity/maj012 | 0.00 / 0.83 | 0.00 / 1.00 | 0.00 / 1.00 | 0.00 / 1.00 | 0.00 / 1.00 |
+| tomita3/xor01 | 0.08 / 0.09 | 0.04 / 0.50 | 0.05 / 0.81 | 0.04 / 0.96 | 0.05 / 1.00 |
+| tomita4/and01 | 0.21 / 0.12 | 0.27 / 0.35 | 0.26 / 0.84 | 0.29 / 0.98 | 0.40 / 1.00 |
+| tomita5/x0 | 0.02 / 0.01 | 0.02 / 0.48 | 0.02 / 0.87 | 0.02 / 1.00 | 0.03 / 1.00 |
+| tomita7/maj345 | 0.12 / 0.11 | 0.15 / 0.15 | 0.16 / 0.68 | 0.18 / 1.00 | 0.19 / 1.00 |
+| tomita4/dnf2 | 0.21 / 0.18 | 0.19 / 0.21 | 0.19 / 0.64 | 0.22 / 0.92 | 0.22 / 1.00 |
+| tomita7/or3 | 0.60 / 0.53 | 0.54 / 0.45 | 0.58 / 0.64 | 0.57 / 0.79 | 0.57 / 0.94 |
+| mean | 0.18 / 0.27 | 0.17 / 0.45 | 0.18 / 0.78 | 0.19 / 0.95 | 0.21 / 0.99 |
+
+**game** (fraction of unseen episodes exact)
+
+| task | 8 | 16 | 24 | 32 |
+|---|---|---|---|---|
+| key_door | 0.31 / 0.78 | 0.36 / 1.00 | 0.40 / 1.00 | 0.42 / 1.00 |
+| lap | 0.14 / 1.00 | 0.14 / 1.00 | 0.14 / 1.00 | 0.15 / 1.00 |
+| count2 | 0.44 / 0.76 | 0.43 / 0.93 | 0.43 / 0.97 | 0.41 / 0.97 |
+| monster_key | 0.10 / 0.82 | 0.13 / 0.94 | 0.14 / 0.99 | 0.17 / 1.00 |
+| parity_top | 0.01 / 1.00 | 0.01 / 1.00 | 0.01 / 1.00 | 0.01 / 1.00 |
+| both_bottom | 0.40 / 0.77 | 0.42 / 0.98 | 0.44 / 0.98 | 0.42 / 1.00 |
+| mean | 0.23 / 0.85 | 0.25 / 0.97 | 0.26 / 0.99 | 0.27 / 1.00 |
+
+### 24.2 Findings
+
+- **Without memory the two are close.** On Boolean functions and images the
+  MLP and the discrete network are within a few points at every size (means
+  0.84 / 0.88 and 0.95 / 0.95 at the largest). The discrete network is
+  ahead on xor2, dnf3 and mux at small sizes and on the line and block
+  images; the MLP is ahead on top at few streams and on mirror at 16–32
+  (0.98 / 0.87). Neither learns parity6 or the random function, except the
+  discrete network's parity6 at 16 streams (0.73).
+- **With memory the discrete network is far ahead.** The RNN fits every
+  training stream but gets 0.21 of unseen state streams and 0.27 of unseen
+  game episodes exact at the largest size, and barely improves with more
+  data; the discrete network reaches 0.99 and 1.00. On parity tasks the RNN
+  scores 0.00–0.01, the discrete network 1.00.
+- **Caveats.** The RNN is one untuned setting (64 units, 3000 steps), and
+  "every output of a 25-step stream right" is a strict score for a network
+  with soft outputs; a tuned or larger RNN, an LSTM or GRU, or more data
+  would likely do better. The discrete networks are helped by building
+  blocks Claude designed for these tasks (helper layouts, letter libraries,
+  screen regions); the gradient networks get none. So this shows that the
+  discrete networks are not beaten by a plain baseline on these small exact
+  tasks, not that they are better learners in general.
+- **Fixed in this PR:** the summary now reads the committed CSVs from
+  `experiments/results/` even when the dashboard sets `DNN_RESULTS_DIR`.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -2267,6 +2374,15 @@ cap. Longest build: 3.8 s.
   of unseen episodes exact). Witnesses keep a bounded buffer close to that
   with 16 streams (55), less so with 8 (47): they do not protect the
   streams that ruled out other letters.
+
+**Gradient-descent baseline (experiment 24, path to Doom step 1).**
+- On the same data, an ordinary MLP (64 tanh units, Adam) is close to the
+  discrete networks on Boolean functions and images (0.84 / 0.88 and
+  0.95 / 0.95 at the largest sizes). An Elman RNN fits its training streams
+  but gets 0.21 of unseen state streams and 0.27 of unseen game episodes
+  exact, against 0.99 and 1.00. The RNN is untuned and the discrete networks
+  use designed building blocks, so this is a sanity check, not proof of a
+  better learner.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
