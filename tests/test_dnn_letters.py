@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 
 import dnn_fixed as F                          # noqa: E402
 import dnn_letters as L                        # noqa: E402
+import dnn_merge as M                          # noqa: E402
 import exp10_library_and_states as e10         # noqa: E402
 
 
@@ -94,3 +95,25 @@ def test_bit_state_neurons_track_the_machine():
             a = tuple(int((x[t] @ w + b) >= 1) for w, b in rules)
             assert [k for k, m in idx.items() if e[t + 2, m]] == [(q, a)]
             q = delta[q][a]
+
+
+def test_two_output_machine_and_layout():
+    rules = [(np.array([1, 1, 0, 0, 0, 0]), 0)]                    # x0 or x1
+    letters = [(0,), (1,)]
+    delta = [{a: (q + a[0]) % 2 for a in letters} for q in range(2)]
+    out = [{a: (delta[q][a], 1 - a[0]) for a in letters} for q in range(2)]
+    rng = np.random.default_rng(4)
+    V = []
+    for _ in range(12):
+        x = rng.integers(0, 2, (14, 6))
+        y = np.zeros((14, 2), int)
+        q = 0
+        for t in range(11):
+            a = (int(x[t, 0] or x[t, 1]),)
+            y[t + 3] = out[q][a]
+            q = delta[q][a]
+        V.append(np.c_[x, y])
+    d, o = L.learn_machine_multi(L.bit_streams(V, 6, [lambda X: X[:, 0] | X[:, 1]], 2), 1, 2, 3)
+    assert len(d) == 2 and o[0][(1,)] == (1, 0)
+    lay, idx = L.make_layout_bits(6, rules, M.complete(d, 1), n_out=2)
+    assert lay.outputs == {6, 7} and lay.n_task == 8
