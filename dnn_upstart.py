@@ -38,6 +38,9 @@ Added for experiment 16 (OR-of-AND functions):
   copies (past shifts), so both layers see the same x(t). Layer-2 neurons are
   held at 0 until the "started" neuron is 1, so that the output is 0 at
   times 0 to 2. All are fixed neurons, so docs/Fixed_Neurons.md applies.
+
+Added for experiment 21: `neighbour_pair_rules`, the ANDs of two literals
+for neighbouring pixels of an image only (a smaller layer 1).
 """
 import numpy as np
 from scipy.optimize import linprog
@@ -269,3 +272,13 @@ def make_layout_h3(n_in, layer1, layer2):
             row[lay.on] = int(bi) - K
         l2.append(lay.add_fixed(row, f"layer2 {k}"))
     return lay, [started2] + l2
+
+
+def neighbour_pair_rules(side):
+    """The ANDs of two literals (4 sign patterns) for every pair of pixels
+    that are next to each other in a side x side image (row by row), in the
+    format of `pair_rules`."""
+    n = side * side
+    keep = {(i, i + 1) for i in range(n) if (i + 1) % side} | {(i, i + side) for i in range(n - side)}
+    return [(r, name) for r, name in pair_rules(n)
+            if tuple(int(k) for k in np.flatnonzero(r[0])) in keep]
