@@ -1,6 +1,6 @@
 # Discrete Neural Networks — handoff notes (20 November 2026)
 
-State of the work after experiments 1–27, for whoever continues it (Claude
+State of the work after experiments 1–32, for whoever continues it (Claude
 Code on Lucas's machine from now on; see `CLAUDE.md` for how batches run).
 Detailed results are in `experiments/RESULTS.md`: read only the section you
 need and its Summary entry.
@@ -19,7 +19,13 @@ need and its Summary entry.
    - exp25: letter_witness buffer (also keep the streams that rule out rival letters) = whole buffer at cap 16 (58/60), 55 at cap 8 (witness 47), 41 at cap 4 (witness 33, recent 21).
    - exp26: imitating a key/door expert (2 output bits): true machine in every run from 16 episodes; in closed-loop play it equals the expert with the same 3-step lag (2.74 laps per 60 steps vs 14.28 without lag, 1.45 random). **Latency, not learning, limits acting.** true_bits sometimes merges to 3 states (labelling dependence).
    - exp27: nbr3_upstart as a 4th image layout: held-out choice 0.966 at 32 (exp22 0.954, oracle 0.969, best single layout 0.913); fewest helpers drops to 0.920.
-5. **Honest assessment:** good in a narrow sense (exact recall, no forgetting, real generalisation on small exact tasks), but tasks are tiny, much success comes from building blocks (letter libraries, helper layouts, screen regions) Claude designed, and merging is fragile.
+5. **Exp28–32** (batch `acting-noise`):
+   - exp28: a game that **waits for the move** (each screen shown 3 network steps, move read after 3) removes the lag: from 16 episodes every run plays like the expert, 14.28 laps. Outputs reading the letter directly (h = 2) cannot be single neurons; TRAIN memorises, play collapses.
+   - exp29: 5–20% wrong labels. Images: every model fits every wrong label; discrete networks lose about as much as the MLP (nbr3_upstart 0.913 → 0.760 at p = 0.1, 32 streams; MLP 0.948 → 0.840). Game: exact merging finds no machine at all at p = 0.05 from 24 episodes.
+   - exp30: game solved for tiny machines: letter and machine by **search** (fewest disagreements, majority outputs, states chosen on held-out episodes; `dnn_noise`), then relabel and run the exact LPs: expert play in every run up to p = 0.2. Images: a 4-fold disagreement filter helps at 16–32 streams (0.808 vs 0.760) but hurts with few streams and on clean data.
+   - exp31: idea 3, first form (buffer successes, redraw weights inside boxes on failure): **does not learn** (0.17 laps after 50 rounds vs random 1.45). The buffer fixes every (state, letter) cell, so redraws never change play.
+   - exp32: tuned RNN and tuned GRU: whole unseen streams 0.24 (state) / 0.45 (game) vs DNN 0.99 / 1.00; per step 0.75 / 0.87. The gap stays; DNN still uses designed letters.
+6. **Honest assessment:** good in a narrow sense (exact recall, no forgetting, real generalisation on small exact tasks), but tasks are tiny, much success comes from building blocks (letter libraries, helper layouts, screen regions) Claude designed, and merging is fragile.
 
 ## 2 Where things live
 
@@ -30,8 +36,9 @@ need and its Summary entry.
 | `dnn_fixed.py`, `dnn_box.py`, `dnn_buffer.py`, `dnn_merge.py`, `dnn_sleep.py`, `docs/*.md` | Fixed neurons, box rules, buffer, merging, sleep. Propositions 1–8. |
 | `dnn_upstart.py` | Helpers: `build` (upstart), `build_cover`, `make_layout_h3`, `pair_rules`, `neighbour_pair_rules`. |
 | `dnn_letters.py` | Letters: library (exp17); `compose_letter`, `joint_search`, `learn_letter`, `cover_letter` (exp20); `choose_bits`, `make_layout_bits` (multi-bit letters, exp23; `n_out` outputs, `learn_machine_multi`, exp26). |
-| `baseline_gd.py` | exp24: MLP and Elman RNN by Adam, numpy only. |
-| `experiments/exp1…exp27_*.py`, `experiments/harness.py` | Experiments; CSVs in `experiments/results/`; `RESULTS.md` (sections 1–27 and Summary). |
+| `baseline_gd.py` | exp24: MLP and Elman RNN by Adam, numpy only; GRU (exp32). |
+| `dnn_noise.py` | exp29–31: label noise (`noisy`), machine search (`fit_machine`, `learn_machine_heldout`, `choose_bits_search`), `relabel`. |
+| `experiments/exp1…exp32_*.py`, `experiments/harness.py` | Experiments; CSVs in `experiments/results/`; `RESULTS.md` (sections 1–32 and Summary). |
 | `dashboard.py` | Local web page for running experiments one at a time. |
 
 ## 3 Running experiments
@@ -44,7 +51,7 @@ need and its Summary entry.
 
 Programs that run locally, built from discrete neural networks: (1) play Doom; (2) Lean 4 proofs; (3) a chat bot. All far off; Doom nearest.
 
-**Path to Doom:** (1) baseline comparison with gradient descent [exp24, done]; (2) acting, multi-bit outputs, letter witnesses [exp25, exp26, done]; (3) noisy data — biggest open problem, likely to need a real algorithm change; (4) bigger screens (16×16, 32×32), helpers shared across positions, more layers; (5) closed-loop play, from demonstrations then from success/failure (Lucas's idea 3); (6) long memory (maze with keys); (7) ViZDoom simple scenarios with small binarised frames; (8) full levels.
+**Path to Doom:** (1) baseline comparison with gradient descent [exp24, done]; (2) acting, multi-bit outputs, letter witnesses [exp25, exp26, done; lag fixed by the wait game, exp28]; (3) noisy data [game with tiny machines done by search + relabel, exp30; images partly; search does not scale]; (4) bigger screens (16×16, 32×32), helpers shared across positions, more layers; (5) closed-loop play, from demonstrations [done, exp28] then from success/failure (Lucas's idea 3; first form fails, exp31); (6) long memory (maze with keys); (7) ViZDoom simple scenarios with small binarised frames; (8) full levels.
 
 ## 5 Lucas's design rationale
 
@@ -59,22 +66,24 @@ Programs that run locally, built from discrete neural networks: (1) play Doom; (
 
 ## 7 Lucas's three ideas (15 November)
 
-1. One neuron per time step: memorises (exp13). 2. Expansion and compression cycles: compression by rebuild works (exp15); deletion rule safe but finds nothing. 3. Success and failure (buffer successes; on failure randomise inside the boxes): **not tested yet**; belongs to step 5 of the path.
+1. One neuron per time step: memorises (exp13). 2. Expansion and compression cycles: compression by rebuild works (exp15); deletion rule safe but finds nothing. 3. Success and failure (buffer successes; on failure randomise inside the boxes): first form **fails** (exp31): redraws inside the boxes never change play once the buffer covers every cell. Variants below.
 
 ## 8 Next steps (candidates, not yet chosen)
 
-(a) Fix acting latency (h = 2 outputs, outputs read from letter neurons, or a game that waits for the move) and re-run exp26's play; (b) path step 3, noisy data; (c) Lucas's idea 3 (success/failure) in closed-loop play; (d) a fairer exp24 (tuned RNN, LSTM/GRU, per-step score) if the comparison is to be shown to others; then step 4, bigger screens.
+(a) Idea 3 variants: explore by flipping the machine's output in one (state, letter) cell instead of redrawing weights; store only the steps leading to each lap; or start from a few imitation episodes and improve by success/failure. (b) Scale the machine search (better than n^(n·L): e.g. greedy splitting, or the search seeded by merging) so noisy data work for bigger machines. (c) Image noise: a stronger filter or a noise-aware helper search. (d) Step 4, bigger screens. Exp28's wait game is the default for acting.
 
 ## 9 Open problems
 
 - Letters / helpers come from libraries Claude designed; finding building blocks without one (exp20: free labels overfit).
-- Data that are not exact (untested; step 3 of the path).
+- Data that are not exact: solved for tiny machines only (exp30 search costs n^(n·L)); image filter weak with few streams and drops many correct images.
 - Bounded buffers: on the grid game, letter_witness at cap 8 is nearly as good as keeping everything (exp25); cap 4 too small.
 - Merging errors even with the true letter; they depend on letter labelling (exp23, exp26 true_bits).
-- Acting latency h (exp26): the network plays like a 3-step-lagged expert.
+- Acting latency: solved by waiting 3 network steps per move (exp28); h = 2 outputs cannot be single neurons.
+- Learning without an expert (idea 3): first form does not explore (exp31).
 
 ## 10 Working conventions
 
 - Branch and open a pull request; never push to `main`. Lucas merges.
 - Fixed seeds; CSVs in `experiments/results/`; negative results stated plainly; experiments that reuse earlier layouts must reproduce the earlier rows exactly; CSVs checked by script (rows, sha256, reproduced rows).
+- Python: `.venv/bin/python` (system python has no numpy). The machine has no git identity: commit with per-commit env vars as Claude (`GIT_AUTHOR_NAME`/`GIT_COMMITTER_NAME` and the matching `_EMAIL` vars), git config untouched.
 - Merged `claude/*` branches on GitHub can be deleted, except the branch of an open PR.
