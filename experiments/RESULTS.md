@@ -2352,6 +2352,379 @@ where it is the oracle's layout:
 - For the comparison of experiment 24, the discrete networks' image score at
   32 streams becomes 0.97 against the MLP's 0.95.
 
+## 28 Acting without the lag (`exp28_acting_latency.py`)
+
+Path to Doom, step 2 (fix of experiment 26). Experiment 26's network
+imitates the key/door expert exactly but plays like an expert with a 3-step
+lag, because with h = 3 its move answers the screen of 3 steps earlier.
+Three variants, each with layouts **bits** (letter chosen from 32 regions)
+and **true_bits** (given P:top, P:right), 8 to 32 training episodes, 10
+seeds:
+- **lag3**: experiment 26 unchanged.
+- **direct**: the output neurons also read the letter-bit neurons and are
+  trained to answer 2 steps after the input (h = 2 for the outputs; letter
+  and state neurons as before).
+- **wait**: the game waits for the move. Each screen is shown for 3 network
+  steps and the move is read 3 steps after the screen first appears, so it
+  answers the current screen. The training episodes show each screen 3
+  times too (h = 3).
+
+Run on Lucas's machine, commit `b7822fc`, 1 minute 40
+seconds; 240 rows, sha256 `1d32e4dab1763014`. The 80 lag3 rows equal
+experiment 26's rows (17 columns, timing ignored).
+
+### 28.1 Results
+
+Runs with the true machine (of 10) / mean fraction of unseen episodes with
+every move right / runs in which TRAIN added hidden neurons:
+
+| variant | layout | 8 | 16 | 24 | 32 |
+|---|---|---|---|---|---|
+| lag3 | bits | 8 / 0.89 / 0 | 10 / 1.00 / 0 | 10 / 1.00 / 0 | 10 / 1.00 / 0 |
+| lag3 | true_bits | 7 / 0.86 / 0 | 8 / 0.99 / 0 | 8 / 0.99 / 0 | 9 / 0.99 / 0 |
+| direct | bits | 8 / 0.00 / 10 | 10 / 0.00 / 10 | 10 / 0.00 / 10 | 10 / 0.00 / 10 |
+| direct | true_bits | 7 / 0.00 / 10 | 8 / 0.00 / 10 | 8 / 0.00 / 10 | 9 / 0.00 / 10 |
+| wait | bits | 8 / 0.90 / 0 | 10 / 1.00 / 0 | 10 / 1.00 / 0 | 10 / 1.00 / 0 |
+| wait | true_bits | 8 / 0.90 / 0 | 10 / 1.00 / 0 | 10 / 1.00 / 0 | 10 / 1.00 / 0 |
+
+Mean laps per game of 60 game steps (network / expert with the same lag /
+expert without lag / random):
+
+| variant | lag | 8 | 16 | 24 | 32 |
+|---|---|---|---|---|---|
+| lag3, bits | 3 | 2.49 / 2.74 / 14.28 / 1.45 | 2.74 / 2.74 / 14.28 / 1.45 | 2.74 / 2.74 / 14.28 / 1.45 | 2.74 / 2.74 / 14.28 / 1.45 |
+| direct, bits | 2 | 0.37 / 3.36 / 14.28 / 1.45 | 0.06 / 3.36 / 14.28 / 1.45 | 0.00 / 3.36 / 14.28 / 1.45 | 0.00 / 3.36 / 14.28 / 1.45 |
+| wait, bits | 0 | 12.90 / 14.28 / 14.28 / 1.45 | 14.28 / 14.28 / 14.28 / 1.45 | 14.28 / 14.28 / 14.28 / 1.45 | 14.28 / 14.28 / 14.28 / 1.45 |
+| wait, true_bits | 0 | 12.90 / 14.28 / 14.28 / 1.45 | 14.28 / 14.28 / 14.28 / 1.45 | 14.28 / 14.28 / 14.28 / 1.45 | 14.28 / 14.28 / 14.28 / 1.45 |
+
+true_bits for lag3 and direct (not shown): 2.49 to 2.77 and 0.00 to 0.04
+laps.
+
+### 28.2 Findings
+
+- **Waiting for the move removes the lag completely.** From 16 episodes,
+  every run plays exactly like the expert without lag (14.28 laps, 5 times
+  experiment 26's 2.74). No hidden neurons are added. The game takes 3
+  network steps per move, which is the price.
+- **Reading the letter directly does not work.** With the output 2 steps
+  after the input, one output neuron would need the move as a threshold
+  function of the previous (state, letter) neuron and the current letter
+  bits. For the vertical move bit the sign of the letter weights depends on
+  the state, so no single neuron can do it. TRAIN then adds hidden neurons
+  in every run (up to 40) that memorise the training episodes: no unseen
+  episode is right and play is worse than random. Even a perfect lag-2
+  player would gain little (expert with lag 2: 3.36 laps).
+- With repeated screens, true_bits finds the true machine in all 10 runs
+  from 16 episodes (8 of 10 without repeats). Repeating each letter seems
+  to remove the labelling dependence of merging seen in experiments 23 and
+  26, but this was not tested further.
+
+## 29 Training labels with noise (`exp29_noisy_labels.py`)
+
+Path to Doom, step 3: the first experiments with labels that are not exact.
+A fraction p = 0, 0.05, 0.1, 0.2 of the training labels is wrong, and the
+test labels are exact. The algorithms are unchanged; this only measures the
+damage.
+- **images**: experiment 19's six 4 × 4 image tasks, 2 to 32 streams. A
+  training image's label is flipped when a hash of (image, seed) falls
+  below p (`dnn_noise.noisy`), so an image always gets the same label and
+  the images flipped at 0.05 are among those flipped at 0.1. Layouts:
+  **cover** (experiment 19, h = 2), **nbr3_upstart** (experiment 21, h = 3,
+  at most 200 helpers), and experiment 24's **MLP** (64 tanh units, Adam,
+  untuned) on the same noisy images.
+- **game**: experiment 28's wait game, layouts bits and true_bits, 8 to 32
+  episodes. With probability p the expert's move for a screen is replaced
+  by one of the 3 other moves (on all 3 network steps of that screen).
+
+10 seeds. Run on Lucas's machine, commit `b7822fc`, about
+20 minutes; 3,920 rows, sha256 `5c3d05aff2f0cf33`. The p = 0 rows equal
+experiment 19's cover rows, experiment 27's nbr3_upstart rows, experiment
+24's image MLP rows and experiment 28's wait rows (300, 300, 300 and 80
+rows; timing ignored).
+
+### 29.1 Results
+
+Images, mean accuracy on unseen test images (midpoint weights), all tasks
+and seeds:
+
+| layout | p | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|
+| cover | 0 | 0.669 | 0.727 | 0.772 | 0.824 | 0.822 |
+| cover | 0.05 | 0.658 | 0.691 | 0.728 | 0.756 | 0.736 |
+| cover | 0.1 | 0.645 | 0.664 | 0.695 | 0.719 | 0.689 |
+| cover | 0.2 | 0.592 | 0.608 | 0.634 | 0.644 | 0.629 |
+| nbr3_upstart | 0 | 0.688 | 0.771 | 0.831 | 0.880 | 0.913 |
+| nbr3_upstart | 0.05 | 0.656 | 0.724 | 0.765 | 0.779 | 0.822 |
+| nbr3_upstart | 0.1 | 0.637 | 0.679 | 0.715 | 0.728 | 0.760 |
+| nbr3_upstart | 0.2 | 0.591 | 0.612 | 0.648 | 0.645 | 0.692 |
+| MLP | 0 | 0.653 | 0.742 | 0.833 | 0.914 | 0.948 |
+| MLP | 0.05 | 0.639 | 0.711 | 0.774 | 0.841 | 0.886 |
+| MLP | 0.1 | 0.624 | 0.684 | 0.738 | 0.800 | 0.840 |
+| MLP | 0.2 | 0.582 | 0.627 | 0.673 | 0.713 | 0.745 |
+
+At 32 streams, mean helpers: cover 52 / 82 / 97 / 118 and nbr3_upstart
+1.9 / 5.0 / 9.8 / 28.8 for p = 0 / 0.05 / 0.1 / 0.2. No hidden neurons were
+added in any run. Accuracy on seen images against their true labels is
+about 1 − p for all three models (0.94, 0.88, 0.77 at 32 streams): every model
+reproduces every wrong label it was given.
+
+Game: runs (of 10) in which a consistent letter was found / runs with the
+true machine / mean laps of the trained runs:
+
+| layout | p | 8 | 16 | 24 | 32 |
+|---|---|---|---|---|---|
+| bits | 0 | 10 / 8 / 12.90 | 10 / 10 / 14.28 | 10 / 10 / 14.28 | 10 / 10 / 14.28 |
+| bits | 0.05 | 7 / 0 / 2.86 | 1 / 0 / 8.04 | 0 / 0 / – | 0 / 0 / – |
+| bits | 0.1 | 4 / 0 / 1.71 | 0 / 0 / – | 0 / 0 / – | 0 / 0 / – |
+| bits | 0.2 | 2 / 0 / 1.05 | 0 / 0 / – | 0 / 0 / – | 0 / 0 / – |
+| true_bits | 0 | 10 / 8 / 12.90 | 10 / 10 / 14.28 | 10 / 10 / 14.28 | 10 / 10 / 14.28 |
+| true_bits | 0.05 | 1 / 0 / 11.81 | 1 / 0 / 12.96 | 0 / 0 / – | 0 / 0 / – |
+| true_bits | 0.1 | 1 / 0 / 4.33 | 0 / 0 / – | 0 / 0 / – | 0 / 0 / – |
+| true_bits | 0.2 | 0 / 0 / – | 0 / 0 / – | 0 / 0 / – | 0 / 0 / – |
+
+### 29.2 Findings
+
+- **Images: noise costs the discrete networks about as much as the MLP, and
+  more at the larger sizes.** At 32 streams and p = 0.1, nbr3_upstart drops
+  from 0.913 to 0.760 (−0.15), cover from 0.822 to 0.689 (−0.13) and the
+  MLP from 0.948 to 0.840 (−0.11). The helper search fits every wrong label
+  with more helpers (nbr3_upstart: 2 to 29 at p = 0.2), so the noise is
+  memorised by the helper layer rather than by hidden neurons. The MLP,
+  untuned and trained to fit, also memorises every wrong label, so this is
+  not yet a fair test of a noise-robust learner on either side.
+- **Game: exact merging breaks down at once.** At p = 0.05 and 24 or more
+  episodes no letter gives a consistent machine in any run, because no
+  machine explains every wrong move. The few runs that pass with fewer
+  episodes found wrong machines (0 of 10 true). This is the failure that
+  experiment 30 addresses.
+
+## 30 A first noise-tolerant training (`exp30_noise_tolerant.py`)
+
+Path to Doom, step 3. The same data, noise levels, sizes and seeds as
+experiment 29, with one change per family made before the linear programs.
+The linear programs and layouts are unchanged.
+- **game: the letter and machine by search instead of exact merging**
+  (`dnn_noise`). For each letter (at most 2 of the 32 regions), find the
+  machine of at most 2 states that disagrees least with the training moves:
+  every transition table is tried, and each (state, letter) cell outputs
+  the majority of the moves seen there. Keep the letter with the fewest
+  disagreements. Then choose its number of states (1 to 3; 3 by local
+  search from 8 random starts) by disagreements on held-out episodes
+  (every 4th) and refit on all episodes. The training episodes are then
+  relabelled with the machine's moves (`dnn_noise.relabel`) and trained as
+  in experiment 28's wait game. Layouts bits and true_bits (letter given,
+  number of states still chosen).
+- **images: a disagreement filter.** The distinct training images are split
+  into 4 folds. A network built on 3 folds predicts the 4th, and the images
+  whose (noisy) label disagrees with the prediction are dropped. The final
+  network is built on the rest, with the kept images shown as one stream.
+  Layouts: nbr3_upstart (h = 3) and the MLP, each filtered by its own kind
+  of network.
+
+The first attempt for the game was greedy merging with a vote: counts in the
+prefix tree, and a merge allowed when the pooled minority was at most 30%,
+or when ALERGIA's Hoeffding test passed. In a check on true_bits it found
+the true machine in few runs, even without noise: key and no-key states
+differ on only some letters, and a wrong early merge cannot be undone. It is
+not in the CSV and was replaced by the search.
+
+Run on Lucas's machine, commit `b7822fc`, 28 minutes;
+2,720 rows, sha256 `c4c74ae5ffbfdc7f`. No earlier rows to reproduce (every
+row uses the new method); experiment 29's rows are the comparison.
+
+### 30.1 Results
+
+Game: runs with the true machine (of 10) / mean fraction of unseen episodes
+with every move right / mean laps (experiment 29, exact merging: runs with
+any machine at all):
+
+| layout | p | 8 | 16 | 24 | 32 |
+|---|---|---|---|---|---|
+| bits | 0 | 10 / 1.00 / 14.28 (10) | 10 / 1.00 / 14.28 (10) | 10 / 1.00 / 14.28 (10) | 10 / 1.00 / 14.28 (10) |
+| bits | 0.05 | 10 / 1.00 / 14.28 (7) | 10 / 1.00 / 14.28 (1) | 10 / 1.00 / 14.28 (0) | 10 / 1.00 / 14.28 (0) |
+| bits | 0.1 | 10 / 1.00 / 14.28 (4) | 10 / 1.00 / 14.28 (0) | 10 / 1.00 / 14.28 (0) | 10 / 1.00 / 14.28 (0) |
+| bits | 0.2 | 10 / 1.00 / 14.28 (2) | 10 / 1.00 / 14.28 (0) | 10 / 1.00 / 14.28 (0) | 10 / 1.00 / 14.28 (0) |
+| true_bits | 0.2 | 10 / 1.00 / 14.28 (0) | 9 / 1.00 / 14.28 (0) | 10 / 1.00 / 14.28 (0) | 9 / 1.00 / 14.28 (0) |
+
+(true_bits at p ≤ 0.1: 10 / 1.00 / 14.28 everywhere.) bits always chose
+P:top + P:left (equivalent to the true letter). In the two true_bits runs
+counted as wrong, held-out choice picked 3 states. The extra state never
+changes a move on the test episodes or in play. After relabelling, every
+training move equals the clean expert's in all 320 runs. No hidden neurons
+were added.
+
+Images, mean accuracy on unseen test images, filtered (experiment 29
+unfiltered):
+
+| layout | p | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|
+| nbr3_upstart | 0 | 0.609 (0.688) | 0.707 (0.771) | 0.804 (0.831) | 0.873 (0.880) | 0.919 (0.913) |
+| nbr3_upstart | 0.05 | 0.606 (0.656) | 0.676 (0.724) | 0.769 (0.765) | 0.827 (0.779) | 0.864 (0.822) |
+| nbr3_upstart | 0.1 | 0.606 (0.637) | 0.665 (0.679) | 0.737 (0.715) | 0.789 (0.728) | 0.808 (0.760) |
+| nbr3_upstart | 0.2 | 0.574 (0.591) | 0.616 (0.612) | 0.664 (0.648) | 0.702 (0.645) | 0.731 (0.692) |
+| MLP | 0 | 0.608 (0.653) | 0.666 (0.742) | 0.742 (0.833) | 0.857 (0.914) | 0.924 (0.948) |
+| MLP | 0.05 | 0.598 (0.639) | 0.651 (0.711) | 0.719 (0.774) | 0.820 (0.841) | 0.908 (0.886) |
+| MLP | 0.1 | 0.594 (0.624) | 0.640 (0.684) | 0.702 (0.738) | 0.791 (0.800) | 0.883 (0.840) |
+| MLP | 0.2 | 0.570 (0.582) | 0.608 (0.627) | 0.650 (0.673) | 0.731 (0.713) | 0.807 (0.745) |
+
+At 32 streams (about 300 distinct images for nbr3_upstart), the filter
+dropped 29 / 67 / 89 / 123 images for p = 0 / 0.05 / 0.1 / 0.2. Of the
+30 wrong labels at p = 0.1 it dropped 22 and kept 8.
+
+### 30.2 Findings
+
+- **Game: noise is no longer a problem.** With the search, every run at
+  every noise level up to 20% wrong moves, from 8 episodes, plays exactly
+  like the expert (14.28 laps) and gets every unseen episode right. Exact
+  merging found any machine at all in only 0–7 of 10 runs, and never the
+  true one. Relabelling turns the noisy episodes back into exact ones, so
+  the linear programs and the no-forgetting proof are untouched.
+- **This depends on the machine being tiny.** The search tries every
+  transition table for 2 states over 4 letters (256) and uses local search
+  for 3 states. Its cost grows as n^(n·L), so it will not scale to the
+  large machines of later steps without a better search. Letters still come
+  from Claude's 32 regions.
+- **Images: the filter helps only with enough data.** At 16–32 streams it
+  recovers a fifth to a half of the loss (nbr3_upstart at p = 0.1, 32
+  streams: 0.808 against 0.760 unfiltered and 0.913 clean). The MLP gains
+  the same way, and with the filter it stays ahead (0.883). With 2–8
+  streams the filter hurts. On clean data (p = 0) it hurts everywhere
+  except nbr3_upstart at 32 streams. The fold networks are too weak to tell noise from rare patterns,
+  so the filter drops many correct images (about 67 of 89 dropped at
+  p = 0.1). Noise on images is not solved.
+
+## 31 Learning to play from success and failure (`exp31_success_failure.py`)
+
+Path to Doom, step 5: Lucas's idea 3 (buffer successes; on failure
+randomise inside the boxes), first test. The game is experiment 28's wait
+game (key/door, 60 game steps). No expert move is ever seen. Each run plays
+50 rounds of one game each:
+- The player is a random mover until the first success, then the network.
+- A game is a **success** if it scores at least *target* laps; the target
+  is the most laps of any success so far (at least 1).
+- **Success:** the game (its screens and the moves the player made) joins
+  the buffer. The network is rebuilt on the whole buffer with experiment
+  30's pipeline (letter and machine of at most 3 states by search, then
+  relabelling and the linear programs) and plays with the midpoint of its
+  boxes.
+- **Failure:** every weight is redrawn uniformly inside its box, so the
+  network still replays its buffer but may act differently elsewhere.
+
+After every round the current network (midpoint weights) is scored on
+experiment 26's 100 test games. References: experiment 28's imitation of
+the expert, 14.28 laps; random player, 1.45. 10 seeds. Run on Lucas's
+machine, commit `b7822fc`, about 1 minute; 500 rows,
+sha256 `ec4b9e32444eb136`. No earlier rows to reproduce.
+
+### 31.1 Results
+
+Mean laps of the current network on the test games / mean successes so
+far, by round (before the first success the network scores 0):
+
+| round | 1 | 5 | 10 | 20 | 30 | 40 | 50 |
+|---|---|---|---|---|---|---|---|
+| mean of 10 seeds | 0.17 / 0.9 | 0.17 / 1.1 | 0.17 / 1.2 | 0.17 / 1.5 | 0.17 / 1.6 | 0.17 / 1.6 | 0.17 / 1.6 |
+
+In 9 of 10 runs the buffer holds a single game, the random first success
+(round 1 or 2), for all 50 rounds. Every network found is a 1-state
+(memoryless) machine on a letter that is not the key/door letter. Test laps:
+seed 0 1.42 (7 successes, target 5), seed 6 0.24, the others 0.00. In 8
+runs every exploration game after round 2 scored 0 laps.
+
+### 31.2 Findings
+
+- **Negative result: in this form the idea does not learn.** After one
+  random success the network never improves, and it plays worse than the
+  random player (0.17 against 1.45 laps).
+- **The cause is checked: randomising inside the boxes does not explore.**
+  The network is a 1-state machine over a 2-bit letter. Its one buffered
+  game already shows every letter, so the boxes fix the move for every
+  (state, letter) cell, and every weight drawn inside them gives the same
+  moves. For seed 1, 20 redraws played the identical game. This is the
+  no-forgetting property working against exploration: the boxes guarantee
+  the buffer is replayed, and when the buffer covers every cell there is
+  nothing left to vary.
+- **A random game is a poor teacher.** Its moves are not a function of any
+  short history, so the search finds a 1-state machine fitting few of them,
+  and relabelling turns the game into "the same move per letter". Such
+  policies get stuck against walls (0 laps).
+- What might work, untested: explore by flipping the machine's output in
+  one (state, letter) cell at a time instead of redrawing weights; store
+  only the steps leading up to each lap rather than whole games; or start
+  from a few imitation episodes and use success and failure to improve
+  on them.
+
+## 32 A fairer gradient baseline (`exp32_fair_gradient.py`)
+
+Experiment 24 compared the discrete networks on the tasks with memory to an
+untuned Elman RNN, scored only on whole streams. This experiment tunes it,
+adds a GRU and reports per-step accuracy too. Same data, tasks and seeds as
+experiment 24's **state** family (experiment 20's seven finite-state tasks,
+2 to 32 streams) and **game** family (experiment 23's six grid-game tasks, 8
+to 32 episodes). Models (numpy, full batch, Adam, 3000 steps, BPTT with
+gradient clipping at 5):
+- **rnn**: experiment 24's RNN (64 tanh units, learning rate 0.005).
+- **rnn_tuned**: the RNN with (hidden units, learning rate) chosen from
+  (64, 0.005), (32, 0.005), (128, 0.005), (64, 0.02) by per-step accuracy on
+  held-out training streams (every 4th; with 2 streams, the second), then
+  refitted on all training streams.
+- **gru_tuned**: a GRU (`baseline_gd.GRU`, new, gradient-checked in the
+  tests) chosen the same way.
+
+The discrete networks are taken from the committed CSVs: experiment 20's
+composed letters (h = 3) for state, experiment 23's learned bits (all
+regions, h = 3) for the game. Experiment 23 recorded only whole-stream
+exactness. Both use letters built from Claude's building blocks (experiment
+20's composed letters, experiment 23's 32 regions); the gradient models get
+the raw inputs.
+
+Run on Lucas's machine, branch `claude/batch-acting-noise`, 2 hours 30
+minutes (longest job 349 s); 1,770 rows, sha256 `d54e4394f073c5c3`. The 590
+rnn rows equal experiment 24's rows (train_exact, unseen_exact,
+unseen_step_acc).
+
+### 32.1 Results
+
+Unseen test streams with every output right / per-step accuracy, mean of
+all tasks and 10 seeds:
+
+| family | model | 2 | 4 | 8 | 16 | 24 | 32 |
+|---|---|---|---|---|---|---|---|
+| state | rnn | 0.18 / 0.664 | 0.17 / 0.688 | 0.18 / 0.699 | 0.19 / 0.718 | | 0.21 / 0.733 |
+| state | rnn_tuned | 0.18 / 0.666 | 0.17 / 0.690 | 0.19 / 0.703 | 0.20 / 0.720 | | 0.22 / 0.734 |
+| state | gru_tuned | 0.18 / 0.674 | 0.18 / 0.696 | 0.19 / 0.705 | 0.20 / 0.727 | | 0.24 / 0.747 |
+| state | discrete | 0.27 / 0.689 | 0.45 / 0.794 | 0.78 / 0.919 | 0.95 / 0.981 | | 0.99 / 0.997 |
+| game | rnn | | | 0.23 / 0.770 | 0.25 / 0.791 | 0.26 / 0.800 | 0.27 / 0.808 |
+| game | rnn_tuned | | | 0.24 / 0.776 | 0.26 / 0.798 | 0.27 / 0.811 | 0.29 / 0.824 |
+| game | gru_tuned | | | 0.25 / 0.790 | 0.31 / 0.835 | 0.37 / 0.847 | 0.45 / 0.872 |
+| game | discrete | | | 0.85 / – | 0.97 / – | 0.99 / – | 1.00 / – |
+
+Every gradient model fits every training stream exactly. The held-out
+choice is spread over all four settings (state rnn_tuned: (64, 0.005) in
+139 of 350 runs, the others 43 to 96), so tuning changes little.
+
+At the largest size, whole streams right for gru_tuned by task: state from
+0.01 (parity/maj012) and 0.03 (tomita5/x0) to 0.61 (tomita7/or3); game from
+0.11 (parity_top) to 0.60 (lap). Tuning helps most on lap (rnn 0.15, GRU 0.60).
+
+### 32.2 Findings
+
+- **The gap stays large after tuning.** On whole unseen streams the best
+  gradient model (GRU, tuned) reaches 0.24 on state and 0.45 on the game at
+  the largest size, against 0.99 and 1.00 for the discrete networks. Tuning
+  the RNN adds at most 0.02; the GRU adds more on the game (0.45 against
+  0.27), little on state.
+- **Per step the gap is smaller but still clear.** With few streams (2) the
+  discrete networks are only slightly ahead per step (0.689 against 0.674);
+  from 8 streams they are far ahead (0.919 against 0.705 on state at 8;
+  0.997 against 0.747 at 32). The gradient models get most single steps
+  right but rarely a whole stream.
+- **Not fully fair yet.** The discrete networks get letters made from
+  Claude's building blocks while the gradient models see raw inputs; the
+  grid is small (4 settings), there is no weight decay, early stopping or
+  LSTM, and 3000 steps is a fixed budget. The comparison is fairer than
+  experiment 24's but not final.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -2599,6 +2972,42 @@ where it is the oracle's layout:
   training streams reaches 0.966 on images at 32 streams (0.954 with three
   layouts; oracle 0.969; best single layout 0.913). Fewest helpers drops to
   0.920.
+
+**Acting without the lag (experiment 28).**
+- A game that waits for the move (each screen shown 3 network steps) removes
+  the lag: from 16 episodes every run plays exactly like the expert (14.28
+  laps, against 2.74 with the lag). Outputs that read the letter directly
+  (h = 2) cannot be one neuron; TRAIN memorises and play collapses.
+
+**Noisy labels (experiment 29).**
+- With 5–20% wrong training labels, every model fits every wrong label. On
+  images the discrete networks lose about as much as an MLP (nbr3_upstart
+  0.913 → 0.760 at p = 0.1, 32 streams; MLP 0.948 → 0.840), absorbing the
+  noise in extra helpers. In the game, exact merging finds no machine at
+  all from 24 episodes at p = 0.05.
+
+**Noise-tolerant training (experiment 30).**
+- Game: finding the letter and machine by search (fewest disagreements,
+  majority outputs, number of states by held-out episodes), then
+  relabelling, recovers the expert in every run up to 20% wrong moves (true
+  machine 78 of 80 at p = 0.2, all play at 14.28 laps). Only for tiny
+  machines: the search is exhaustive.
+- Images: a 4-fold disagreement filter recovers a fifth to a half of the
+  loss at 16–32 streams (nbr3_upstart 0.808 against 0.760 at p = 0.1) but
+  hurts with few streams and on clean data. The filtered MLP stays ahead.
+
+**Success and failure without an expert (experiment 31).**
+- Lucas's idea 3, first form: buffer successful games, redraw weights
+  inside the boxes on failure. It does not learn (0.17 laps after 50 rounds,
+  random 1.45): the buffered game fixes every move, so redrawing inside the
+  boxes never changes the play.
+
+**A fairer gradient baseline (experiment 32).**
+- Tuning the RNN on held-out streams and adding a GRU barely closes the
+  gap: whole unseen streams right at the largest size 0.24 (state) and 0.45
+  (game) for the tuned GRU, against 0.99 and 1.00 for the discrete networks.
+  Per step the gradient models do better (0.75 and 0.87) but stay behind
+  from 4 streams on. The discrete networks still get designed letters.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
