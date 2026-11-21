@@ -43,7 +43,7 @@ need and its Summary entry.
 
 ## 3 Running experiments
 
-- **Machine:** Arch Linux, Python 3.14.10, numpy 2.5.4, scipy 1.18.1, 12 CPUs. Results have been bit-for-bit reproducible.
+- **Machines:** exp1–27 ran on Arch Linux, Python 3.14.10, numpy 2.5.4, scipy 1.18.1, 12 CPUs; results were bit-for-bit reproducible. Next batches run on Lucas's test machine (i7-10510U, 4 cores / 8 threads at 1.8 GHz, 7.6 GiB RAM): record its versions and a reproduction check here in its first session (see `CLAUDE.md`).
 - **Dashboard conventions** (so an experiment also appears in `dashboard.py`): `experiments/exp<N>_<name>.py`, module docstring whose first paragraph is its title, CSVs via `harness.write_csv`, worker functions at module level, `main()` under `if __name__ == "__main__"`. Python 3.14 uses forkserver: module-level patches of other modules must happen at import of the experiment script (they are re-applied in workers).
 - **Two pitfalls:** (1) the dashboard sets `DNN_RESULTS_DIR`, so `harness.RESULTS` is its run folder: read committed CSVs from `experiments/results/` (exp24 printed '?'). (2) Default arguments are fixed at import: a script that replaces another module's tables must also pass them explicitly (exp27 failed with KeyError 'boolean'). Small test runs should call `main()` with no arguments and `DNN_RESULTS_DIR` set.
 
