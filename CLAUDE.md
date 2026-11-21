@@ -12,15 +12,37 @@ and its Summary entry, never the whole file.
 Lucas's long-term goal is programs that run locally, built from discrete
 neural networks: first an agent that plays Doom, later Lean 4 proofs and a
 chat bot. The path to Doom is in `docs/Handoff_Notes.md` section 4. Steps 1-2
-are done (experiments 24-27). Work moves forward in **batches**: several
-experiments designed, run and written up together, aimed at the next steps
-of the path.
+are done (experiments 24-27). Every experiment should move us along that
+path; if a proposed one does not, say so and suggest one that does.
+
+Work moves forward in **batches of four experiments**: designed, run and
+written up together, then reported and committed as one pull request.
+
+## This machine
+
+Experiments run on Lucas's test machine: Intel i7-10510U, 4 cores / 8
+threads, capped at 1.8 GHz, 7.6 GiB RAM, 2 GiB swap. It is slower than the
+12-CPU machine that produced exp1-27, so expect full runs to take roughly two
+to three times as long as before.
+
+- `Pool()` uses all 8 threads. Keep memory use under about 6 GiB; if a run
+  gets near that, pass a smaller worker count (results do not depend on it,
+  because seeds are fixed per task).
+- **First session on this machine only**, before any new experiment: record
+  `python --version` and the numpy and scipy versions, run
+  `python -m pytest -q`, then re-run one short earlier experiment (pick the
+  shortest of exp23-27 from the timing columns of its committed CSV, by
+  script) and check that its CSV matches the committed one exactly, timing
+  columns ignored. The earlier machine used Python 3.14.10, numpy 2.5.4,
+  scipy 1.18.1. If versions differ or the rows do not match, stop and tell
+  Lucas before going on. Record the outcome in `docs/Handoff_Notes.md`
+  section 3.
 
 ## How a batch runs
 
-1. **Plan.** Propose the batch in a few lines (which experiments, what
-   question each answers, rough run time on this machine) and wait for
-   Lucas's OK before writing code.
+1. **Plan.** Propose the next four experiments in a few lines (what question
+   each answers, which path step it serves, rough run time on this machine)
+   and wait for Lucas's OK before writing code.
 2. **Branch.** One branch per batch, `claude/batch-<short-name>`, from an
    up-to-date `main`. Never commit to `main`.
 3. **Write** each experiment as `experiments/exp<N>_<name>.py`, numbering on
@@ -32,10 +54,10 @@ of the path.
    Add tests for new library code; keep `dnn.py` unchanged unless Lucas asks.
 4. **Small run first**: call `main()` with small sizes and check it works
    with `DNN_RESULTS_DIR` set to a temporary folder (as the dashboard does).
-5. **Full runs on this machine** (12 CPUs). Run one experiment at a time:
+5. **Full runs**, one experiment at a time:
    `nice python experiments/exp<N>_<name>.py > runs/exp<N>.log 2>&1`
    (`runs/` is git-ignored). Look only at the end of the log (`tail -40`), not
-   all of it. If a run will take more than about an hour, say so first.
+   all of it. If a run will take more than about two hours, say so first.
 6. **Check every CSV by script**, never by reading it: row count, expected
    rows per setting, 16-character sha256, and exact reproduction of any rows
    that repeat an earlier experiment's settings (timing columns ignored).
@@ -43,15 +65,20 @@ of the path.
 7. **Write up** each experiment as a `RESULTS.md` section (setup, tables,
    findings, with h stated) plus a Summary entry, matching earlier sections.
    State negative results plainly. Say when a result depends on building
-   blocks Claude designed.
-8. **Finish the batch**: run the tests (`python -m pytest -q`), update
-   `docs/Handoff_Notes.md` (state, next steps, open problems), commit, push
-   the branch, open one pull request for the batch, and give Lucas a short
-   plain summary: what each experiment showed and what you suggest next.
+   blocks Claude designed. Commit each experiment's script, CSV and write-up
+   on the batch branch as it is finished.
+8. **After the fourth experiment**: run the tests (`python -m pytest -q`),
+   update `docs/Handoff_Notes.md` (state, next steps, open problems), push
+   the branch, open one pull request for the batch, and report to Lucas:
+   for each experiment, what was tested, the key numbers and what they mean
+   in plain words; then one line, "Doom:", saying which path steps the batch
+   advanced and what now blocks step 7 (ViZDoom); then the four experiments
+   you suggest next.
 
-Stop and ask Lucas when a result changes the plan, when a design choice is
-his to make (anything in the notes' "Decisions" section), or before anything
-hard to undo.
+Stop and ask Lucas when a result changes the plan (say so straight away,
+without waiting for the end of the batch), when a design choice is his to make
+(anything in the notes' "Decisions" section), or before anything hard to
+undo.
 
 ## Conventions
 
@@ -61,3 +88,6 @@ hard to undo.
   config. Do not put email addresses in files or commit messages.
 - Lucas's usage is limited: keep replies short and plain, keep command output
   trimmed (`tail`, `grep`, `head`), and do not read large files whole.
+- Another Claude session (in Lucas's claude.ai project) may update this file
+  and the notes through pull requests. At the start of each session, and when
+  Lucas says so, `git pull` and re-read this file.
