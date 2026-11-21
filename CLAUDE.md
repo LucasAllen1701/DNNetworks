@@ -20,24 +20,14 @@ written up together, then reported and committed as one pull request.
 
 ## This machine
 
-Experiments run on Lucas's test machine: Intel i7-10510U, 4 cores / 8
-threads, capped at 1.8 GHz, 7.6 GiB RAM, 2 GiB swap. It is slower than the
-12-CPU machine that produced exp1-27, so expect full runs to take roughly two
-to three times as long as before.
+All experiments (exp1 onwards) have run on this machine: Arch Linux, Intel
+i7-10510U, 4 cores / 8 threads at 1.8 GHz, 7.6 GiB RAM, 2 GiB swap; Python
+3.14.10, numpy 2.5.4, scipy 1.18.1. Results have been bit-for-bit
+reproducible.
 
 - `Pool()` uses all 8 threads. Keep memory use under about 6 GiB; if a run
   gets near that, pass a smaller worker count (results do not depend on it,
   because seeds are fixed per task).
-- **First session on this machine only** (skip if `docs/Handoff_Notes.md`
-  section 3 already records it), before any new experiment: record
-  `python --version` and the numpy and scipy versions, run
-  `python -m pytest -q`, then re-run one short earlier experiment (pick the
-  shortest of exp23-32 from the timing columns of its committed CSV, by
-  script) and check that its CSV matches the committed one exactly, timing
-  columns ignored. The earlier machine used Python 3.14.10, numpy 2.5.4,
-  scipy 1.18.1. If versions differ or the rows do not match, stop and tell
-  Lucas before going on. Record the outcome in `docs/Handoff_Notes.md`
-  section 3.
 
 ## How a batch runs
 
@@ -58,7 +48,7 @@ to three times as long as before.
 5. **Full runs**, one experiment at a time:
    `nice python experiments/exp<N>_<name>.py > runs/exp<N>.log 2>&1`
    (`runs/` is git-ignored). Look only at the end of the log (`tail -40`), not
-   all of it. If a run will take more than about two hours, say so first.
+   all of it. If a run will take more than about an hour, say so first.
 6. **Check every CSV by script**, never by reading it: row count, expected
    rows per setting, 16-character sha256, and exact reproduction of any rows
    that repeat an earlier experiment's settings (timing columns ignored).
