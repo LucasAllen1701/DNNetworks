@@ -12,7 +12,7 @@ and its Summary entry, never the whole file.
 Lucas's long-term goal is programs that run locally, built from discrete
 neural networks: first an agent that plays Doom, later Lean 4 proofs and a
 chat bot. The path to Doom is in `docs/Handoff_Notes.md` section 4. Steps 1-2
-are done (experiments 24-27). Every experiment should move us along that
+are done (experiments 24-27); experiments 28-32 began steps 3 and 5. Every experiment should move us along that
 path; if a proposed one does not, say so and suggest one that does.
 
 Work moves forward in **batches of four experiments**: designed, run and
@@ -28,10 +28,11 @@ to three times as long as before.
 - `Pool()` uses all 8 threads. Keep memory use under about 6 GiB; if a run
   gets near that, pass a smaller worker count (results do not depend on it,
   because seeds are fixed per task).
-- **First session on this machine only**, before any new experiment: record
+- **First session on this machine only** (skip if `docs/Handoff_Notes.md`
+  section 3 already records it), before any new experiment: record
   `python --version` and the numpy and scipy versions, run
   `python -m pytest -q`, then re-run one short earlier experiment (pick the
-  shortest of exp23-27 from the timing columns of its committed CSV, by
+  shortest of exp23-32 from the timing columns of its committed CSV, by
   script) and check that its CSV matches the committed one exactly, timing
   columns ignored. The earlier machine used Python 3.14.10, numpy 2.5.4,
   scipy 1.18.1. If versions differ or the rows do not match, stop and tell
@@ -84,8 +85,10 @@ undo.
 
 - Fixed seeds; CSVs in `experiments/results/`; experiments that reuse
   earlier layouts must reproduce the earlier rows exactly.
-- Commit with the git identity configured on this machine; do not change git
-  config. Do not put email addresses in files or commit messages.
+- Use `.venv/bin/python` if the system python has no numpy. Commit as
+  Claude with per-commit environment variables (`GIT_AUTHOR_NAME`,
+  `GIT_COMMITTER_NAME` and the matching `_EMAIL` vars) if the machine has no
+  git identity; do not change git config. Do not put email addresses in files or commit messages.
 - Lucas's usage is limited: keep replies short and plain, keep command output
   trimmed (`tail`, `grep`, `head`), and do not read large files whole.
 - Another Claude session (in Lucas's claude.ai project) may update this file
