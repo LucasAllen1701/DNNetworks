@@ -2725,6 +2725,83 @@ At the largest size, whole streams right for gru_tuned by task: state from
   LSTM, and 3000 steps is a fixed budget. The comparison is fairer than
   experiment 24's but not final.
 
+## 33 The wait game on bigger screens (`exp33_bigger_screens.py`)
+
+Path step 4 (bigger screens). Experiment 28's wait game (key/door expert,
+each screen shown for 3 network steps, h = 3) on screens of side S = 4, 8
+and 16 (32, 128 and 512 inputs). The expert, its letter (player in the top
+half, player in the right half) and its 2-state machine are unchanged.
+Layouts (dnn_letters.make_layout_bits, 2 output neurons reading only the
+state neurons):
+- **bits**: letter of 1–2 regions from experiment 23's library scaled to S
+  (rows, columns, halves, quadrants of each plane: 32, 48 and 80 regions);
+- **cuts**: letter of 1–2 regions from every straight cut (row < k, row ≥ k,
+  column < k, column ≥ k, each plane: 24, 56 and 120 regions), a library
+  not built around halves;
+- **true_bits**: given (P:top, P:right).
+
+Training on 8 to 64 random-walk episodes of 25 screens, 10 seeds; 200 unseen
+episodes; 100 games of 60 steps. New library code:
+`dnn_letters.choose_bits_fast` gives the same result as `choose_bits` (test
+added) about 20 times faster. It builds each candidate's letter tuples from
+a lookup table.
+
+Run on the desktop, 22 minutes (longest job 38 s); 450 rows, sha256
+`1f793f93e5379a67`. The 80 side-4 bits/true_bits rows at 8–32 episodes
+equal experiment 28's wait rows (every non-timing column). A first attempt
+crashed inside scipy's sparse conversion ("number of non-zero array elements
+changed during function execution"); the identical re-run finished and
+reproduced experiment 28. See the note in the handoff notes, section 3.
+
+### 33.1 Results
+
+Runs with the true machine (of 10) / unseen episodes with every move right /
+laps per game for the network (expert in brackets):
+
+| side | layout | 8 | 16 | 24 | 32 | 64 |
+|---|---|---|---|---|---|---|
+| 4 | bits | 8 / 0.90 / 12.90 (14.28) | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| 4 | cuts | 8 / 0.90 / 12.90 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| 4 | true_bits | 8 / 0.90 / 12.90 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| 8 | bits | 5 / 0.86 / 9.97 (13.89) | 7 / 0.95 / 11.29 | 8 / 0.96 / 12.58 | 10 / 1.00 / 13.89 | 10 / 1.00 / 13.89 |
+| 8 | cuts | 5 / 0.86 / 9.97 | 7 / 0.95 / 11.29 | 8 / 0.96 / 12.58 | 10 / 1.00 / 13.89 | 10 / 1.00 / 13.89 |
+| 8 | true_bits | 5 / 0.87 / 9.97 | 7 / 0.95 / 11.29 | 8 / 0.96 / 12.58 | 10 / 1.00 / 13.89 | 10 / 1.00 / 13.89 |
+| 16 | bits | 3 / 0.84 / 5.52 (12.85) | 5 / 0.96 / 6.93 | 6 / 0.99 / 8.12 | 8 / 0.99 / 10.49 | 10 / 1.00 / 12.85 |
+| 16 | cuts | 3 / 0.87 / 5.56 | 5 / 0.95 / 6.88 | 6 / 0.99 / 8.12 | 8 / 0.99 / 10.49 | 10 / 1.00 / 12.85 |
+| 16 | true_bits | 3 / 0.87 / 5.56 | 5 / 0.96 / 6.93 | 6 / 0.99 / 8.12 | 8 / 0.99 / 10.49 | 10 / 1.00 / 12.85 |
+
+The searched letter is always (P:top, P:left) for bits and (P:top, P:c<S/2)
+for cuts: the complement of the true right-half bit, so the same partition
+(the letter_correct column compares names and is therefore False for them).
+No run had an inconsistent letter, and no hidden neurons were added. Recall
+from keys was 1.000 everywhere. Candidates searched: 528 / 1,176 / 3,240
+(bits) and 300 / 1,596 / 7,260 (cuts). The longest search took 7 s (bits)
+and 38 s (cuts, side 16).
+
+Of the 28 runs per layout without the true machine at sides 8 and 16,
+21 merged into 2 states with wrong or missing transitions. Their unseen
+moves were still 0.92–0.96 right per step.
+
+### 33.2 Findings
+
+- **More pixels cost data, not letters.** At every side, bits, cuts and
+  the given letter have the same true-machine counts (bits and cuts match
+  true_bits exactly). The search never picks a wrong letter, even among
+  7,260 candidates. What grows is the number of episodes needed: all 10
+  runs get the true machine from 16 episodes at side 4, 32 at side 8 and 64
+  at side 16. Random walks on a big screen rarely cross between quadrants,
+  so the key/door transitions are seen less often.
+- **Play follows the machine.** With the true machine the network plays
+  like the expert at every side (12.85 laps at side 16). The expert's laps
+  barely depend on the side because its route runs along the centre lines.
+- **The network grows linearly with the screen.** Only the letter neurons
+  read the pixels. With 512 inputs the linear programs still take under
+  2 s. Search time grows with the library squared (cuts: 38 s at side 16).
+- **Caveats.** The letter is still made of regions from a library (two
+  libraries here, both written by Claude). The task needs only halves of
+  the screen. Bigger screens with small objects (keys, doors, walls that
+  are not halves) are the real test of step 4.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -3008,6 +3085,14 @@ At the largest size, whole streams right for gru_tuned by task: state from
   (game) for the tuned GRU, against 0.99 and 1.00 for the discrete networks.
   Per step the gradient models do better (0.75 and 0.87) but stay behind
   from 4 streams on. The discrete networks still get designed letters.
+
+**Bigger screens (experiment 33).**
+- The wait game on 8 x 8 and 16 x 16 screens (up to 512 inputs): the letter
+  search never fails (up to 7,260 candidate letters, also from a library of
+  straight cuts), the network plays like the expert, and the linear
+  programs stay small. The data needed grow: all 10 runs find the true
+  machine from 16 episodes at side 4, 32 at side 8, 64 at side 16. The
+  task still needs only half-screen regions.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
