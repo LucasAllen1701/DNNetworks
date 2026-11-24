@@ -2802,6 +2802,103 @@ moves were still 0.92–0.96 right per step.
   the screen. Bigger screens with small objects (keys, doors, walls that
   are not halves) are the real test of step 4.
 
+## 34 Helpers shared across positions (`exp34_shared_helpers.py`)
+
+Path step 4 (helpers shared across positions). Upstart and cover fit each
+helper to the whole image, so a helper learned at one position says
+nothing about another. Experiment 21's six image tasks (hline, vline,
+block, ink — at least half the pixels black — top, mirror), with experiment
+19's image generator at side S = 4 and 8 (16 and 64 inputs), 12 images per
+stream, 2 to 32 streams, 10 seeds. All layouts h = 2, the output reads its
+helpers, limit 200:
+- **upstart**, **cover**: experiment 21's upstart200 and cover200.
+- **cover_local**: cover in which each helper is fitted inside one window
+  (`dnn_upstart.build_cover_local`). For the seed image, every 2 × 2 and
+  3 × 3 square, row and column is tried with cover's pure fit (off for
+  every negative, on for the seed), and the window covering the most
+  positives wins. The window shapes were chosen by Claude.
+- **cover_shared**: the same, but each helper is joined by every translate
+  (the same weights moved to each position where they fit;
+  `dnn_upstart.translates`) that is off for every negative training image.
+  Translates are kept even when no training image turns them on: that is
+  how sharing reaches positions never seen.
+
+A first design shared upstart's helpers. They span the whole image and so
+have no translates; with window fits, upstart's error criterion preferred
+dense rules to row ANDs (hline at side 8: 0.61). Neither was run in full;
+covering's pure helpers are what sharing needs.
+
+Run on the desktop, 22 minutes (longest job 52 s); 2,400 rows, sha256
+`430f400216336c2d`. The 600 side-4 upstart and cover rows equal experiment
+21's upstart200 and cover200 rows (every non-timing column).
+
+### 34.1 Results
+
+Mean unseen accuracy (midpoint weights) over the 6 tasks / mean helpers:
+
+| side | layout | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|
+| 4 | upstart | 0.674 / 1.0 | 0.720 / 1.6 | 0.800 / 3.5 | 0.842 / 14.6 | 0.865 / 38.5 |
+| 4 | cover | 0.669 / 4.3 | 0.727 / 8.0 | 0.772 / 12.9 | 0.833 / 23.4 | 0.863 / 38.7 |
+| 4 | cover_local | 0.664 / 2.7 | 0.722 / 4.5 | 0.799 / 6.7 | 0.847 / 10.6 | 0.874 / 17.8 |
+| 4 | cover_shared | 0.724 / 6.7 | 0.775 / 8.6 | 0.831 / 10.4 | 0.864 / 14.3 | 0.882 / 21.4 |
+| 8 | upstart | 0.596 / 1.0 | 0.615 / 1.0 | 0.644 / 1.0 | 0.697 / 2.0 | 0.748 / 5.6 |
+| 8 | cover | 0.609 / 4.6 | 0.646 / 9.8 | 0.688 / 22.9 | 0.705 / 49.5 | 0.714 / 109.0 |
+| 8 | cover_local | 0.574 / 2.5 | 0.593 / 4.0 | 0.642 / 7.1 | 0.713 / 11.9 | 0.788 / 18.6 |
+| 8 | cover_shared | 0.594 / 18.8 | 0.641 / 24.4 | 0.694 / 34.1 | 0.772 / 43.6 | 0.815 / 57.0 |
+
+Local tasks only (hline, vline, block), mean unseen accuracy:
+
+| side | layout | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|
+| 4 | upstart | 0.657 | 0.662 | 0.713 | 0.746 | 0.774 |
+| 4 | cover | 0.679 | 0.742 | 0.798 | 0.866 | 0.901 |
+| 4 | cover_local | 0.680 | 0.753 | 0.881 | 0.951 | 0.985 |
+| 4 | cover_shared | 0.802 | 0.866 | 0.947 | 0.986 | 1.000 |
+| 8 | upstart | 0.564 | 0.573 | 0.587 | 0.593 | 0.603 |
+| 8 | cover | 0.608 | 0.632 | 0.664 | 0.674 | 0.678 |
+| 8 | cover_local | 0.555 | 0.578 | 0.639 | 0.750 | 0.888 |
+| 8 | cover_shared | 0.635 | 0.692 | 0.750 | 0.879 | 0.955 |
+
+At 32 streams, by task (base rate first):
+
+| side | layout | hline | vline | block | ink | top | mirror |
+|---|---|---|---|---|---|---|---|
+| 8 | base rate | 0.509 | 0.508 | 0.703 | 0.514 | 0.554 | 0.509 |
+| 8 | upstart | 0.591 | 0.571 | 0.647 | 0.930 | 0.912 | 0.837 |
+| 8 | cover | 0.707 | 0.685 | 0.643 | 0.890 | 0.661 | 0.696 |
+| 8 | cover_local | 0.952 | 0.968 | 0.744 | 0.821 | 0.553 | 0.689 |
+| 8 | cover_shared | 0.946 | 0.951 | 0.968 | 0.823 | 0.533 | 0.673 |
+| 4 | cover_shared | 1.000 | 1.000 | 1.000 | 0.855 | 0.723 | 0.713 |
+
+No hidden neurons were added; every training stream was exact without
+key. The longest build took 52 s (cover_shared, side 8).
+
+### 34.2 Findings
+
+- **Sharing works for local patterns.** On hline, vline and block,
+  shared helpers are exact at side 4 from 32 streams (1.000; cover 0.901,
+  upstart 0.774) and reach 0.955 at side 8 (cover 0.678, upstart 0.603).
+  With few streams the gain is largest: side 4 at 2 streams 0.802 against
+  0.679. Block at side 8 needs sharing: local windows alone give 0.744,
+  shared 0.968, since a block seen at one place is then found everywhere.
+- **Lines need windows more than sharing.** At side 8 local row and column
+  windows already give 0.95–0.97 on hline and vline (shared 0.95), because
+  8 rows are few enough to be seen in training.
+- **Sharing hurts on global tasks.** On ink, top and mirror, local helpers
+  cannot express a count or a comparison of halves: at side 8 and 32
+  streams cover_shared gets 0.533 on top (base rate 0.554) against
+  upstart's 0.912. The mean over all six tasks still rises (0.815 against
+  0.748 for upstart at side 8), but no single layout wins every task, so
+  the layout choice of experiments 22/27 is still needed.
+- **Fewer helpers.** At side 8 and 32 streams cover_shared builds 57
+  helpers (most of them copies) against cover's 109, and its accuracy grows
+  with data where cover's has stalled (0.705 → 0.714 from 16 to 32).
+- **Caveat.** The window shapes (2 × 2, 3 × 3, rows, columns) are Claude's
+  choice and suit these tasks; hline and vline are exactly row and column
+  ANDs. The result shows that sharing pays when the right local building
+  block is in the search, not that the building blocks were found from data.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -3093,6 +3190,13 @@ moves were still 0.92–0.96 right per step.
   programs stay small. The data needed grow: all 10 runs find the true
   machine from 16 episodes at side 4, 32 at side 8, 64 at side 16. The
   task still needs only half-screen regions.
+
+**Helpers shared across positions (experiment 34).**
+- Cover's helpers fitted inside small windows (squares, rows, columns) and
+  copied to every position where they stay off for all negatives: exact on
+  hline, vline and block at side 4 from 32 streams, 0.955 at side 8
+  (cover 0.678, upstart 0.603). They hurt on global tasks (top 0.533 at
+  side 8 against upstart's 0.912). The window shapes are Claude's.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
