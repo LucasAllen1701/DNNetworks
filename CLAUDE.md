@@ -20,14 +20,26 @@ written up together, then reported and committed as one pull request.
 
 ## This machine
 
-All experiments (exp1 onwards) have run on this machine: Arch Linux, Intel
-i7-10510U, 4 cores / 8 threads at 1.8 GHz, 7.6 GiB RAM, 2 GiB swap; Python
-3.14.10, numpy 2.5.4, scipy 1.18.1. Results have been bit-for-bit
-reproducible.
+From exp33, experiments run on Lucas's desktop: Intel i7-3930K, 6 cores /
+12 threads at 3.2-3.8 GHz, 15 GiB RAM, 2 GiB swap. Exp1-32 ran on a laptop
+(i7-10510U, 8 threads, Arch Linux, Python 3.14.10, numpy 2.5.4, scipy
+1.18.1), bit-for-bit reproducibly. The desktop should be somewhat faster.
 
-- `Pool()` uses all 8 threads. Keep memory use under about 6 GiB; if a run
+- `Pool()` uses all 12 threads. Keep memory use under about 12 GiB; if a run
   gets near that, pass a smaller worker count (results do not depend on it,
   because seeds are fixed per task).
+- **First session on this machine only** (skip if `docs/Handoff_Notes.md`
+  section 3 already records it), before any new experiment: record
+  `python --version` and the numpy and scipy versions, run
+  `python -m pytest -q`, then re-run one short earlier experiment (pick the
+  shortest of exp23-32 from the timing columns of its committed CSV, by
+  script) and check that its CSV matches the committed one exactly, timing
+  columns ignored. The CPU is older (no AVX2), so numpy may take different
+  code paths: a mismatch is possible even with the same versions. If
+  versions differ or rows do not match, stop and tell Lucas before going on.
+  Record the outcome in `docs/Handoff_Notes.md` section 3.
+- Long runs: Lucas starts sessions inside `tmux`, so runs survive a closed
+  terminal.
 
 ## How a batch runs
 
