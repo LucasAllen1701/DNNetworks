@@ -2899,6 +2899,82 @@ key. The longest build took 52 s (cover_shared, side 8).
   ANDs. The result shows that sharing pays when the right local building
   block is in the search, not that the building blocks were found from data.
 
+## 35 Success and failure by flipping one cell (`exp35_flip_cells.py`)
+
+Path step 5 (closed-loop play from success and failure), Lucas's idea 3 in
+a second form. Experiment 31 redrew weights inside their boxes on failure
+and did not learn (0.17 laps). Here the player is the network built from a
+machine (letter bits → state neurons → 2 output neurons,
+`make_layout_bits`), and exploration changes the machine. Each round one
+(state, letter) cell is changed at random: its move (to one of the 3
+others) or its next state (to another state). The changed player and the
+current one play the same 8 new games. If the changed one scores at least
+as many laps, it is a success and is kept; otherwise it is a failure and the
+change is undone. 300 rounds, experiment 28's wait game. Starts:
+- **scratch2, scratch3**: a random machine of 2 or 3 states over the given
+  letter (P:top, P:right). No demonstrations, but the letter is designed.
+- **imit2, imit4**: experiment 30's pipeline on the first 2 or 4
+  demonstration episodes (letter from the 32 regions, machine by search, at
+  most 3 states), padded to 3 states (spare states copy state 0's moves and
+  stay put until a flip reaches them), then flips.
+
+During the rounds the machine is played directly, as the network runs it.
+The move answers the current screen, and the state takes one transition per
+network step (3 per screen; a first version took one per screen and did not
+match the network). At the end the network is built from 64 random-walk
+episodes and 64 new games of its own, relabelled by the machine, plus the
+linear programs. It then plays experiment 26's 100 test games with midpoint
+weights.
+
+Run on the desktop, 4 minutes; 40 rows, sha256 `374e052aff0ff1d8`. A second
+full run gave the identical CSV (timing columns ignored). The first full run
+crashed with "neuron 32 still infeasible after adding helpers", which the
+identical code did not repeat in three later runs (see section 33's note on
+the hardware).
+
+### 35.1 Results
+
+Mean laps per game on the 100 test games after each number of rounds
+(expert 14.28, random 1.45, experiment 31 0.17):
+
+| start | 0 | 10 | 25 | 50 | 100 | 200 | 300 | runs ≥ 14 at 300 |
+|---|---|---|---|---|---|---|---|---|
+| scratch2 | 0.05 | 0.72 | 2.72 | 6.34 | 11.22 | 12.45 | 14.18 | 9 |
+| scratch3 | 0.02 | 0.60 | 3.68 | 5.24 | 10.03 | 12.09 | 13.41 | 7 |
+| imit2 | 5.38 | 6.79 | 6.93 | 6.90 | 7.11 | 8.29 | 8.92 | 4 |
+| imit4 | 13.89 | 13.46 | 13.69 | 13.42 | 13.54 | 13.72 | 13.60 | 8 |
+
+The network played exactly like its machine in all 40 runs; no hidden
+neurons were added. No run ended with the expert's machine. Mean accepted
+changes: 175 of 300 (ties count as successes). imit2's poor runs have
+letters that cannot see the key quadrant: P:row0+P:TL (0.44 laps),
+P:col2+P:top (0.23), P:top alone (0.18), P:row2+P:left (7.46). Flips never
+change the letter.
+
+### 35.2 Findings
+
+- **Flipping cells learns to play without an expert.** From a random
+  machine, 300 rounds of 8-game comparisons reach 14.18 laps (2 states; 9
+  of 10 runs at 14 or more) and 13.41 (3 states), against 0.17 for
+  experiment 31's redraws and 1.45 for a random player. Changing the
+  machine, not the weights inside fixed boxes, is what makes exploration
+  change the play.
+- **But this game does not need memory.** No run found the expert's
+  machine, and several 1-state imitation machines play at 14.25 laps.
+  Circling the quadrants clockwise (right in the top-left, down in the
+  top-right, left in the bottom-right, up in the bottom-left) passes the
+  key and then the door on every loop. So the result shows learning a
+  good reactive policy, not learning memory; a game that punishes circling
+  is needed (experiment 36's three-key order is one).
+- **Flips cannot fix a wrong letter.** imit2 starts with a wrong letter in
+  4 of 10 runs and stays poor (mean 8.92). With 4 demonstrations the start
+  is already good (13.89) and flips neither help nor hurt much: accepting
+  ties on 8 games lets slightly worse machines in (13.60 at the end).
+- **Caveats.** The letter is given (scratch) or chosen from Claude's region
+  library (imit). The search is in machine space (cells of the state and
+  output tables), with the network built from the final machine; the
+  network itself is never changed cell by cell. Each round costs 16 games.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -3197,6 +3273,14 @@ key. The longest build took 52 s (cover_shared, side 8).
   hline, vline and block at side 4 from 32 streams, 0.955 at side 8
   (cover 0.678, upstart 0.603). They hurt on global tasks (top 0.533 at
   side 8 against upstart's 0.912). The window shapes are Claude's.
+
+**Success and failure by flipping cells (experiment 35).**
+- Idea 3, second form: change one (state, letter) cell of the machine,
+  keep the change if it scores at least as many laps on the same 8 games.
+  From a random machine it reaches 14.18 laps in 300 rounds (expert 14.28,
+  experiment 31's redraws 0.17). But the key/door game is solved without
+  memory (circling the quadrants), so this is not yet learning memory;
+  a wrong letter from imitation is never fixed.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
