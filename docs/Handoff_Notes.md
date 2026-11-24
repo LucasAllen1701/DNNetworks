@@ -1,6 +1,6 @@
-# Discrete Neural Networks — handoff notes (20 November 2026)
+# Discrete Neural Networks — handoff notes (24 November 2026)
 
-State of the work after experiments 1–32, for whoever continues it (Claude
+State of the work after experiments 1–36, for whoever continues it (Claude
 Code on Lucas's machine from now on; see `CLAUDE.md` for how batches run).
 Detailed results are in `experiments/RESULTS.md`: read only the section you
 need and its Summary entry.
@@ -25,7 +25,12 @@ need and its Summary entry.
    - exp30: game solved for tiny machines: letter and machine by **search** (fewest disagreements, majority outputs, states chosen on held-out episodes; `dnn_noise`), then relabel and run the exact LPs: expert play in every run up to p = 0.2. Images: a 4-fold disagreement filter helps at 16–32 streams (0.808 vs 0.760) but hurts with few streams and on clean data.
    - exp31: idea 3, first form (buffer successes, redraw weights inside boxes on failure): **does not learn** (0.17 laps after 50 rounds vs random 1.45). The buffer fixes every (state, letter) cell, so redraws never change play.
    - exp32: tuned RNN and tuned GRU: whole unseen streams 0.24 (state) / 0.45 (game) vs DNN 0.99 / 1.00; per step 0.75 / 0.87. The gap stays; DNN still uses designed letters.
-6. **Honest assessment:** good in a narrow sense (exact recall, no forgetting, real generalisation on small exact tasks), but tasks are tiny, much success comes from building blocks (letter libraries, helper layouts, screen regions) Claude designed, and merging is fragile.
+6. **Exp33–36** (batch `bigger-screens`, desktop):
+   - exp33: the wait game on 8×8 and 16×16 screens (512 inputs): letter search never fails (up to 7,260 candidates, also from a library of straight cuts), play equals the expert; data needed grow (true machine in all runs from 16 / 32 / 64 episodes at side 4 / 8 / 16). The task still needs only half-screen regions.
+   - exp34: cover's helpers fitted in small windows (2×2, 3×3, rows, columns; Claude's shapes) and **shared** (copied to every position where they stay off on all negatives): hline/vline/block exact at side 4 from 32 streams, 0.955 at side 8 (cover 0.678, upstart 0.603); hurts global tasks (top 0.533 vs upstart 0.912).
+   - exp35: idea 3, second form (**flip one machine cell**, keep it if laps on the same 8 games do not fall): from a random machine 14.18 laps after 300 rounds (expert 14.28, exp31 0.17). But the key/door game is solvable without memory (circling the quadrants), so memory learning is untested; flips never fix a wrong letter.
+   - exp36: machine search by **splitting states** (`dnn_noise.learn_machine_split`): 4-state three-key game from 64 noisy episodes: true machine in 8 / 7 / 5 runs at p = 0 / 0.1 / 0.2, vs exp30's local search 1 / 1 / 0 and exact merging (p = 0) 3. Letter given.
+7. **Honest assessment:** good in a narrow sense (exact recall, no forgetting, real generalisation on small exact tasks), but tasks are tiny, much success comes from building blocks (letter libraries, helper layouts, screen regions) Claude designed, and merging is fragile.
 
 ## 2 Where things live
 
@@ -34,16 +39,16 @@ need and its Summary entry.
 | `docs/DiscreteNeuralNetworkNotes151126.md` | Lucas's notes: the original idea. |
 | `dnn.py`, `tests/test_dnn.py` | Baseline. Keep unchanged unless Lucas asks. |
 | `dnn_fixed.py`, `dnn_box.py`, `dnn_buffer.py`, `dnn_merge.py`, `dnn_sleep.py`, `docs/*.md` | Fixed neurons, box rules, buffer, merging, sleep. Propositions 1–8. |
-| `dnn_upstart.py` | Helpers: `build` (upstart), `build_cover`, `make_layout_h3`, `pair_rules`, `neighbour_pair_rules`. |
-| `dnn_letters.py` | Letters: library (exp17); `compose_letter`, `joint_search`, `learn_letter`, `cover_letter` (exp20); `choose_bits`, `make_layout_bits` (multi-bit letters, exp23; `n_out` outputs, `learn_machine_multi`, exp26). |
+| `dnn_upstart.py` | Helpers: `build` (upstart), `build_cover`, `make_layout_h3`, `pair_rules`, `neighbour_pair_rules`; shared helpers `translates`, `windows`, `build_cover_local` (exp34). |
+| `dnn_letters.py` | Letters: library (exp17); `compose_letter`, `joint_search`, `learn_letter`, `cover_letter` (exp20); `choose_bits`, `make_layout_bits` (multi-bit letters, exp23; `n_out` outputs, `learn_machine_multi`, exp26); `choose_bits_fast` (same result, ~20× faster, exp33). |
 | `baseline_gd.py` | exp24: MLP and Elman RNN by Adam, numpy only; GRU (exp32). |
-| `dnn_noise.py` | exp29–31: label noise (`noisy`), machine search (`fit_machine`, `learn_machine_heldout`, `choose_bits_search`), `relabel`. |
-| `experiments/exp1…exp32_*.py`, `experiments/harness.py` | Experiments; CSVs in `experiments/results/`; `RESULTS.md` (sections 1–32 and Summary). |
+| `dnn_noise.py` | exp29–31: label noise (`noisy`), machine search (`fit_machine`, `learn_machine_heldout`, `choose_bits_search`), `relabel`; split search `split_tables`, `learn_machine_split` (exp36). |
+| `experiments/exp1…exp36_*.py`, `experiments/harness.py` | Experiments; CSVs in `experiments/results/`; `RESULTS.md` (sections 1–36 and Summary). |
 | `dashboard.py` | Local web page for running experiments one at a time. |
 
 ## 3 Running experiments
 
-- **Machines:** exp1–32 ran on Lucas's laptop: Arch Linux, Intel i7-10510U (4 cores / 8 threads at 1.8 GHz), 7.6 GiB RAM, Python 3.14.10, numpy 2.5.4, scipy 1.18.1; results were bit-for-bit reproducible. From exp33, runs are on his desktop (i7-3930K, 6 cores / 12 threads, 15 GiB RAM): first session 24 November 2026: Python 3.14.10, numpy 2.5.4, scipy 1.18.1 (same as the laptop); `pytest -q` 91 passed (4.5 min); exp26 (shortest of exp23–32) re-run: 80/80 rows identical to the committed CSV, timing columns ignored. Results are reproducible on the desktop. **Watch for hardware errors:** the first full run of exp33 crashed inside scipy ("number of non-zero array elements changed during function execution", which points to a flipped bit; the RAM is non-ECC) and the identical re-run passed and reproduced exp28. CPU package reached 78 °C under full load (high mark 81 °C). Keep the reproduction checks; if such an error recurs, run a memory test and check cooling.
+- **Machines:** exp1–32 ran on Lucas's laptop: Arch Linux, Intel i7-10510U (4 cores / 8 threads at 1.8 GHz), 7.6 GiB RAM, Python 3.14.10, numpy 2.5.4, scipy 1.18.1; results were bit-for-bit reproducible. From exp33, runs are on his desktop (i7-3930K, 6 cores / 12 threads, 15 GiB RAM): first session 24 November 2026: Python 3.14.10, numpy 2.5.4, scipy 1.18.1 (same as the laptop); `pytest -q` 91 passed (4.5 min); exp26 (shortest of exp23–32) re-run: 80/80 rows identical to the committed CSV, timing columns ignored. Results are reproducible on the desktop. **Watch for hardware errors:** the first full run of exp33 crashed inside scipy ("number of non-zero array elements changed during function execution", which points to a flipped bit; the RAM is non-ECC) and the identical re-run passed and reproduced exp28. CPU package reached 78 °C under full load (high mark 81 °C). The first full run of exp35 also crashed once ("neuron 32 still infeasible after adding helpers") and the identical code then passed three times, twice as full runs with identical CSVs. Two failures that do not repeat suggest unreliable hardware (RAM or heat); Lucas may want to run a memory test (e.g. memtest86+) and check cooling. Keep the reproduction checks. Also: in a shell, `cd dir && (loop) & cmd` puts the `cd` into the background subshell; put `cd` on its own line.
 - **Dashboard conventions** (so an experiment also appears in `dashboard.py`): `experiments/exp<N>_<name>.py`, module docstring whose first paragraph is its title, CSVs via `harness.write_csv`, worker functions at module level, `main()` under `if __name__ == "__main__"`. Python 3.14 uses forkserver: module-level patches of other modules must happen at import of the experiment script (they are re-applied in workers).
 - **Two pitfalls:** (1) the dashboard sets `DNN_RESULTS_DIR`, so `harness.RESULTS` is its run folder: read committed CSVs from `experiments/results/` (exp24 printed '?'). (2) Default arguments are fixed at import: a script that replaces another module's tables must also pass them explicitly (exp27 failed with KeyError 'boolean'). Small test runs should call `main()` with no arguments and `DNN_RESULTS_DIR` set.
 
@@ -51,7 +56,7 @@ need and its Summary entry.
 
 Programs that run locally, built from discrete neural networks: (1) play Doom; (2) Lean 4 proofs; (3) a chat bot. All far off; Doom nearest.
 
-**Path to Doom:** (1) baseline comparison with gradient descent [exp24, done]; (2) acting, multi-bit outputs, letter witnesses [exp25, exp26, done; lag fixed by the wait game, exp28]; (3) noisy data [game with tiny machines done by search + relabel, exp30; images partly; search does not scale]; (4) bigger screens (16×16, 32×32), helpers shared across positions, more layers; (5) closed-loop play, from demonstrations [done, exp28] then from success/failure (Lucas's idea 3; first form fails, exp31); (6) long memory (maze with keys); (7) ViZDoom simple scenarios with small binarised frames; (8) full levels.
+**Path to Doom:** (1) baseline comparison with gradient descent [exp24, done]; (2) acting, multi-bit outputs, letter witnesses [exp25, exp26, done; lag fixed by the wait game, exp28]; (3) noisy data [game done by search + relabel, exp30; up to 4 states by split search, exp36; images partly]; (4) bigger screens (16×16, 32×32), helpers shared across positions, more layers [screens to 16×16 with half-screen letters, exp33; shared window helpers on 8×8 images, exp34]; (5) closed-loop play, from demonstrations [done, exp28] then from success/failure (Lucas's idea 3; first form fails, exp31; cell flips learn a reactive policy, exp35, memory untested); (6) long memory (maze with keys); (7) ViZDoom simple scenarios with small binarised frames; (8) full levels.
 
 ## 5 Lucas's design rationale
 
@@ -66,20 +71,22 @@ Programs that run locally, built from discrete neural networks: (1) play Doom; (
 
 ## 7 Lucas's three ideas (15 November)
 
-1. One neuron per time step: memorises (exp13). 2. Expansion and compression cycles: compression by rebuild works (exp15); deletion rule safe but finds nothing. 3. Success and failure (buffer successes; on failure randomise inside the boxes): first form **fails** (exp31): redraws inside the boxes never change play once the buffer covers every cell. Variants below.
+1. One neuron per time step: memorises (exp13). 2. Expansion and compression cycles: compression by rebuild works (exp15); deletion rule safe but finds nothing. 3. Success and failure (buffer successes; on failure randomise inside the boxes): first form **fails** (exp31): redraws inside the boxes never change play once the buffer covers every cell. Second form (flip one machine cell, keep it if laps do not fall; exp35) learns to play the key/door game from a random machine, but that game needs no memory.
 
 ## 8 Next steps (candidates, not yet chosen)
 
-(a) Idea 3 variants: explore by flipping the machine's output in one (state, letter) cell instead of redrawing weights; store only the steps leading to each lap; or start from a few imitation episodes and improve by success/failure. (b) Scale the machine search (better than n^(n·L): e.g. greedy splitting, or the search seeded by merging) so noisy data work for bigger machines. (c) Image noise: a stronger filter or a noise-aware helper search. (d) Step 4, bigger screens. Exp28's wait game is the default for acting.
+(a) Idea 3 on a game that needs memory: exp36's three-key order defeats circling; flips from scratch, and imitation (split search) plus flips. (b) Small objects on big screens: key and door as small squares at fixed or random places on 16×16, letters from window regions at every position (exp34's windows as a letter library). (c) Shared helpers as a fifth image layout in exp27's held-out choice (sharing wins local tasks, loses global ones). (d) Letter and machine both searched for the 3- and 4-state games with noise (choose_bits_search + split). (e) Image noise: a stronger filter or a noise-aware helper search. Exp28's wait game is the default for acting.
 
 ## 9 Open problems
 
 - Letters / helpers come from libraries Claude designed; finding building blocks without one (exp20: free labels overfit).
-- Data that are not exact: solved for tiny machines only (exp30 search costs n^(n·L)); image filter weak with few streams and drops many correct images.
+- Data that are not exact: machines up to 4 states by split search (exp36, letter given, 64 episodes); image filter weak with few streams and drops many correct images.
 - Bounded buffers: on the grid game, letter_witness at cap 8 is nearly as good as keeping everything (exp25); cap 4 too small.
 - Merging errors even with the true letter; they depend on letter labelling (exp23, exp26 true_bits).
 - Acting latency: solved by waiting 3 network steps per move (exp28); h = 2 outputs cannot be single neurons.
-- Learning without an expert (idea 3): first form does not explore (exp31).
+- Learning without an expert (idea 3): cell flips learn a reactive policy (exp35); learning memory and the letter by success/failure is untested.
+- Big screens: shared window helpers solve local image tasks (exp34) but hurt global ones; window shapes are Claude's. Games on big screens still use half-screen letters (exp33).
+- Hardware: two crashes on the desktop that did not repeat (exp33, exp35); see section 3.
 
 ## 10 Working conventions
 
