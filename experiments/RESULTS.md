@@ -2975,6 +2975,95 @@ change the letter.
   output tables), with the network built from the final machine; the
   network itself is never changed cell by cell. Each round costs 16 games.
 
+## 36 A machine search that grows by splitting states (`exp36_split_search.py`)
+
+Path steps 3 and 6 (noisy data, longer memory). Experiment 30's search
+tries every transition table for up to 2 states and uses local search
+from 8 random starts beyond that, so it will not scale. New search
+(`dnn_noise.learn_machine_split`): start from 1 state. To go from n to
+n + 1 states, each (state, letter) transition in turn is sent to a new
+state, whose row either copies the old target's row or stays in the new
+state. Each such split is improved by single-transition changes while the
+disagreements fall, and the best is kept. The number of states (at most 5)
+is chosen on held-out episodes, as in experiment 30. Cost: about 2 n L hill
+climbs per added state instead of n^(n·L) tables.
+
+Games: experiment 28's wait game (4 × 4, h = 3) with K keys to take in
+order before the door:
+- **keys1**: key top-right, door bottom-left: experiment 28's game, 2
+  states. Its episodes and noise equal experiment 29's (checked);
+- **keys2**: keys top-right, then top-left, then the door: 3 states;
+- **keys3**: keys top-right, top-left, bottom-right, then the door: 4
+  states.
+
+The expert heads for the next goal, vertically first. The letter is given
+(P:top, P:right), so only the machine is searched. With probability p a
+screen's move is replaced by one of the 3 others (as experiment 29). The
+searches are **merge** (exact merging, p = 0 only), **local** (experiment
+30's learn_machine_heldout, at most 5 states) and **split**. Then
+experiment 30's pipeline: relabel, layout, linear programs. Training on
+16–64 episodes of 25 screens, p = 0, 0.1, 0.2, 10 seeds.
+
+Run on the desktop, 13 minutes (longest job 35 s); 630 rows, sha256
+`283c3a6ccbc9009b`. No earlier rows are repeated: the local search here
+allows 5 states, not experiment 30's 3.
+
+### 36.1 Results
+
+Runs with the true machine (of 10) / unseen clean episodes with every move
+right / laps per game for the network (expert: 14.28 for keys1 and keys2,
+9.28 for keys3):
+
+| task | p | search | 16 | 32 | 64 |
+|---|---|---|---|---|---|
+| keys1 | 0 | merge, local, split | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| keys1 | 0.1 | local, split | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| keys1 | 0.2 | local | 9 / 1.00 / 14.28 | 9 / 0.97 / 13.83 | 10 / 1.00 / 14.28 |
+| keys1 | 0.2 | split | 10 / 1.00 / 14.28 | 9 / 0.98 / 13.83 | 10 / 1.00 / 14.28 |
+| keys2 | 0 | merge | 7 / 0.97 / 13.04 | 8 / 0.95 / 14.04 | 10 / 1.00 / 14.28 |
+| keys2 | 0 | local | 3 / 0.94 / 14.28 | 5 / 0.91 / 12.95 | 6 / 0.99 / 14.28 |
+| keys2 | 0 | split | 5 / 0.91 / 14.28 | 9 / 0.97 / 14.28 | 10 / 1.00 / 14.28 |
+| keys2 | 0.1 | local | 1 / 0.83 / 11.61 | 6 / 0.97 / 14.28 | 6 / 0.99 / 14.28 |
+| keys2 | 0.1 | split | 7 / 0.93 / 14.28 | 8 / 0.97 / 14.28 | 9 / 1.00 / 14.28 |
+| keys2 | 0.2 | local | 1 / 0.84 / 13.41 | 6 / 0.94 / 12.95 | 6 / 0.99 / 14.28 |
+| keys2 | 0.2 | split | 4 / 0.79 / 13.81 | 8 / 0.96 / 12.95 | 10 / 1.00 / 14.28 |
+| keys3 | 0 | merge | 0 / 0.94 / 7.63 | 2 / 0.97 / 9.28 | 3 / 0.99 / 9.28 |
+| keys3 | 0 | local | 0 / 0.84 / 5.52 | 0 / 0.88 / 5.55 | 1 / 0.96 / 7.53 |
+| keys3 | 0 | split | 1 / 0.86 / 4.46 | 4 / 0.90 / 5.75 | 8 / 0.99 / 9.28 |
+| keys3 | 0.1 | local | 0 / 0.80 / 4.23 | 0 / 0.89 / 7.18 | 1 / 0.95 / 7.53 |
+| keys3 | 0.1 | split | 0 / 0.84 / 3.63 | 3 / 0.90 / 5.75 | 7 / 0.99 / 9.28 |
+| keys3 | 0.2 | local | 0 / 0.73 / 2.60 | 0 / 0.83 / 3.79 | 0 / 0.91 / 5.87 |
+| keys3 | 0.2 | split | 0 / 0.74 / 1.90 | 4 / 0.90 / 5.75 | 5 / 0.97 / 8.45 |
+
+States found at 64 episodes: keys3 split 4 states in all 10 runs at
+p = 0 (8 correct) and 4 in 7 runs at p = 0.2 (5 correct). Local search
+found 5 states in 6 runs at both p (1 and 0 correct). Merge found 4 states
+in 9 runs, but only 3 were the true machine: wrong merges, as in
+experiments 23 and 26. Search time: local 7.0 s mean (19 s max), split
+9.1 s (34 s max). No hidden neurons were added.
+
+### 36.2 Findings
+
+- **Splitting scales where random-start local search does not.** On the
+  4-state game at 64 episodes, split finds the true machine in 8, 7 and 5
+  runs at p = 0, 0.1 and 0.2; local search in 1, 1 and 0. On keys2 split
+  reaches 10, 9 and 10 against 6, 6 and 6. Both take seconds.
+- **It beats exact merging on clean data for 4 states** (8 against 3 at
+  64 episodes). Merging commits early to wrong merges, while split chooses
+  the number of states on held-out episodes. On keys2 they tie at 64
+  (10 each); with less data merge is ahead (7 against 5 at 16).
+- **Data, not noise, is the limit.** With 16 episodes nothing finds the
+  4-state machine, even without noise. With 64, noise up to 20% costs a
+  few runs. Play follows the machine: true machines play like the expert
+  (9.28 laps on keys3); near-misses lose many laps (5.75).
+- **The first greedy version got stuck.** It improved only the best split,
+  and on clean keys2 it settled at 51 disagreements with two wrong cells.
+  Trying every split (and the stay variant) fixed it. The search is still
+  greedy, with no guarantee.
+- **Caveats.** The letter is given (P:top, P:right). Machines of 4–5
+  states over 4 letters are still small. Each run's held-out split uses
+  every fourth episode.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -3281,6 +3370,13 @@ change the letter.
   experiment 31's redraws 0.17). But the key/door game is solved without
   memory (circling the quadrants), so this is not yet learning memory;
   a wrong letter from imitation is never fixed.
+
+**Machine search by splitting states (experiment 36).**
+- A greedy search that adds one state at a time (every split tried, then
+  single-transition improvements) finds a 4-state key machine from 64
+  noisy episodes in 8 / 7 / 5 of 10 runs at p = 0 / 0.1 / 0.2. Experiment
+  30's local search finds it in 1 / 1 / 0, exact merging (p = 0) in 3. The
+  letter is given; 16 episodes are too few for any method.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).

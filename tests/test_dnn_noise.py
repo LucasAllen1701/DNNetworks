@@ -62,3 +62,18 @@ def test_relabel_gives_machine_outputs():
     clean = N.relabel(noisy_V, 1, 1, 2, [lambda X: X[:, 0]], delta, out)
     for s in clean:
         assert (s[2:, 1] == np.cumsum(s[:, 0])[:-2] % 2).all()
+
+
+def test_split_search_recovers_a_three_state_machine():
+    import os
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "experiments"))
+    import exp36_split_search as e36
+    import dnn_letters as Lm
+    rng = np.random.default_rng(0)
+    V = [e36.episode("keys2", rng, 25) for _ in range(32)]
+    rules = [e36.e23.FEATURE[n] for n in e36.e26.TRUE]
+    seqs = Lm.bit_streams(V, e36.N_IN, [lambda X, r=r: e36.e23.U_fire(r, X) for r in rules], 2)
+    delta, out, err, n = N.learn_machine_split(seqs, 2, 2, 3, max_states=5)
+    assert err == 0 and n == 3
+    assert N.machine_errors(seqs, 2, 2, 3, delta, out) == 0
