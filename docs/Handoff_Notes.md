@@ -77,6 +77,12 @@ Programs that run locally, built from discrete neural networks: (1) play Doom; (
 
 (a) Idea 3 on a game that needs memory: exp36's three-key order defeats circling; flips from scratch, and imitation (split search) plus flips. (b) Small objects on big screens: key and door as small squares at fixed or random places on 16×16, letters from window regions at every position (exp34's windows as a letter library). (c) Shared helpers as a fifth image layout in exp27's held-out choice (sharing wins local tasks, loses global ones). (d) Letter and machine both searched for the 3- and 4-state games with noise (choose_bits_search + split). (e) Image noise: a stronger filter or a noise-aware helper search. Exp28's wait game is the default for acting.
 
+**Proposed next batch (exp37–40), suggested to Lucas on 24 November, not yet approved:**
+1. exp37: idea 3 on exp36's three-key game (circling cannot solve it): cell flips from a random machine (4–5 states), and split-search imitation from a few episodes plus flips. Does success/failure learn memory? Steps 5, 6.
+2. exp38: small objects on a 16×16 screen: key and door as small squares, letters from window regions at every position (exp34's `windows` as a letter library). Step 4.
+3. exp39: letter and machine both searched (letter search + `learn_machine_split`) for the 3- and 4-state games with 0–20% noise, no given letter. Steps 3, 6.
+4. exp40: shared window helpers (cover_shared) as a fifth image layout in exp27's held-out layout choice. Step 4.
+
 ## 9 Open problems
 
 - Letters / helpers come from libraries Claude designed; finding building blocks without one (exp20: free labels overfit).
