@@ -186,3 +186,84 @@ def relabel(V, n_in, n_out, h, bits, delta, out):
             q = delta[q][a]
         new.append(s)
     return new
+
+
+# ---- experiment 36: growing the machine by splitting states
+
+def _to_machine(D, S, Y, k, n_out):
+    """(delta, out) for transition table D with majority outputs."""
+    n, L = D.shape
+    counts = _costs(D[None], S, Y, 1 << n_out)[1][0]
+    letters = list(product((0, 1), repeat=k))
+    bits = lambda v: tuple(int(b) for b in format(v, f"0{n_out}b"))
+    delta = [{a: int(D[q, i]) for i, a in enumerate(letters)} for q in range(n)]
+    out = [{a: bits(int(np.argmax(counts[q * L + i]))) for i, a in enumerate(letters)} for q in range(n)]
+    return delta, out
+
+
+def _hill(D, cost, S, Y, n_lab):
+    """Best single-cell change of the transition table while it lowers the
+    disagreements (ties: the first change in (state, letter, target) order)."""
+    n, L = D.shape
+    while True:
+        cands = []
+        for i, a, v in product(range(n), range(L), range(n)):
+            if D[i, a] != v:
+                E = D.copy()
+                E[i, a] = v
+                cands.append(E)
+        if not cands:
+            return D, cost
+        c = _costs(np.array(cands), S, Y, n_lab)[0]
+        j = int(np.argmin(c))
+        if c[j] >= cost:
+            return D, cost
+        D, cost = cands[j], c[j]
+
+
+def split_tables(S, Y, L, n_lab, max_states):
+    """Transition tables of 1 .. max_states states grown by splitting: from
+    the n-state table, every (state, letter) transition is in turn sent to a
+    new state whose row either copies the row of the old target or stays in
+    the new state; each such split is improved by _hill and the one with the
+    fewest disagreements is kept (ties: the first). Returns [(D, cost)]."""
+    D = np.zeros((1, L), int)
+    out = [(D, _costs(D[None], S, Y, n_lab)[0][0])]
+    for n in range(2, max_states + 1):
+        cands = []
+        for q, a in product(range(n - 1), range(L)):
+            for copy in (True, False):
+                E = np.zeros((n, L), int)
+                E[:n - 1] = D
+                E[n - 1] = D[D[q, a]] if copy else n - 1
+                E[q, a] = n - 1
+                cands.append(E)
+        c = _costs(np.array(cands), S, Y, n_lab)[0]
+        best = None
+        for E, ce in zip(cands, c):
+            F, cf = _hill(E, ce, S, Y, n_lab)
+            if best is None or cf < best[1]:
+                best = (F, cf)
+        D = best[0]
+        out.append(best)
+    return out
+
+
+def learn_machine_split(seqs, k, n_out, h, max_states=5):
+    """learn_machine_heldout with split_tables instead of the exhaustive or
+    local search: (delta, out, disagreements on all streams, states)."""
+    m = len(seqs)
+    held = [i for i in range(m) if (i % 4 == 3 if m >= 4 else i == 1)]
+    fit = [s for i, s in enumerate(seqs) if i not in held]
+    L, n_lab = 1 << k, 1 << n_out
+    Sf, Yf = _encode(fit, k, n_out, h)
+    best = None
+    for n, (D, _) in enumerate(split_tables(Sf, Yf, L, n_lab, max_states), 1):
+        delta, out = _to_machine(D, Sf, Yf, k, n_out)
+        e = machine_errors([seqs[i] for i in held], k, n_out, h, delta, out)
+        if best is None or e < best[1]:
+            best = (n, e)
+    S, Y = _encode(seqs, k, n_out, h)
+    D, err = split_tables(S, Y, L, n_lab, best[0])[-1]
+    delta, out = _to_machine(D, S, Y, k, n_out)
+    return delta, out, int(err), best[0]

@@ -117,3 +117,13 @@ def test_two_output_machine_and_layout():
     assert len(d) == 2 and o[0][(1,)] == (1, 0)
     lay, idx = L.make_layout_bits(6, rules, M.complete(d, 1), n_out=2)
     assert lay.outputs == {6, 7} and lay.n_task == 8
+
+
+def test_choose_bits_fast_equals_choose_bits():
+    import exp33_bigger_screens as e33
+    rng = np.random.default_rng(3)
+    V = [e33.episode(rng, 10, 4) for _ in range(6)]
+    lib = e33.features(4, e33.regions)[:12]
+    assert L.choose_bits_fast(V, 32, lib, 3, n_out=2) == L.choose_bits(V, 32, lib, 3, n_out=2)
+    V1 = [np.c_[s[:, :32], s[:, 32]] for s in V]
+    assert L.choose_bits_fast(V1, 32, lib, 3) == L.choose_bits(V1, 32, lib, 3)

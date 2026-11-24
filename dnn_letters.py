@@ -440,6 +440,38 @@ def choose_bits(V, n_in, features, h=H, max_bits=2, n_out=1):
     return None if best is None else best + (consistent,)
 
 
+def choose_bits_fast(V, n_in, features, h=H, max_bits=2, n_out=1):
+    """choose_bits with the same result (experiment 33): the feature columns
+    and output tuples are computed once per stream, and each candidate's
+    letter tuples come from a lookup table instead of array rows."""
+    from itertools import combinations
+    V = [np.asarray(s, int) for s in V]
+    steps = [len(s) - h for s in V]
+    cols = [[U.fire(r, s[:, :n_in])[:n] for s, n in zip(V, steps)] for _, r in features]
+    if n_out == 1:
+        outs = [[int(v) for v in s[h:, n_in]] for s in V]
+    else:
+        outs = [[tuple(int(v) for v in row) for row in s[h:, n_in:n_in + n_out]] for s in V]
+    best, consistent = None, 0
+    for k in range(1, max_bits + 1):
+        lut = list(product((0, 1), repeat=k))          # code -> tuple, first bit most significant
+        for idx in combinations(range(len(features)), k):
+            obs = []
+            for j in range(len(V)):
+                code = cols[idx[0]][j].copy()
+                for i in idx[1:]:
+                    code = 2 * code + cols[i][j]
+                obs.append(([lut[c] for c in code.tolist()], outs[j]))
+            try:
+                delta, out = M.merge(*M.prefix_tree(obs))
+            except ValueError:
+                continue
+            consistent += 1
+            if best is None or len(delta) < len(best[1]):
+                best = (idx, delta, out)
+    return None if best is None else best + (consistent,)
+
+
 def make_layout_bits(n_in, bit_rules, delta, n_out=1):
     """Layout for a letter of k bits, each bit one fixed neuron (a rule over
     the inputs). delta: a complete machine over the k-bit tuples. State

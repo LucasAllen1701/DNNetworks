@@ -282,3 +282,115 @@ def neighbour_pair_rules(side):
     keep = {(i, i + 1) for i in range(n) if (i + 1) % side} | {(i, i + side) for i in range(n - side)}
     return [(r, name) for r, name in pair_rules(n)
             if tuple(int(k) for k in np.flatnonzero(r[0])) in keep]
+
+
+# ---- experiment 34: helpers shared across positions
+
+def shift_pixel_rule(rule, side, dr, dc):
+    """A rule over side x side pixels moved by (dr, dc); None if part of its
+    support would leave the image."""
+    w, b = rule
+    g = np.asarray(w).reshape(side, side)
+    rows, cols = np.nonzero(g)
+    if len(rows) == 0 or rows.min() + dr < 0 or rows.max() + dr >= side \
+            or cols.min() + dc < 0 or cols.max() + dc >= side:
+        return None
+    out = np.zeros_like(g)
+    out[rows + dr, cols + dc] = g[rows, cols]
+    return out.reshape(-1), b
+
+
+def _key(rule):
+    w, b = rule
+    nz = np.flatnonzero(w)
+    return tuple(int(i) for i in nz), tuple(int(w[i]) for i in nz), int(b)
+
+
+def translates(rule, sources, side):
+    """Every translate of a rule over `sources` (features that are themselves
+    rules over side x side pixels: the copies of the pixels, then layer 1):
+    each source the rule reads is moved by the same shift, and the shift is
+    kept only if every moved source is again a source. The rule itself is
+    not included."""
+    index = {_key(r): j for j, r in enumerate(sources)}
+    w, b = rule
+    used = [int(j) for j in np.flatnonzero(w)]
+    out = []
+    for dr in range(-side + 1, side):
+        for dc in range(-side + 1, side):
+            if (dr, dc) == (0, 0) or not used:
+                continue
+            w2 = np.zeros_like(w)
+            for j in used:
+                moved = shift_pixel_rule(sources[j], side, dr, dc)
+                k = None if moved is None else index.get(_key(moved))
+                if k is None:
+                    break
+                w2[k] = w[j]
+            else:
+                out.append((w2, b))
+    return out
+
+
+def pixel_sources(n_in):
+    """The sources of an h = 2 layout: each input pixel as a rule."""
+    return [(np.eye(n_in, dtype=int)[i], 0) for i in range(n_in)]
+
+
+def windows(side, shapes=((2, 2), (3, 3), (1, None), (None, 1))):
+    """Pixel index lists of every window of the given shapes (rows, columns;
+    None = the whole side) in a side x side image, shape by shape, row-major."""
+    out = []
+    for hr, hc in shapes:
+        hr, hc = hr or side, hc or side
+        for r in range(side - hr + 1):
+            for c in range(side - hc + 1):
+                out.append([(r + i) * side + c + j for i in range(hr) for j in range(hc)])
+    return out
+
+
+def build_cover_local(X, y, side, wins, share=True, eps=EPS, max_helpers=200):
+    """build_cover with helpers fitted inside windows (experiment 34). For
+    the first uncovered positive (the seed), each window's pixels get
+    pure_helper's fit; a window counts if its rule is on for the seed and off
+    for every negative. With share, the rule's translates that are also off
+    for every negative join it (they are kept even if no training pattern
+    turns them on: that is how sharing reaches unseen positions). The window
+    whose group covers the most uncovered positives wins (ties: the first);
+    if none counts, or after max_helpers groups, the seed's indicator. Rules
+    that repeat an earlier rule are skipped."""
+    X, y = np.asarray(X, int), np.asarray(y, int)
+    src = pixel_sources(X.shape[1])
+    pos = np.flatnonzero(y == 1)
+    rules, seen = [], set()
+    covered = np.zeros(len(X), bool)
+    groups = 0
+    while not covered[y == 1].all():
+        seed = np.flatnonzero((y == 1) & ~covered)[0]
+        best = None
+        if groups < max_helpers:
+            cost = np.where(covered[pos], 0.001, 0.01)
+            cost[np.searchsorted(pos, seed)] = 1000.0
+            for win in wins:
+                wi, bi = integer_rule(*pure_fit(X[:, win], y, cost, eps, weight_cost=1.0), eps)
+                c = fire((wi, bi), X[:, win])
+                if not c[seed] or c[y == 0].any():
+                    continue
+                full = np.zeros(X.shape[1], int)
+                full[win] = wi
+                group = [(full, bi)]
+                if share:
+                    group += [r for r in translates((full, bi), src, side) if not fire(r, X)[y == 0].any()]
+                on = np.any([fire(r, X) for r in group], axis=0)
+                gain = int((on & ~covered & (y == 1)).sum())
+                if best is None or gain > best[0]:
+                    best = (gain, group)
+        group = best[1] if best else [indicator(X[seed])]
+        groups += 1
+        for r in group:
+            k = _key(r)
+            if k not in seen:
+                seen.add(k)
+                rules.append(r)
+                covered |= fire(r, X).astype(bool)
+    return rules

@@ -2725,6 +2725,345 @@ At the largest size, whole streams right for gru_tuned by task: state from
   LSTM, and 3000 steps is a fixed budget. The comparison is fairer than
   experiment 24's but not final.
 
+## 33 The wait game on bigger screens (`exp33_bigger_screens.py`)
+
+Path step 4 (bigger screens). Experiment 28's wait game (key/door expert,
+each screen shown for 3 network steps, h = 3) on screens of side S = 4, 8
+and 16 (32, 128 and 512 inputs). The expert, its letter (player in the top
+half, player in the right half) and its 2-state machine are unchanged.
+Layouts (dnn_letters.make_layout_bits, 2 output neurons reading only the
+state neurons):
+- **bits**: letter of 1–2 regions from experiment 23's library scaled to S
+  (rows, columns, halves, quadrants of each plane: 32, 48 and 80 regions);
+- **cuts**: letter of 1–2 regions from every straight cut (row < k, row ≥ k,
+  column < k, column ≥ k, each plane: 24, 56 and 120 regions), a library
+  not built around halves;
+- **true_bits**: given (P:top, P:right).
+
+Training on 8 to 64 random-walk episodes of 25 screens, 10 seeds; 200 unseen
+episodes; 100 games of 60 steps. New library code:
+`dnn_letters.choose_bits_fast` gives the same result as `choose_bits` (test
+added) about 20 times faster. It builds each candidate's letter tuples from
+a lookup table.
+
+Run on the desktop, 22 minutes (longest job 38 s); 450 rows, sha256
+`1f793f93e5379a67`. The 80 side-4 bits/true_bits rows at 8–32 episodes
+equal experiment 28's wait rows (every non-timing column). A first attempt
+crashed inside scipy's sparse conversion ("number of non-zero array elements
+changed during function execution"); the identical re-run finished and
+reproduced experiment 28. See the note in the handoff notes, section 3.
+
+### 33.1 Results
+
+Runs with the true machine (of 10) / unseen episodes with every move right /
+laps per game for the network (expert in brackets):
+
+| side | layout | 8 | 16 | 24 | 32 | 64 |
+|---|---|---|---|---|---|---|
+| 4 | bits | 8 / 0.90 / 12.90 (14.28) | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| 4 | cuts | 8 / 0.90 / 12.90 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| 4 | true_bits | 8 / 0.90 / 12.90 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| 8 | bits | 5 / 0.86 / 9.97 (13.89) | 7 / 0.95 / 11.29 | 8 / 0.96 / 12.58 | 10 / 1.00 / 13.89 | 10 / 1.00 / 13.89 |
+| 8 | cuts | 5 / 0.86 / 9.97 | 7 / 0.95 / 11.29 | 8 / 0.96 / 12.58 | 10 / 1.00 / 13.89 | 10 / 1.00 / 13.89 |
+| 8 | true_bits | 5 / 0.87 / 9.97 | 7 / 0.95 / 11.29 | 8 / 0.96 / 12.58 | 10 / 1.00 / 13.89 | 10 / 1.00 / 13.89 |
+| 16 | bits | 3 / 0.84 / 5.52 (12.85) | 5 / 0.96 / 6.93 | 6 / 0.99 / 8.12 | 8 / 0.99 / 10.49 | 10 / 1.00 / 12.85 |
+| 16 | cuts | 3 / 0.87 / 5.56 | 5 / 0.95 / 6.88 | 6 / 0.99 / 8.12 | 8 / 0.99 / 10.49 | 10 / 1.00 / 12.85 |
+| 16 | true_bits | 3 / 0.87 / 5.56 | 5 / 0.96 / 6.93 | 6 / 0.99 / 8.12 | 8 / 0.99 / 10.49 | 10 / 1.00 / 12.85 |
+
+The searched letter is always (P:top, P:left) for bits and (P:top, P:c<S/2)
+for cuts: the complement of the true right-half bit, so the same partition
+(the letter_correct column compares names and is therefore False for them).
+No run had an inconsistent letter, and no hidden neurons were added. Recall
+from keys was 1.000 everywhere. Candidates searched: 528 / 1,176 / 3,240
+(bits) and 300 / 1,596 / 7,260 (cuts). The longest search took 7 s (bits)
+and 38 s (cuts, side 16).
+
+Of the 28 runs per layout without the true machine at sides 8 and 16,
+21 merged into 2 states with wrong or missing transitions. Their unseen
+moves were still 0.92–0.96 right per step.
+
+### 33.2 Findings
+
+- **More pixels cost data, not letters.** At every side, bits, cuts and
+  the given letter have the same true-machine counts (bits and cuts match
+  true_bits exactly). The search never picks a wrong letter, even among
+  7,260 candidates. What grows is the number of episodes needed: all 10
+  runs get the true machine from 16 episodes at side 4, 32 at side 8 and 64
+  at side 16. Random walks on a big screen rarely cross between quadrants,
+  so the key/door transitions are seen less often.
+- **Play follows the machine.** With the true machine the network plays
+  like the expert at every side (12.85 laps at side 16). The expert's laps
+  barely depend on the side because its route runs along the centre lines.
+- **The network grows linearly with the screen.** Only the letter neurons
+  read the pixels. With 512 inputs the linear programs still take under
+  2 s. Search time grows with the library squared (cuts: 38 s at side 16).
+- **Caveats.** The letter is still made of regions from a library (two
+  libraries here, both written by Claude). The task needs only halves of
+  the screen. Bigger screens with small objects (keys, doors, walls that
+  are not halves) are the real test of step 4.
+
+## 34 Helpers shared across positions (`exp34_shared_helpers.py`)
+
+Path step 4 (helpers shared across positions). Upstart and cover fit each
+helper to the whole image, so a helper learned at one position says
+nothing about another. Experiment 21's six image tasks (hline, vline,
+block, ink — at least half the pixels black — top, mirror), with experiment
+19's image generator at side S = 4 and 8 (16 and 64 inputs), 12 images per
+stream, 2 to 32 streams, 10 seeds. All layouts h = 2, the output reads its
+helpers, limit 200:
+- **upstart**, **cover**: experiment 21's upstart200 and cover200.
+- **cover_local**: cover in which each helper is fitted inside one window
+  (`dnn_upstart.build_cover_local`). For the seed image, every 2 × 2 and
+  3 × 3 square, row and column is tried with cover's pure fit (off for
+  every negative, on for the seed), and the window covering the most
+  positives wins. The window shapes were chosen by Claude.
+- **cover_shared**: the same, but each helper is joined by every translate
+  (the same weights moved to each position where they fit;
+  `dnn_upstart.translates`) that is off for every negative training image.
+  Translates are kept even when no training image turns them on: that is
+  how sharing reaches positions never seen.
+
+A first design shared upstart's helpers. They span the whole image and so
+have no translates; with window fits, upstart's error criterion preferred
+dense rules to row ANDs (hline at side 8: 0.61). Neither was run in full;
+covering's pure helpers are what sharing needs.
+
+Run on the desktop, 22 minutes (longest job 52 s); 2,400 rows, sha256
+`430f400216336c2d`. The 600 side-4 upstart and cover rows equal experiment
+21's upstart200 and cover200 rows (every non-timing column).
+
+### 34.1 Results
+
+Mean unseen accuracy (midpoint weights) over the 6 tasks / mean helpers:
+
+| side | layout | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|
+| 4 | upstart | 0.674 / 1.0 | 0.720 / 1.6 | 0.800 / 3.5 | 0.842 / 14.6 | 0.865 / 38.5 |
+| 4 | cover | 0.669 / 4.3 | 0.727 / 8.0 | 0.772 / 12.9 | 0.833 / 23.4 | 0.863 / 38.7 |
+| 4 | cover_local | 0.664 / 2.7 | 0.722 / 4.5 | 0.799 / 6.7 | 0.847 / 10.6 | 0.874 / 17.8 |
+| 4 | cover_shared | 0.724 / 6.7 | 0.775 / 8.6 | 0.831 / 10.4 | 0.864 / 14.3 | 0.882 / 21.4 |
+| 8 | upstart | 0.596 / 1.0 | 0.615 / 1.0 | 0.644 / 1.0 | 0.697 / 2.0 | 0.748 / 5.6 |
+| 8 | cover | 0.609 / 4.6 | 0.646 / 9.8 | 0.688 / 22.9 | 0.705 / 49.5 | 0.714 / 109.0 |
+| 8 | cover_local | 0.574 / 2.5 | 0.593 / 4.0 | 0.642 / 7.1 | 0.713 / 11.9 | 0.788 / 18.6 |
+| 8 | cover_shared | 0.594 / 18.8 | 0.641 / 24.4 | 0.694 / 34.1 | 0.772 / 43.6 | 0.815 / 57.0 |
+
+Local tasks only (hline, vline, block), mean unseen accuracy:
+
+| side | layout | 2 | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|---|---|
+| 4 | upstart | 0.657 | 0.662 | 0.713 | 0.746 | 0.774 |
+| 4 | cover | 0.679 | 0.742 | 0.798 | 0.866 | 0.901 |
+| 4 | cover_local | 0.680 | 0.753 | 0.881 | 0.951 | 0.985 |
+| 4 | cover_shared | 0.802 | 0.866 | 0.947 | 0.986 | 1.000 |
+| 8 | upstart | 0.564 | 0.573 | 0.587 | 0.593 | 0.603 |
+| 8 | cover | 0.608 | 0.632 | 0.664 | 0.674 | 0.678 |
+| 8 | cover_local | 0.555 | 0.578 | 0.639 | 0.750 | 0.888 |
+| 8 | cover_shared | 0.635 | 0.692 | 0.750 | 0.879 | 0.955 |
+
+At 32 streams, by task (base rate first):
+
+| side | layout | hline | vline | block | ink | top | mirror |
+|---|---|---|---|---|---|---|---|
+| 8 | base rate | 0.509 | 0.508 | 0.703 | 0.514 | 0.554 | 0.509 |
+| 8 | upstart | 0.591 | 0.571 | 0.647 | 0.930 | 0.912 | 0.837 |
+| 8 | cover | 0.707 | 0.685 | 0.643 | 0.890 | 0.661 | 0.696 |
+| 8 | cover_local | 0.952 | 0.968 | 0.744 | 0.821 | 0.553 | 0.689 |
+| 8 | cover_shared | 0.946 | 0.951 | 0.968 | 0.823 | 0.533 | 0.673 |
+| 4 | cover_shared | 1.000 | 1.000 | 1.000 | 0.855 | 0.723 | 0.713 |
+
+No hidden neurons were added; every training stream was exact without
+key. The longest build took 52 s (cover_shared, side 8).
+
+### 34.2 Findings
+
+- **Sharing works for local patterns.** On hline, vline and block,
+  shared helpers are exact at side 4 from 32 streams (1.000; cover 0.901,
+  upstart 0.774) and reach 0.955 at side 8 (cover 0.678, upstart 0.603).
+  With few streams the gain is largest: side 4 at 2 streams 0.802 against
+  0.679. Block at side 8 needs sharing: local windows alone give 0.744,
+  shared 0.968, since a block seen at one place is then found everywhere.
+- **Lines need windows more than sharing.** At side 8 local row and column
+  windows already give 0.95–0.97 on hline and vline (shared 0.95), because
+  8 rows are few enough to be seen in training.
+- **Sharing hurts on global tasks.** On ink, top and mirror, local helpers
+  cannot express a count or a comparison of halves: at side 8 and 32
+  streams cover_shared gets 0.533 on top (base rate 0.554) against
+  upstart's 0.912. The mean over all six tasks still rises (0.815 against
+  0.748 for upstart at side 8), but no single layout wins every task, so
+  the layout choice of experiments 22/27 is still needed.
+- **Fewer helpers.** At side 8 and 32 streams cover_shared builds 57
+  helpers (most of them copies) against cover's 109, and its accuracy grows
+  with data where cover's has stalled (0.705 → 0.714 from 16 to 32).
+- **Caveat.** The window shapes (2 × 2, 3 × 3, rows, columns) are Claude's
+  choice and suit these tasks; hline and vline are exactly row and column
+  ANDs. The result shows that sharing pays when the right local building
+  block is in the search, not that the building blocks were found from data.
+
+## 35 Success and failure by flipping one cell (`exp35_flip_cells.py`)
+
+Path step 5 (closed-loop play from success and failure), Lucas's idea 3 in
+a second form. Experiment 31 redrew weights inside their boxes on failure
+and did not learn (0.17 laps). Here the player is the network built from a
+machine (letter bits → state neurons → 2 output neurons,
+`make_layout_bits`), and exploration changes the machine. Each round one
+(state, letter) cell is changed at random: its move (to one of the 3
+others) or its next state (to another state). The changed player and the
+current one play the same 8 new games. If the changed one scores at least
+as many laps, it is a success and is kept; otherwise it is a failure and the
+change is undone. 300 rounds, experiment 28's wait game. Starts:
+- **scratch2, scratch3**: a random machine of 2 or 3 states over the given
+  letter (P:top, P:right). No demonstrations, but the letter is designed.
+- **imit2, imit4**: experiment 30's pipeline on the first 2 or 4
+  demonstration episodes (letter from the 32 regions, machine by search, at
+  most 3 states), padded to 3 states (spare states copy state 0's moves and
+  stay put until a flip reaches them), then flips.
+
+During the rounds the machine is played directly, as the network runs it.
+The move answers the current screen, and the state takes one transition per
+network step (3 per screen; a first version took one per screen and did not
+match the network). At the end the network is built from 64 random-walk
+episodes and 64 new games of its own, relabelled by the machine, plus the
+linear programs. It then plays experiment 26's 100 test games with midpoint
+weights.
+
+Run on the desktop, 4 minutes; 40 rows, sha256 `374e052aff0ff1d8`. A second
+full run gave the identical CSV (timing columns ignored). The first full run
+crashed with "neuron 32 still infeasible after adding helpers", which the
+identical code did not repeat in three later runs (see section 33's note on
+the hardware).
+
+### 35.1 Results
+
+Mean laps per game on the 100 test games after each number of rounds
+(expert 14.28, random 1.45, experiment 31 0.17):
+
+| start | 0 | 10 | 25 | 50 | 100 | 200 | 300 | runs ≥ 14 at 300 |
+|---|---|---|---|---|---|---|---|---|
+| scratch2 | 0.05 | 0.72 | 2.72 | 6.34 | 11.22 | 12.45 | 14.18 | 9 |
+| scratch3 | 0.02 | 0.60 | 3.68 | 5.24 | 10.03 | 12.09 | 13.41 | 7 |
+| imit2 | 5.38 | 6.79 | 6.93 | 6.90 | 7.11 | 8.29 | 8.92 | 4 |
+| imit4 | 13.89 | 13.46 | 13.69 | 13.42 | 13.54 | 13.72 | 13.60 | 8 |
+
+The network played exactly like its machine in all 40 runs; no hidden
+neurons were added. No run ended with the expert's machine. Mean accepted
+changes: 175 of 300 (ties count as successes). imit2's poor runs have
+letters that cannot see the key quadrant: P:row0+P:TL (0.44 laps),
+P:col2+P:top (0.23), P:top alone (0.18), P:row2+P:left (7.46). Flips never
+change the letter.
+
+### 35.2 Findings
+
+- **Flipping cells learns to play without an expert.** From a random
+  machine, 300 rounds of 8-game comparisons reach 14.18 laps (2 states; 9
+  of 10 runs at 14 or more) and 13.41 (3 states), against 0.17 for
+  experiment 31's redraws and 1.45 for a random player. Changing the
+  machine, not the weights inside fixed boxes, is what makes exploration
+  change the play.
+- **But this game does not need memory.** No run found the expert's
+  machine, and several 1-state imitation machines play at 14.25 laps.
+  Circling the quadrants clockwise (right in the top-left, down in the
+  top-right, left in the bottom-right, up in the bottom-left) passes the
+  key and then the door on every loop. So the result shows learning a
+  good reactive policy, not learning memory; a game that punishes circling
+  is needed (experiment 36's three-key order is one).
+- **Flips cannot fix a wrong letter.** imit2 starts with a wrong letter in
+  4 of 10 runs and stays poor (mean 8.92). With 4 demonstrations the start
+  is already good (13.89) and flips neither help nor hurt much: accepting
+  ties on 8 games lets slightly worse machines in (13.60 at the end).
+- **Caveats.** The letter is given (scratch) or chosen from Claude's region
+  library (imit). The search is in machine space (cells of the state and
+  output tables), with the network built from the final machine; the
+  network itself is never changed cell by cell. Each round costs 16 games.
+
+## 36 A machine search that grows by splitting states (`exp36_split_search.py`)
+
+Path steps 3 and 6 (noisy data, longer memory). Experiment 30's search
+tries every transition table for up to 2 states and uses local search
+from 8 random starts beyond that, so it will not scale. New search
+(`dnn_noise.learn_machine_split`): start from 1 state. To go from n to
+n + 1 states, each (state, letter) transition in turn is sent to a new
+state, whose row either copies the old target's row or stays in the new
+state. Each such split is improved by single-transition changes while the
+disagreements fall, and the best is kept. The number of states (at most 5)
+is chosen on held-out episodes, as in experiment 30. Cost: about 2 n L hill
+climbs per added state instead of n^(n·L) tables.
+
+Games: experiment 28's wait game (4 × 4, h = 3) with K keys to take in
+order before the door:
+- **keys1**: key top-right, door bottom-left: experiment 28's game, 2
+  states. Its episodes and noise equal experiment 29's (checked);
+- **keys2**: keys top-right, then top-left, then the door: 3 states;
+- **keys3**: keys top-right, top-left, bottom-right, then the door: 4
+  states.
+
+The expert heads for the next goal, vertically first. The letter is given
+(P:top, P:right), so only the machine is searched. With probability p a
+screen's move is replaced by one of the 3 others (as experiment 29). The
+searches are **merge** (exact merging, p = 0 only), **local** (experiment
+30's learn_machine_heldout, at most 5 states) and **split**. Then
+experiment 30's pipeline: relabel, layout, linear programs. Training on
+16–64 episodes of 25 screens, p = 0, 0.1, 0.2, 10 seeds.
+
+Run on the desktop, 13 minutes (longest job 35 s); 630 rows, sha256
+`283c3a6ccbc9009b`. No earlier rows are repeated: the local search here
+allows 5 states, not experiment 30's 3.
+
+### 36.1 Results
+
+Runs with the true machine (of 10) / unseen clean episodes with every move
+right / laps per game for the network (expert: 14.28 for keys1 and keys2,
+9.28 for keys3):
+
+| task | p | search | 16 | 32 | 64 |
+|---|---|---|---|---|---|
+| keys1 | 0 | merge, local, split | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| keys1 | 0.1 | local, split | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 | 10 / 1.00 / 14.28 |
+| keys1 | 0.2 | local | 9 / 1.00 / 14.28 | 9 / 0.97 / 13.83 | 10 / 1.00 / 14.28 |
+| keys1 | 0.2 | split | 10 / 1.00 / 14.28 | 9 / 0.98 / 13.83 | 10 / 1.00 / 14.28 |
+| keys2 | 0 | merge | 7 / 0.97 / 13.04 | 8 / 0.95 / 14.04 | 10 / 1.00 / 14.28 |
+| keys2 | 0 | local | 3 / 0.94 / 14.28 | 5 / 0.91 / 12.95 | 6 / 0.99 / 14.28 |
+| keys2 | 0 | split | 5 / 0.91 / 14.28 | 9 / 0.97 / 14.28 | 10 / 1.00 / 14.28 |
+| keys2 | 0.1 | local | 1 / 0.83 / 11.61 | 6 / 0.97 / 14.28 | 6 / 0.99 / 14.28 |
+| keys2 | 0.1 | split | 7 / 0.93 / 14.28 | 8 / 0.97 / 14.28 | 9 / 1.00 / 14.28 |
+| keys2 | 0.2 | local | 1 / 0.84 / 13.41 | 6 / 0.94 / 12.95 | 6 / 0.99 / 14.28 |
+| keys2 | 0.2 | split | 4 / 0.79 / 13.81 | 8 / 0.96 / 12.95 | 10 / 1.00 / 14.28 |
+| keys3 | 0 | merge | 0 / 0.94 / 7.63 | 2 / 0.97 / 9.28 | 3 / 0.99 / 9.28 |
+| keys3 | 0 | local | 0 / 0.84 / 5.52 | 0 / 0.88 / 5.55 | 1 / 0.96 / 7.53 |
+| keys3 | 0 | split | 1 / 0.86 / 4.46 | 4 / 0.90 / 5.75 | 8 / 0.99 / 9.28 |
+| keys3 | 0.1 | local | 0 / 0.80 / 4.23 | 0 / 0.89 / 7.18 | 1 / 0.95 / 7.53 |
+| keys3 | 0.1 | split | 0 / 0.84 / 3.63 | 3 / 0.90 / 5.75 | 7 / 0.99 / 9.28 |
+| keys3 | 0.2 | local | 0 / 0.73 / 2.60 | 0 / 0.83 / 3.79 | 0 / 0.91 / 5.87 |
+| keys3 | 0.2 | split | 0 / 0.74 / 1.90 | 4 / 0.90 / 5.75 | 5 / 0.97 / 8.45 |
+
+States found at 64 episodes: keys3 split 4 states in all 10 runs at
+p = 0 (8 correct) and 4 in 7 runs at p = 0.2 (5 correct). Local search
+found 5 states in 6 runs at both p (1 and 0 correct). Merge found 4 states
+in 9 runs, but only 3 were the true machine: wrong merges, as in
+experiments 23 and 26. Search time: local 7.0 s mean (19 s max), split
+9.1 s (34 s max). No hidden neurons were added.
+
+### 36.2 Findings
+
+- **Splitting scales where random-start local search does not.** On the
+  4-state game at 64 episodes, split finds the true machine in 8, 7 and 5
+  runs at p = 0, 0.1 and 0.2; local search in 1, 1 and 0. On keys2 split
+  reaches 10, 9 and 10 against 6, 6 and 6. Both take seconds.
+- **It beats exact merging on clean data for 4 states** (8 against 3 at
+  64 episodes). Merging commits early to wrong merges, while split chooses
+  the number of states on held-out episodes. On keys2 they tie at 64
+  (10 each); with less data merge is ahead (7 against 5 at 16).
+- **Data, not noise, is the limit.** With 16 episodes nothing finds the
+  4-state machine, even without noise. With 64, noise up to 20% costs a
+  few runs. Play follows the machine: true machines play like the expert
+  (9.28 laps on keys3); near-misses lose many laps (5.75).
+- **The first greedy version got stuck.** It improved only the best split,
+  and on clean keys2 it settled at 51 disagreements with two wrong cells.
+  Trying every split (and the stay variant) fixed it. The search is still
+  greedy, with no guarantee.
+- **Caveats.** The letter is given (P:top, P:right). Machines of 4–5
+  states over 4 letters are still small. Each run's held-out split uses
+  every fourth episode.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -3008,6 +3347,36 @@ At the largest size, whole streams right for gru_tuned by task: state from
   (game) for the tuned GRU, against 0.99 and 1.00 for the discrete networks.
   Per step the gradient models do better (0.75 and 0.87) but stay behind
   from 4 streams on. The discrete networks still get designed letters.
+
+**Bigger screens (experiment 33).**
+- The wait game on 8 x 8 and 16 x 16 screens (up to 512 inputs): the letter
+  search never fails (up to 7,260 candidate letters, also from a library of
+  straight cuts), the network plays like the expert, and the linear
+  programs stay small. The data needed grow: all 10 runs find the true
+  machine from 16 episodes at side 4, 32 at side 8, 64 at side 16. The
+  task still needs only half-screen regions.
+
+**Helpers shared across positions (experiment 34).**
+- Cover's helpers fitted inside small windows (squares, rows, columns) and
+  copied to every position where they stay off for all negatives: exact on
+  hline, vline and block at side 4 from 32 streams, 0.955 at side 8
+  (cover 0.678, upstart 0.603). They hurt on global tasks (top 0.533 at
+  side 8 against upstart's 0.912). The window shapes are Claude's.
+
+**Success and failure by flipping cells (experiment 35).**
+- Idea 3, second form: change one (state, letter) cell of the machine,
+  keep the change if it scores at least as many laps on the same 8 games.
+  From a random machine it reaches 14.18 laps in 300 rounds (expert 14.28,
+  experiment 31's redraws 0.17). But the key/door game is solved without
+  memory (circling the quadrants), so this is not yet learning memory;
+  a wrong letter from imitation is never fixed.
+
+**Machine search by splitting states (experiment 36).**
+- A greedy search that adds one state at a time (every split tried, then
+  single-transition improvements) finds a 4-state key machine from 64
+  noisy episodes in 8 / 7 / 5 of 10 runs at p = 0 / 0.1 / 0.2. Experiment
+  30's local search finds it in 1 / 1 / 0, exact merging (p = 0) in 3. The
+  letter is given; 16 episodes are too few for any method.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
