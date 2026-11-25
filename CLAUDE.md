@@ -38,6 +38,10 @@ From exp33, experiments run on Lucas's desktop: Intel i7-3930K, 6 cores /
   code paths: a mismatch is possible even with the same versions. If
   versions differ or rows do not match, stop and tell Lucas before going on.
   Record the outcome in `docs/Handoff_Notes.md` section 3.
+- **Bad RAM (memory test, 25 November).** Do not start new experiments until
+  Lucas says the RAM is fixed. Then, before anything new, re-run exp33-36 and
+  check every CSV matches the committed one (timing columns ignored); report
+  any mismatch.
 - Long runs: Lucas starts sessions inside `tmux`, so runs survive a closed
   terminal.
 
