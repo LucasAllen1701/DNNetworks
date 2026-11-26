@@ -10,6 +10,7 @@ Corrected version of `Neural_Network_Notes.pdf` (Lucas Allen, November 2026). Th
 - **Size.** A round returns a network of the same size or larger: it adds neurons only when some FEAS fails (section 4.4).
 - **No cohort label in the network.** A network is now $(n, n_0, I, O, F)$, where the first $n_0$ neurons are the visible ones. The cohort function $c$ is defined separately (Definition 5) and is used in the proofs; WAKE only needs, during a round, the set of neurons it has created in that round (section 4.3).
 - **Keys** have a section of their own (4.5): what is in one, what it does, where it is kept, and what sleep does to keys.
+- **Clock neurons** (Lucas, 26 November, later the same day). When FEAS fails, a wake round adds one neuron for each vector of each sequence of the round (an identity matrix appended to the data), instead of chains of predictors and anti-predictors (section 4.3). Proofs, keys (now $v(0)$ plus one bit), examples and limitations are updated; the chain rule is kept as a remark, with a comparison. `dnn.py` still implements chains.
 - **Training has two phases**: phase 1, wake (memorisation, expansion), is the TRAIN algorithm of the earlier versions (4.1–4.6); phase 2, sleep (generalisation, compression), is the rebuild-and-prune algorithm of experiment 15 (4.7), and 4.8 describes the cycle. Sections 1.3, 1.6, 5, 8 and 9 are updated to match.
 
 **Since the 15 November version.** Section 3 (running a network) is rewritten to match `dnn.py`: how $A$ is chosen when a box is unbounded, the three kinds of initial vector, a finite number of steps, the floating-point threshold, reading outputs at depth $h$, what a run does and does not guarantee, and a worked example. Section 8, item 6, now describes the tolerance the code actually uses. Nothing else changed.
@@ -54,7 +55,7 @@ A layered network with $h$ layers needs $h$ steps to carry an input through to t
 
 When a linear program is infeasible, the choice that remains open is what the activations of the added neuron should be.
 
-These notes add *predictors*, which copy the answer from one step in the future (section 4.3). That always works, and nothing learned earlier is lost (the Theorem of section 4.5). But a predictor's activations cannot be computed during a run. They have to be supplied at the start, as a *key*, and a network that needs a key for a sequence has memorised it.
+These notes add *clock neurons*: one for each vector of each training sequence, on at exactly that time step of that sequence (section 4.3). Earlier versions added *predictors*, which copy the answer from one step in the future. Either way it always works, and nothing learned earlier is lost (the Theorem of section 4.6). But a clock neuron's activations cannot be computed from the inputs during a run. Its sequence's clock has to be started by a *key*, and a network that needs a key for a sequence has memorised it.
 
 A neuron whose activations can be computed from the past needs no key, and what it learns carries over to sequences that were never trained. The companion documents study such neurons:
 
@@ -65,11 +66,11 @@ A neuron whose activations can be computed from the past needs no key, and what 
 - `docs/Causal_Variant.md`: an earlier variant that adds such neurons during training and gives up the no-forgetting guarantee;
 - `experiments/RESULTS.md`: everything that was measured.
 
-Section 4 therefore splits training into two phases. In the **wake** phase new sequences are learned exactly by adding predictors, and nothing is forgotten. In the **sleep** phase the network is rebuilt from a buffer of the sequences seen, with neurons computed from the past in place of predictors wherever the data allow, and neurons that nothing needs are deleted.
+Section 4 therefore splits training into two phases. In the **wake** phase new sequences are learned exactly by adding clock neurons, and nothing is forgotten. In the **sleep** phase the network is rebuilt from a buffer of the sequences seen, with neurons computed from the past in place of predictors wherever the data allow, and neurons that nothing needs are deleted.
 
 ### 1.4 Related work
 
-The first idea has relatives in the constructive algorithms of 1989–90: the tiling algorithm (Mézard and Nadal, 1989), the upstart algorithm (Frean, 1990) and cascade-correlation (Fahlman and Lebiere, 1990). Each builds a network by adding units when the existing ones cannot fit the data. In the upstart algorithm an added unit corrects a unit that is wrongly on or wrongly off, much as the anti-predictor and the predictor do here, with the difference that it is computed from the inputs.
+The first idea has relatives in the constructive algorithms of 1989–90: the tiling algorithm (Mézard and Nadal, 1989), the upstart algorithm (Frean, 1990) and cascade-correlation (Fahlman and Lebiere, 1990). Each builds a network by adding units when the existing ones cannot fit the data. In the upstart algorithm an added unit corrects a unit that is wrongly on or wrongly off, much as the anti-predictor and the predictor did in earlier versions of these notes, with the difference that it is computed from the inputs.
 
 What these notes add is the stored feasible region, which lets training continue in rounds without the earlier data, and the second idea: sequences and short-term memory.
 
@@ -132,7 +133,7 @@ The only state a network carries from one step to the next is its activation vec
 
 1. **A sequence of the latest round.** $v(0)$ is its key $v'(0)$, returned by WAKE (sections 4.4 and 4.5). It contains the sequence's first activation vector on the visible neurons and the starting values of the helper neurons of that round.
 2. **A sequence of an earlier round.** $v(0)$ is its key, padded with zeros on every neuron created after that round.
-3. **A stream that was never trained.** There is no key. $v(0)$ is the stream's first vector on the visible neurons, with every hidden neuron (and every fixed neuron, section 4.7) at $0$ (`dnn_fixed.start`). Neurons that need a key, such as predictor chains, then stay silent (Lemma 1), and only neurons computed from the past can respond. This is the case in which generalisation is measured.
+3. **A stream that was never trained.** There is no key. $v(0)$ is the stream's first vector on the visible neurons, with every hidden neuron (and every fixed neuron, section 4.7) at $0$ (`dnn_fixed.start`). Neurons that need a key, such as clock neurons, then stay silent (Lemma 1), and only neurons computed from the past can respond. This is the case in which generalisation is measured.
 
 In every case the entries of $v(0)$ on input neurons are overwritten by $S_0$ in step 1 of RUN.
 
@@ -168,17 +169,17 @@ An input at time $t$ reaches the neurons of the first layer at $t+1$ and an outp
 
 ### 3.6 Example
 
-Take Example 1 of section 7: one visible neuron, no inputs, trained on the sequence $1,1,1,0$. Training gives 3 neurons, the key $(1,1,1)$, and the rows $a_1 = (0,1,0)$, $a_2 = (0,0,1)$, $a_3 = (0,0,0)$. RUN with $k = 3$ gives
+Take Example 1 of section 7: one visible neuron, no inputs, trained on the sequence $1,1,1,0$. Training adds three clock neurons (neurons 2, 3, 4, on at times 0, 1, 2) and gives the key $(1,1,0,0)$. One choice of rows is $a_1 = (0,1,1,0)$, $a_2 = (0,0,0,0)$, $a_3 = (0,1,0,0)$, $a_4 = (0,0,1,0)$. RUN with $k = 3$ gives
 
-$$v(0) = (1,1,1),\quad v(1) = (1,1,0),\quad v(2) = (1,0,0),\quad v(3) = (0,0,0).$$
+$$v(0) = (1,1,0,0),\quad v(1) = (1,0,1,0),\quad v(2) = (1,0,0,1),\quad v(3) = (0,0,0,0).$$
 
-Neuron 1 reads $1,1,1,0$, the trained sequence. Neurons 2 and 3 are the predictor chain: the key stores what neuron 1 must do, and the chain delivers it one step at a time. Run from $v(0) = (1,0,0)$ instead (case 3 of 3.2: no key), the same network gives $1,0,0,0$, because the chain is silent.
+Neuron 1 reads $1,1,1,0$, the trained sequence. Neurons 2–4 are the clock: the key starts it, it moves on one neuron per step, and the weights from the clock into neuron 1 ($1, 1, 0$) say what neuron 1 does next. Run from $v(0) = (1,0,0,0)$ instead (case 3 of 3.2: no key), the same network gives $1,0,0,0$, because the clock never starts.
 
 ## 4 Training a network
 
 Training has two phases, following Lucas's idea of expansion and compression.
 
-- **Phase 1, wake (memorisation, expansion).** Training happens in rounds $r = 1, 2, \dots$. Each round takes a finite set of new sequences and learns them exactly, without forgetting earlier ones, adding neurons where needed (sections 4.1–4.6). The neurons it adds are predictors: their activations come from keys (section 4.5), so what they learn does not carry over to new sequences.
+- **Phase 1, wake (memorisation, expansion).** Training happens in rounds $r = 1, 2, \dots$. Each round takes a finite set of new sequences and learns them exactly, without forgetting earlier ones, adding neurons where needed (sections 4.1–4.6). The neurons it adds are clock neurons, one per vector of each sequence (section 4.3). They are started by keys (section 4.5), so what they learn does not carry over to new sequences.
 - **Phase 2, sleep (generalisation, compression).** From time to time the network is rebuilt from a buffer of the sequences seen. A finite machine is found from the buffer and installed as fixed neurons, which compute their values from the past; a fresh network is trained on the buffer by one wake round; and every neuron that nothing needs is deleted (section 4.7). Section 4.8 describes the cycle of the two phases.
 
 The sleep algorithm of section 4.7 is the one tested in experiment 15 (`dnn_sleep.sleep`). Its machine-finding step was designed by Claude, and only works for finite machines over a few input patterns. What sleep should do in general is open (section 8).
@@ -223,14 +224,17 @@ $$\sum_{j : x_j=1} l'_j \ge 1 \ \text{ for each pair with } y=1, \qquad \sum_{j 
 
 SUBBOX has a solution exactly when FEAS($g$) is true: a feasible point $a$ is the box $l' = u' = a$, and conversely the lower corner of any feasible box is a feasible point. Any other rule for picking a box inside $P_g \cap \tilde F(g)$ is also correct; the choice only affects how much freedom is left for later rounds.
 
-### 4.3 Adding a neuron
+### 4.3 Adding neurons: clock neurons
 
-Let $g$ be a neuron for which FEAS($g$) fails. Two kinds of helper neuron can be added. In each training sequence $[v(0),\dots,v(k)]$ their activations are
+When FEAS fails, the round adds **clock neurons**: one for each vector of each sequence of the round, except the last vector of each sequence (Lucas, 26 November).
 
-$$\textbf{predictor } p \text{ of } g: \quad p(t) = v(t+1)_g \ \ (t < k), \qquad p(k) = 0,$$
-$$\textbf{anti-predictor } q \text{ of } g: \quad q(t) = 1 - v(t+1)_g \ \ (t < k), \qquad q(k) = 0.$$
+Let the round's sequences be $\sigma_1, \dots, \sigma_M$, with $\sigma_j = [v_j(0), \dots, v_j(k_j)]$. The clock neuron $e_{j,t}$, for $0 \le t < k_j$, is on at time $t$ of sequence $\sigma_j$ and nowhere else:
 
-The predictor fires one step before $g$ should fire and excites it. The anti-predictor fires one step before $g$ should stay silent and inhibits it.
+$$e_{j,t}(s) = 1 \ \text{ in } \sigma_j \text{ at time } s = t, \qquad e_{j,t}(s) = 0 \ \text{ at every other time of } \sigma_j \text{ and in every other sequence.}$$
+
+In the matrix form of the original notes, stack the vectors $v_j(t)$, $t < k_j$, as the rows of the round's data matrix (these are the $x$ of section 4.1). Adding the clock neurons appends an **identity matrix** to it: one new column per row, with a $1$ in its own row only. The last vector $v_j(k_j)$ of each sequence is never the $x$ of a pair, so it gets no clock neuron and has $0$ in every clock column.
+
+Each sequence's clock neurons form a chain in time: $e_{j,t}$ is switched on by $e_{j,t-1}$ one step earlier, and $e_{j,0}$ is on in the sequence's key (section 4.5). So a clock neuron's weight into a visible neuron $g$ sets $g$'s value at time $t+1$ of sequence $\sigma_j$, with a positive weight to excite $g$ and a negative one to inhibit it.
 
 During round $r$, WAKE keeps the set $N$ of neurons it has created so far in this round ($N = \emptyset$ when the round starts). The *older hidden neurons* are the hidden neurons that existed when the round started: those $j > n_0$ with $j \notin N$.
 
@@ -243,47 +247,56 @@ During round $r$, WAKE keeps the set $N$ of neurons it has created so far in thi
 3. The new neuron's box is $\tilde F(m) := \prod_{j=1}^m J_j$ with $J_j = \mathbb{R}$ if $j \in N$ or $j = m$, and $J_j = (-\infty, 0]$ otherwise (visible neurons and older hidden neurons).
 4. $N := N \cup \{m\}$.
 
-With $c(m) := r$, steps 2 and 3 are exactly what keeps condition (D) true. They are the only place where training needs to know which round a neuron belongs to, and they only need to tell the current round's neurons ($N$) from the rest. That is why $c$ need not be stored (Definition 5).
+**ADD-CLOCK.** For every $j \le M$ and every $t < k_j$, ADD the column of $e_{j,t}$.
 
-*Remark.* Using $\{0\}$ in place of $(-\infty, 0]$ in steps 2 and 3, so that weights between different rounds are exactly $0$, also keeps (D) and every result below. It removes the option of inhibition between rounds, which can only make FEAS fail more often. `dnn.py` uses $(-\infty, 0]$.
+With $c(m) := r$, steps 2 and 3 of ADD are exactly what keeps condition (D) true. They are the only place where training needs to know which round a neuron belongs to, and they only need to tell the current round's neurons ($N$) from the rest. That is why $c$ need not be stored (Definition 5).
+
+*Remark ($\{0\}$ in place of $(-\infty, 0]$).* Using $\{0\}$ in steps 2 and 3, so that weights between different rounds are exactly $0$, also keeps (D) and every result below. It removes the option of inhibition between rounds, which can only make FEAS fail more often. `dnn.py` uses $(-\infty, 0]$.
+
+*Remark (the earlier rule: predictor chains).* Earlier versions of these notes (25 November, sections 4.3–4.6), and `dnn.train`, add neurons one infeasible neuron at a time: a *predictor* $p$ of $g$ with $p(t) = v(t+1)_g$, which excites $g$; if that fails, an *anti-predictor* $q(t) = 1 - v(t+1)_g$, which inhibits it; if that fails, both. A helper is itself often infeasible and gets a predictor of its own, so each helper starts a chain, at most $k$ long. A chain is a delay line: it stores $g$'s future values in the key and shifts them out one step at a time. Clock neurons do the same job with one clock per sequence instead of one chain per neuron. The comparison (section 9; $\varepsilon = 10^{-4}$, every replay exact under both rules):
+
+| | chains: hidden neurons | clocks: hidden neurons | chains: key bits set | clocks: key bits set |
+|---|---|---|---|---|
+| 150 small random networks | 1102 | 1883 | 1252 | 613 |
+| 10 stream tasks (4 rounds of 8 streams of 20 steps) | 1088 | 6080 | 4071 | 320 |
+
+- **For clocks:** one short lemma replaces the predictor, anti-predictor and chain-termination proofs; a key is $v(0)$ plus one bit; and each sequence's memory is a separate unit that can be deleted on its own (Proposition below), which chains, shared by all the sequences of a round, do not allow.
+- **Against clocks:** a chain rule adds at most $2k(n_0 - |I|)$ neurons per round, however many sequences there are; the clock rule adds one per vector, so the network grows with the total length of everything trained, and storage as its square ($2n^2$ numbers). This matters less if sleep empties the wake memory regularly (section 4.8): the clock neurons then count only the vectors seen since the last sleep.
+- **Neither generalises.** Under (D) neither clocks nor chains can be switched on by the inputs.
 
 ### 4.4 Phase 1: the wake round
 
-**ALGORITHM WAKE (round $r$)** (called TRAIN in earlier versions; `dnn.train`)
+**ALGORITHM WAKE (round $r$)** (called TRAIN in earlier versions; `dnn.train` implements the earlier, chain version)
 
-INPUTS: a network $(n, n_0, I, O, F)$ satisfying (D); a finite set $V$ of sequences $[v(0),\dots,v(k)]$ of activation vectors **on the visible neurons** (lengths may differ; the input neurons' values are part of the sequences); a margin $\varepsilon \in (0,1]$.
+INPUTS: a network $(n, n_0, I, O, F)$ satisfying (D); a finite set $V = \{\sigma_1, \dots, \sigma_M\}$ of sequences $\sigma_j = [v_j(0),\dots,v_j(k_j)]$ of activation vectors **on the visible neurons** (lengths may differ; the input neurons' values are part of the sequences); a margin $\varepsilon \in (0,1]$.
 
-OUTPUT: a network $(n', n_0, I, O, F')$ with $n' \ge n$, and for each sequence in $V$ its key $v'(0) \in \{0,1\}^{n'}$ (section 4.5). The network grows only if a neuron is added: $n' = n$ exactly when FEAS($g$) holds the first time it is checked, for every visible non-input neuron $g$. Even then the boxes of the visible non-input neurons are replaced by SUBBOX in step 2, so they may shrink.
+OUTPUT: a network $(n', n_0, I, O, F')$ and, for each sequence in $V$, its key $v'_j(0) \in \{0,1\}^{n'}$ (section 4.5). Either $n' = n$ (no neuron added, when FEAS($g$) holds for every visible non-input neuron $g$) or $n' = n + \sum_j k_j$. Even when no neuron is added, the boxes of the visible non-input neurons are replaced by SUBBOX in step 2, so they may shrink.
 
 STEPS:
 
-0. Extend every sequence in $V$ by zeros on all hidden neurons. Set $\tilde F := F$, $m := n$, $N := \emptyset$. Let the worklist $W$ and the refit list $R$ both be the visible non-input neurons.
-1. While $W$ is non-empty, remove a neuron $g$ from $W$.
-   - If FEAS($g$) holds, continue.
-   - (a) Otherwise ADD the predictor $p$ of $g$. If FEAS($g$) now holds, put $p$ in $W$ and $R$ and continue. (For a hidden $g$ this always succeeds, by Lemma 2.)
-   - (b) Otherwise ($g$ is visible) undo the addition of $p$ and ADD the anti-predictor $q$ of $g$ instead. If FEAS($g$) now holds, put $q$ in $W$ and $R$ and continue.
-   - (c) Otherwise undo the addition of $q$ and ADD both $p$ and $q$. FEAS($g$) now holds by Lemma 3. Put $p$ and $q$ in $W$ and $R$.
+0. Extend every sequence in $V$ by zeros on all hidden neurons. Set $\tilde F := F$, $m := n$, $N := \emptyset$. Let the refit list $R$ be the visible non-input neurons.
+1. If FEAS($g$) fails for some $g \in R$: ADD-CLOCK, and put every clock neuron in $R$. Now FEAS holds for every neuron in $R$ (Lemmas 2 and 3), so no further check or worklist is needed.
 2. For each $g \in R$ set $F'(g) :=$ SUBBOX($g$). For every other neuron (input neurons and older hidden neurons) set $F'(g) := \tilde F(g)$.
 3. If the sleep phase is used, add the sequences of $V$ to the buffer $B$ (section 4.7).
 4. Return $(m, n_0, I, O, F')$ and, for each sequence, row $0$ of its extended form: its key.
 
 ### 4.5 Keys
 
-**Definition 6 (extended sequence, key).** Let $[v(0),\dots,v(k)]$ be a sequence of $V$ in round $r$. WAKE extends it to all $n'$ neurons: $v'(t) = (v(t), z(t))$, where $z(t)$ holds the activations of the hidden neurons at time $t$. These are $0$ on the older hidden neurons (step 0), and on each neuron created in round $r$ they are the column ADD gave it, worked out from this sequence's own values. The **key** of the sequence is $v'(0)$, the extended vector at time $0$.
+**Definition 6 (extended sequence, key).** Let $\sigma_j = [v_j(0),\dots,v_j(k_j)]$ be a sequence of $V$ in round $r$. WAKE extends it to all $n'$ neurons: $v'_j(t) = (v_j(t), z_j(t))$, where $z_j(t)$ holds the activations of the hidden neurons at time $t$. These are $0$ on the older hidden neurons (step 0), and on the round's clock neurons they are the clock columns of section 4.3. The **key** of the sequence is $v'_j(0)$, the extended vector at time $0$.
 
 **What is in a key.**
 
-- On the visible neurons, the key is $v(0)$, the sequence's own first vector.
+- On the visible neurons, the key is $v_j(0)$, the sequence's own first vector.
 - On older hidden neurons, it is $0$.
-- On the round's helpers, it is their values at time $0$. For a predictor $p$ of $g$, $p(0) = v(1)_g$; for an anti-predictor, $q(0) = 1 - v(1)_g$. In a chain $h_1, h_2, \dots$ started for $g$, $h_s(0) = h_1(s-1) = v(s)_g$. So the key holds the *future* values of $g$, one per chain neuron. This is the part of the sequence the network could not compute from the past: what it has memorised.
+- On the round's clock neurons, it is $1$ on $e_{j,0}$, the first clock neuron of this sequence, and $0$ on every other. If the round added no neurons, there is nothing here and the key is just $(v_j(0), 0)$.
 
-A helper added because of one sequence of $V$ gets a column in every sequence of $V$ (each worked out from that sequence), so a sequence's key can have non-zero helper entries even when that sequence alone would have needed no helper.
+So a key is the sequence's first vector plus **one bit that names the sequence**. What the network has memorised about the sequence is not in the key but in the weights: the weight from $e_{j,t}$ into a visible neuron $g$ fixes $g$'s value at time $t+1$ of $\sigma_j$.
 
-**What a key does.** By the Theorem (section 4.6), RUN started from the key, with the sequence's input sets $S_t$, reproduces $v'(t)$ for every $t$ and for every weight matrix chosen from the boxes. The key is what selects which memorised sequence the network replays. Started instead from $(v(0), 0)$, with every hidden neuron at $0$, the round's neurons are $0$ at time $0$ and stay $0$ for ever (Lemma 1). The network then behaves as if the round had added no neurons, and its output depends only on what the visible neurons compute (example in section 3.6).
+**What a key does.** Started from the key, the clock of $\sigma_j$ runs: $e_{j,0}$ is on at time $0$, $e_{j,1}$ at time $1$, and so on up to $e_{j,k_j-1}$, one per step, and at each step the clock neuron that is on sets the next values of the visible neurons. By the Theorem (section 4.6), RUN from the key, with the sequence's input sets $S_t$, reproduces $v'_j(t)$ for every $t \le k_j$ and every weight matrix chosen from the boxes. After time $k_j - 1$ the clock has stopped, and a run that goes on behaves as if it had no key. Started instead from $(v_j(0), 0)$, with every hidden neuron at $0$, the round's neurons are $0$ at time $0$ and stay $0$ for ever (Lemma 1). The network then behaves as if the round had added no neurons, and its output depends only on what the visible neurons compute (example in section 3.6).
 
 **Keys from earlier rounds.** A key from round $r$ is extended with zeros for every neuron created in a later round. By the Theorem it still replays its sequence.
 
-**Where keys are kept.** Outside the network, by the caller: one vector per sequence. Only $v(0)$ and the entries for the sequence's own round can be non-zero, so a key costs at most $n_0$ plus the number of neurons that round added. The space bound of section 5 counts the network only, not the keys.
+**Where keys are kept.** Outside the network, by the caller: one vector per sequence, which is $v_j(0)$ and the index of one clock neuron. The space bound of section 5 counts the network only, not the keys.
 
 **Keys and generalisation.** A sequence that replays from $(v(0), 0)$ needs no key: the network computes it from its start. An untrained stream has no key, so it is always run this way (section 3.2, case 3). A network that needs a key for a sequence has memorised it, and the fraction of trained sequences that replay *without* their keys is a measure of how much has been generalised rather than memorised (used in experiment 15).
 
@@ -295,17 +308,19 @@ A helper added because of one sequence of $V$ gets a column in every sequence of
 
 *Proof.* For $h \in C$ and $a \in F(h)$: $a \cdot v(t) = \sum_{j \notin C} a_j v(t)_j \le 0 < 1$, since $a_j \le 0$ for $j \notin C$ and $v(t)_j = 0$ for $j \in C$. $\square$
 
-**Lemma 2 (predictor).** Suppose some $a \in \tilde F(g)$ satisfies every constraint of $g$ with $y = 0$. Then after adding the predictor of $g$, FEAS($g$) holds. In particular this applies whenever $0 \in \tilde F(g)$: to every neuron in round 1 whose box still contains $0$, and to every hidden neuron of the current round.
+**Lemma 2 (clock neurons fit every visible neuron).** After ADD-CLOCK, FEAS($g$) holds for every visible non-input neuron $g$.
 
-*Proof.* Take the new weight $b = \max(0,\, 1 - \min a\cdot x)$, the minimum over pairs with $y = 1$. On pairs with $y=1$ the predictor is $1$, so $a\cdot x + b \ge 1$. On pairs with $y = 0$ it is $0$, so the value is $a \cdot x \le 1-\varepsilon$. The new coordinate of $g$ is unrestricted, because $g$ is visible or in $N$. If $0 \in \tilde F(g)$, then $a = 0$ works since $0 \le 1 - \varepsilon$. $\square$
+*Proof.* Take any finite $a \in \tilde F(g)$ for the coordinates that existed before the round; boxes are non-empty, so one exists. Each pair of $g$ comes from one row $(j, t)$, $t < k_j$, and its $x$ is $v'_j(t)$: on the old coordinates it is $(v_j(t), 0)$, and among the clock neurons only $e_{j,t}$ is on. Give $e_{j,t}$ the weight
+$$b_{j,t} = 1 - a \cdot (v_j(t), 0) \ \text{ if } y = 1, \qquad b_{j,t} = 1 - \varepsilon - a \cdot (v_j(t), 0) \ \text{ if } y = 0.$$
+Then the weighted sum on row $(j,t)$ is exactly $1$ or exactly $1 - \varepsilon$, as required. Every row has its own clock neuron, so the choices do not interfere, and the coordinates of $g$ from clock neurons are unrestricted because $g$ is visible (ADD, step 2). $\square$
 
-**Lemma 3 (predictor and anti-predictor).** Let $g$ be visible. After adding both $p$ and $q$, FEAS($g$) holds.
+**Lemma 3 (clock neurons fit themselves).** After ADD-CLOCK, FEAS holds for every clock neuron.
 
-*Proof.* Take any finite $a \in \tilde F(g)$ and let $L = \min a\cdot x$, $U = \max a \cdot x$ over all pairs. Give $p$ the weight $b_p = \max(0, 1 - L)$ and $q$ the weight $b_q = \min(0, 1 - \varepsilon - U)$. On pairs with $y = 1$: $p = 1$, $q = 0$, value $a\cdot x + b_p \ge 1$. On pairs with $y=0$: $p = 0$, $q = 1$, value $a \cdot x + b_q \le 1-\varepsilon$. $\square$
+*Proof.* $e_{j,0}$ is never on after time $0$, so all its targets are $0$, and the weight vector $0$ works ($0 \le 1-\varepsilon$; $0$ is in every box ADD creates). For $t \ge 1$, $e_{j,t}$ must be on at time $s+1$ exactly when the pair is row $(j, s)$ with $s = t-1$. Give it weight $1$ from $e_{j,t-1}$ and $0$ from every other neuron; both values lie in its box, since $e_{j,t-1}$ is in the same round. On row $(j, t-1)$ the sum is $1$; on every other row $e_{j,t-1}$ is off and the sum is $0 \le 1 - \varepsilon$. $\square$
 
-**Lemma 4 (termination).** Let $k$ be the length of the longest sequence in $V$. Step 1 terminates, and the round adds at most $2k\,(n_0 - |I|)$ neurons.
+**Lemma 4 (size).** A wake round adds either no neurons or exactly $\sum_j k_j$ neurons: one per vector of the round's sequences, last vectors excepted.
 
-*Proof.* Helpers of helpers are always predictors (Lemma 2), so each helper of a visible neuron starts a chain $h_1, h_2, \dots$ where $h_{s+1}$ is the predictor of $h_s$. Then $h_s(t) = h_1(t+s-1)$ when $t+s-1 \le k-1$ and $0$ otherwise. The targets of $h_k$ are therefore all $0$, so $a = 0$ is feasible and the chain stops with at most $k$ neurons. Each visible non-input neuron starts at most two chains. $\square$
+*Proof.* Step 1 calls ADD-CLOCK at most once. $\square$
 
 **Theorem.** After any number of wake rounds, for every weight matrix $A$ whose rows lie in the boxes:
 
@@ -316,9 +331,15 @@ A helper added because of one sequence of $V$ gets a column in every sequence of
 
 *Proof.* (3) holds by the lift rule in ADD, and SUBBOX only shrinks boxes. (4) is Definition 3.
 
-(1) Induct on $t$. Input neurons are clamped to the sequence's values. For $g \in R$, $F'(g) \subset P_g$, so $\sigma(a_g \cdot v'(t)) = v'(t+1)_g$. Older hidden neurons are $0$ in the extended sequence and stay $0$ by Lemma 1.
+(1) Induct on $t$. Input neurons are clamped to the sequence's values. For $g \in R$ (the visible non-input neurons and the clock neurons), $F'(g) \subset P_g$, so $\sigma(a_g \cdot v'(t)) = v'(t+1)_g$. Older hidden neurons are $0$ in the extended sequence and stay $0$ by Lemma 1.
 
 (2) Let $[v(0),\dots,v(k)]$ be a sequence learned before round $r$, and $A'$ a matrix for the new network. Induct on $t$ with the claim that the state is $(v(t), 0)$. The new cohort is $0$ at time $t$, so it is $0$ at time $t+1$ by Lemma 1. For an old neuron $i$, the row $a'_i \in F'(i) \subset F(i) \times (\text{intervals})$ restricts to some $a_i \in F(i)$, and $a'_i \cdot (v(t), 0) = a_i \cdot v(t)$. So the old neurons behave as in the old network, which reproduces the sequence for every choice of rows in $F$. $\square$
+
+**Proposition (forgetting one sequence).** Deleting the clock neurons of one sequence $\sigma_j$ (their rows, their columns and their entries in the keys) forgets $\sigma_j$ and nothing else: every other trained sequence still replays exactly from its key.
+
+*Proof.* In the extended form of every other sequence, including those of other rounds after zero-padding, the clock neurons of $\sigma_j$ are $0$ at every time. By the Theorem, a replay follows the extended form exactly, so these neurons are $0$ throughout every other replay, and their outgoing weights add nothing to any weighted sum. Removing them changes no other neuron's sum. $\square$
+
+Deleting a sequence's clock neurons does not undo the constraints its rows put on the boxes of the visible neurons in its round; those boxes stay as SUBBOX left them.
 
 ### 4.7 Phase 2: sleep
 
@@ -338,7 +359,7 @@ STEPS:
 
 1. **Find a machine** (`dnn_merge.learn_machine`, `docs/State_Merging.md`). Read each sequence of $B$ as a stream of input patterns, each answered by the output $h$ steps later. Build the *prefix tree*: one state for each input prefix seen, with the observed output on each edge; this machine has memorised $B$. Then merge states: taking states in order of prefix length, merge each into the first earlier state that the data do not contradict, where two states are contradicted when some continuation seen from both gives different outputs (the RPNI order of Oncina and García, 1992). The result is a partial machine $(\delta, \text{out})$. Give every state a transition for every input pattern, staying in the same state where none was seen.
 2. **Install** (`dnn_merge.make_layout`, `dnn_fixed.add_automaton`, `docs/Latency_And_State.md`). Build a new untrained network whose visible neurons are the task neurons, an always-on input neuron, and fixed *state neurons* that track the state of the machine. $n_0$ counts all of them; there are no hidden neurons.
-3. **Train.** Run one WAKE round of the new network on $B$, with each sequence extended by the fixed neurons' values. Sequences the machine explains need no helpers; any it does not explain are memorised with predictor chains and keys, as in any wake round.
+3. **Train.** Run one WAKE round of the new network on $B$, with each sequence extended by the fixed neurons' values. If the machine explains every sequence, no neuron is added. Otherwise the round adds clock neurons, as any wake round does, and then it adds them for *every* sequence of $B$, not only those the machine does not explain. (Training the explained sequences first and the rest in a second round would avoid this; not yet decided.)
 4. **Prune** (`dnn_sleep.prune`). Repeat until nothing changes: delete every neuron $j$ that is neither a task neuron nor the always-on neuron and for which $l_{ij} \le 0 \le u_{ij}$ for every other remaining neuron $i$; remove its row, its column and its entries in the keys.
 5. Return the network and the keys.
 
@@ -378,23 +399,23 @@ Round 1 can itself be a sleep: building the first network from the first sequenc
 
 ## 6 Answers to the three open questions
 
-1. *Is $(F(i) \times [0,1]) \cap P'_i$ non-empty?* Not in general (Example 2 below). With the restriction to $[0,1]$ removed, the predictor alone works exactly when some $a \in F(i)$ satisfies all the $y=0$ constraints (Lemma 2). Otherwise an anti-predictor is needed, and predictor plus anti-predictor always works (Lemma 3).
+1. *Is $(F(i) \times [0,1]) \cap P'_i$ non-empty?* Not in general (Example 2 below). With the restriction to $[0,1]$ removed, the predictor alone works exactly when some $a \in F(i)$ satisfies all the $y=0$ constraints, and predictor plus anti-predictor always works (25 November notes, Lemmas 2 and 3). This version adds clock neurons instead, which always work (Lemmas 2 and 3).
 2. *How to represent $F(i)$?* As a box (Section 5).
 3. *Do new neurons interfere with old sequences?* Not under condition (D): a new cohort stays silent during every old sequence (Lemma 1), which gives the no-forgetting part of the Theorem without storing any old sequence.
 
 ## 7 Examples
 
-**Example 1 (a chain).** One visible neuron, $F(1) = \mathbb{R}$, sequence $1,1,1,0$. Neuron 1 is infeasible ($a \ge 1$ and $a \le 1-\varepsilon$). Its predictor has column $1,1,0,0$ and is itself infeasible (state $(1,1)$ occurs twice with different targets), so it gets a predictor with column $1,0,0,0$, whose targets are all $0$. Result: 3 neurons, key $(1,1,1)$, and for instance rows $a_1 = (0,1,0)$, $a_2 = (0,0,1)$, $a_3 = (0,0,0)$.
+**Example 1 (a clock).** One visible neuron, $F(1) = \mathbb{R}$, sequence $1,1,1,0$. Neuron 1 is infeasible ($a \ge 1$ and $a \le 1-\varepsilon$). The round adds three clock neurons with columns $1,0,0,0$; $0,1,0,0$; $0,0,1,0$ (none for the last vector). Result: 4 neurons, key $(1,1,0,0)$. With $\varepsilon = 1/2$, SUBBOX gives $F(1) = [0,1]\times[1,\infty)\times[1,\infty)\times(-\infty,-0.5]$; the run is in section 3.6. (The chain rule of earlier versions gives 3 neurons and key $(1,1,1)$.)
 
-**Example 2 (an anti-predictor).** One visible neuron. Round 1 trains $1,1$, giving $F(1) = [1,\infty)$. Round 2 trains $1,0$, which needs $a \le 1-\varepsilon$: infeasible. The predictor has column $0,0$ and cannot help. The anti-predictor has column $1,0$ and works with a negative weight. With $\varepsilon = 1/2$ one valid result is $F(1) = [1,2]\times(-\infty,-1.5]$, $F(2) = (-\infty,0]\times(-\infty,0]$. Keys: $(1,0)$ replays $1,1$ and $(1,1)$ replays $1,0$.
+**Example 2 (an inhibiting clock neuron).** One visible neuron. Round 1 trains $1,1$, giving $F(1) = [1,\infty)$. Round 2 trains $1,0$, which needs $a \le 1-\varepsilon$: infeasible. The round adds one clock neuron, with column $1,0$ (the same column the anti-predictor had in earlier versions), and it works with a negative weight. With $\varepsilon = 1/2$ one valid result is $F(1) = [1,2]\times(-\infty,-1.5]$, $F(2) = (-\infty,0]\times(-\infty,0]$. Keys: $(1,0)$ replays $1,1$ and $(1,1)$ replays $1,0$.
 
 ## 8 Limitations and open questions
 
-1. **Worst case is memorisation.** A full chain is a delay line, and the key then contains the sequence itself. The algorithm guarantees recall, not generalisation.
+1. **Wake only memorises.** Clock neurons are a lookup table indexed by sequence and time. The wake phase guarantees recall, not generalisation.
 2. **Keys live outside the network.** Each trained sequence needs its key to be replayed. That is one vector per sequence, kept by the caller, playing the role $v(0)$ plays in the original notes. Apart from $v(0)$, only the part of a key belonging to its own cohort is non-zero (section 4.5).
-3. **Neuron count can still grow.** The space bound is polynomial in $n$, but $n$ grows by up to $2k(n_0-|I|)$ per round when new sequences do not fit.
+3. **Neuron count grows with the data.** The space bound is polynomial in $n$, but $n$ grows by one per vector of every round that does not fit (Lemma 4), and storage as $n^2$. Sleep (section 4.7) is what keeps this in check. Which sequences of a round really need clock neurons, so that the others need not get them, is open.
 4. **Earlier cohorts are never reused.** New sequences are specified on visible neurons, with earlier hidden neurons at $0$. Consequently, training a sequence a second time creates a new cohort if it needed helpers the first time. A caller that keeps keys can avoid this by first running the network from each stored key whose visible part matches and skipping the sequence if it already replays.
-5. **No bias term.** From the all-zero state nothing can fire. The algorithm copes by adding a predictor that is active in the key.
+5. **No bias term.** From the all-zero state nothing can fire. The algorithm copes through the key, whose first clock neuron is on.
 6. **Floating point.** $\sigma$ has a hard threshold at $1$. The code keeps the constraints as stated and instead fires when $x \ge 1 - \delta$, with $\delta = 10^{-7}$ (section 3.3). Requiring $\ge 1+\delta$ in the constraints with $y=1$ would also work.
 
 7. **Sleep needs stored data.** The sleep phase rebuilds from a buffer of raw sequences, so unlike the wake phase it does not run on the boxes alone. Sequences that leave the buffer are forgotten at the next sleep.
@@ -405,8 +426,10 @@ Open questions: what should sleep compute in general, and can it work from the b
 
 ## 9 Verification
 
-The algorithms above were implemented and tested: 300 random networks (1–4 visible neurons, with and without an input neuron, 1–4 rounds, sequences of 2–6 activation vectors, $\varepsilon \in \{0.1, 0.5, 1\}$, including new sequences that start like an old one and then diverge). After every round, all sequences trained so far were replayed with 20 weight matrices per sequence drawn from the boxes, including both extreme corners. All replays were exact. The bound of Lemma 4 and condition (D) were also checked on 200 further random networks.
+The algorithms above were implemented and tested: 300 random networks (1–4 visible neurons, with and without an input neuron, 1–4 rounds, sequences of 2–6 activation vectors, $\varepsilon \in \{0.1, 0.5, 1\}$, including new sequences that start like an old one and then diverge). After every round, all sequences trained so far were replayed with 20 weight matrices per sequence drawn from the boxes, including both extreme corners. All replays were exact. The chain bound (Lemma 4 of the 25 November notes) and condition (D) were also checked on 200 further random networks.
 
 **Smaller margin (26 November).** 150 random networks (1–4 visible neurons, with and without an input neuron, 1–4 rounds of 1–3 sequences of 2–6 vectors) were trained at $\varepsilon = 1/2,\ 10^{-3},\ 10^{-4},\ 10^{-6}$ and, after every round, every sequence so far was replayed with 10 weight matrices (both corners and random points). All replays were exact at every $\varepsilon$. Hidden neurons added in total: 1135 at $1/2$, 1062 at each smaller value.
+
+**Clock neurons (26 November).** A test version of the clock rule (not yet in `dnn.py`) was compared with `dnn.train` at $\varepsilon = 10^{-4}$, replaying every sequence after every round with 6 weight matrices (both corners and random points): on the 150 small random networks above, and on 10 stream tasks (2 inputs, 2 outputs a random function of the last two inputs, 4 rounds of 8 streams of 20 steps). Every replay was exact under both rules. Neuron counts and key sizes are in the table of section 4.3. Examples 1 and 2 were computed with it.
 
 **Sleep.** `dnn_sleep` and its prune rule were tested in `tests/` and used in experiments 15 and 18 (`experiments/RESULTS.md`, sections 15 and 18): recall of every buffered stream from its key was exact in every run.

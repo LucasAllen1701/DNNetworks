@@ -8,7 +8,7 @@ Status: **no new experiments** until this plan is agreed (and until the RAM is f
 
 **What there is** (notes, section 4):
 
-- **Wake** (memorisation, expansion): LP training round by round, with predictor and anti-predictor chains when an LP is infeasible. It is exact and forgets nothing (the Theorem), but it only memorises: a hidden neuron needs a key and, under (D), cannot be switched on by the inputs.
+- **Wake** (memorisation, expansion): LP training round by round; when an LP is infeasible, one clock neuron per vector of the round's sequences (decided 26 November; `dnn.train` still uses predictor chains). It is exact and forgets nothing (the Theorem), but it only memorises: a hidden neuron needs a key and, under (D), cannot be switched on by the inputs.
 - **Sleep** (generalisation, compression): rebuild from a buffer of the streams seen. Find a finite machine by state merging, install it as fixed state neurons, train a fresh network on the buffer in one wake round, then delete neurons that nothing needs. Tested once (experiment 15): it fixes wrong early machines (59/60 true machines against 26), but deletion found nothing to delete.
 
 **To settle:**
