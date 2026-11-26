@@ -1,4 +1,4 @@
-# Discrete Neural Networks — handoff notes (24 November 2026)
+# Discrete Neural Networks — handoff notes (26 November 2026)
 
 State of the work after experiments 1–36, for whoever continues it (Claude
 Code on Lucas's machine from now on; see `CLAUDE.md` for how batches run).
@@ -67,13 +67,15 @@ Programs that run locally, built from discrete neural networks: (1) play Doom; (
 
 ## 6 Decisions (Lucas's; ask before changing)
 
-1. Weight regions are boxes. 2. Baseline: predictor/anti-predictor chains, condition (D), keys. 3. Fixed neurons before round 1. 4. **h = 2 by default**; h = 3 for second hidden layers and state neurons reading helpers — state h when reporting. 5. A buffer of early data, for now. 6. Parked: Lean formalisation; VS Code setup. 7. Continue along the path to Doom (19 November). 8. Experiments move to Claude Code on Lucas's machine, in large batches, one PR per batch (20 November).
+1. Weight regions are boxes. 2. Baseline: predictor/anti-predictor chains, condition (D), keys. 3. Fixed neurons before round 1. 4. **h = 2 by default**; h = 3 for second hidden layers and state neurons reading helpers — state h when reporting. 5. A buffer of early data, for now. 6. Parked: Lean formalisation; VS Code setup. 7. Continue along the path to Doom (19 November). 8. Experiments move to Claude Code on Lucas's machine, in large batches, one PR per batch (20 November). 9. **Margin ε = 10⁻⁴** for new experiments; exp1–36 used 1/2 (26 November). 10. **Training has two phases**, wake and sleep (`docs/DiscreteNeuralNetworkNotes261126.md`, section 4); the cohort label is no longer part of the network (26 November). 11. **Claude merges its own PRs** (26 November; rules in `CLAUDE.md`).
 
 ## 7 Lucas's three ideas (15 November)
 
 1. One neuron per time step: memorises (exp13). 2. Expansion and compression cycles: compression by rebuild works (exp15); deletion rule safe but finds nothing. 3. Success and failure (buffer successes; on failure randomise inside the boxes): first form **fails** (exp31): redraws inside the boxes never change play once the buffer covers every cell. Second form (flip one machine cell, keep it if laps do not fall; exp35) learns to play the key/door game from a random machine, but that game needs no memory.
 
 ## 8 Next steps (candidates, not yet chosen)
+
+**26 November: on hold.** Lucas wants the training algorithm, the choice of training sequences (reward, dislodging) and the experiment list agreed first: `docs/Plan_Before_Experiments.md`. The items below predate that and may change.
 
 (a) Idea 3 on a game that needs memory: exp36's three-key order defeats circling; flips from scratch, and imitation (split search) plus flips. (b) Small objects on big screens: key and door as small squares at fixed or random places on 16×16, letters from window regions at every position (exp34's windows as a letter library). (c) Shared helpers as a fifth image layout in exp27's held-out choice (sharing wins local tasks, loses global ones). (d) Letter and machine both searched for the 3- and 4-state games with noise (choose_bits_search + split). (e) Image noise: a stronger filter or a noise-aware helper search. Exp28's wait game is the default for acting.
 
@@ -96,7 +98,7 @@ Programs that run locally, built from discrete neural networks: (1) play Doom; (
 
 ## 10 Working conventions
 
-- Branch and open a pull request; never push to `main`. Lucas merges.
+- Branch and open a pull request; never push to `main`. Claude merges its own PRs (from 26 November; see `CLAUDE.md`).
 - Fixed seeds; CSVs in `experiments/results/`; negative results stated plainly; experiments that reuse earlier layouts must reproduce the earlier rows exactly; CSVs checked by script (rows, sha256, reproduced rows).
 - Python: `.venv/bin/python` (system python has no numpy). The machine has no git identity: commit with per-commit env vars as Claude (`GIT_AUTHOR_NAME`/`GIT_COMMITTER_NAME` and the matching `_EMAIL` vars), git config untouched.
 - Merged `claude/*` branches on GitHub can be deleted, except the branch of an open PR.
