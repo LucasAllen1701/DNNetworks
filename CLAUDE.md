@@ -42,6 +42,12 @@ From exp33, experiments run on Lucas's desktop: Intel i7-3930K, 6 cores /
   Lucas says the RAM is fixed. Then, before anything new, re-run exp33-36 and
   check every CSV matches the committed one (timing columns ignored); report
   any mismatch.
+- **Plan first (26 November).** Apart from the exp33-36 re-check, do not
+  start new experiments until Lucas has agreed the plan in
+  `docs/Plan_Before_Experiments.md` (training algorithm, how sequences are
+  chosen, the experiment list). The notes of record are now
+  `docs/DiscreteNeuralNetworkNotes261126.md` (two-phase training, margin
+  epsilon = 1e-4 for new experiments; exp1-36 used 0.5).
 - Long runs: Lucas starts sessions inside `tmux`, so runs survive a closed
   terminal.
 
@@ -88,6 +94,15 @@ without waiting for the end of the batch), when a design choice is his to make
 undo.
 
 ## Conventions
+
+- **Merging (Lucas, 26 November).** Claude merges its own pull requests;
+  Lucas no longer approves them. Open the PR as usual, check it (tests pass
+  if code changed; nothing else on the branch), merge it with the REST API
+  (`gh api -X PUT repos/LucasAllen1701/DNNetworks/pulls/<n>/merge -f
+  merge_method=merge`), then delete the branch. Still never push to `main`
+  directly. Still stop and ask Lucas first for anything in the "Stop and ask"
+  list above: batch plans, his Decisions, changes to `dnn.py`, anything hard
+  to undo. Tell him what was merged in the report.
 
 - Fixed seeds; CSVs in `experiments/results/`; experiments that reuse
   earlier layouts must reproduce the earlier rows exactly.
