@@ -75,7 +75,7 @@ Programs that run locally, built from discrete neural networks: (1) play Doom; (
 
 ## 8 Next steps (candidates, not yet chosen)
 
-**27 November: experiment 37** (wake with clock neurons, sleep by Lucas's merge; run in the claude.ai cloud workspace, `dnn_clock.py`): exact merging merges nothing, any stretch breaks recall, and merging cannot change behaviour without keys, so this sleep does not generalise (RESULTS.md section 37). The exp37–40 proposal below is renumbered from 38 on when revived.
+**27 November: experiment 37** (wake with clock neurons, sleep by Lucas's merge; run in the claude.ai cloud workspace, `dnn_clock.py`): exact merging merges nothing, any stretch breaks recall, and merging cannot change behaviour without keys, so this sleep does not generalise (RESULTS.md section 37). **Experiment 38** (same day): input-driven clock neurons memorise without keys; merging boxes does not generalise even with the right grouping, but the right grouping with re-solved LPs is exact on unseen streams (RESULTS.md section 38; notes 4.9–4.10). The exp37–40 proposal below is renumbered from 39 on when revived.
 
 **26 November: on hold.** Lucas wants the training algorithm, the choice of training sequences (reward, dislodging) and the experiment list agreed first: `docs/Plan_Before_Experiments.md`. The items below predate that and may change.
 

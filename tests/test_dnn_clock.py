@@ -69,3 +69,20 @@ def test_sleep_merge_exact_at_zero_and_shrinks_at_infinity():
         assert net.n <= n0
         assert net.L.shape == (net.n, net.n) and len(net.c) == net.n
         assert not np.isfinite(merge_costs(net.L, net.U, K, net.n_visible)).any()
+
+
+def test_wake_tree_recalls_without_keys():
+    from dnn_clock import wake_tree
+    rng = np.random.default_rng(2)
+    for _ in range(10):
+        T, n = 6, 5
+        V = []
+        for _ in range(n):
+            x = rng.integers(0, 2, T)
+            y = np.r_[0, 0, np.cumsum(x)[:-2] % 2]          # parity, answered at depth 2
+            V.append(np.c_[(np.arange(T) == 0).astype(int), x, y])
+        net = Net(3, inputs={0, 1}, outputs={2})
+        ext, nodes, fallback = wake_tree(net, V, 1e-4)
+        assert not fallback and nodes > 0
+        zero = [np.r_[s[0], np.zeros(net.n - 3, int)] for s in V]
+        assert visible_replays(net, zero, V, rng)           # no keys needed

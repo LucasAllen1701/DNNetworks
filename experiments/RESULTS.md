@@ -3130,6 +3130,84 @@ and no pair costs 0 (parity and adder, seed 0).
 - **Caveats.** One wake round, small tasks, greedy merge order. The test
   version of the clock rule is `dnn_clock.py`; `dnn.py` is unchanged.
 
+## 38 Memorising without keys, then sleep by merging (`exp38_tree_merge.py`)
+
+Follows experiment 37, after Lucas asked whether networks can memorise
+without keys (27 November). Same machine as experiment 37 (cloud
+workspace), ε = 10⁻⁴.
+
+- **Wake** (`dnn_clock.wake_tree`, notes section 4.9): if a neuron does not
+  fit, add one *input-driven clock neuron* per distinct input history
+  x(0..t) of the training streams, on at time t + 1 in exactly the streams
+  with that history. Weights into them from input neurons are unrestricted
+  (condition (D) is dropped for them), so streams replay without keys.
+  Depth h = 2 (the output at t + 2 answers the inputs up to t), with a
+  start input on at time 0 only.
+- **Sleep**, four ways: `merge-meet` and `merge-sum` are experiment 37's
+  merge, with the weights out of a merged neuron met (never fire together)
+  or added, for δ = 0, 10⁻⁴, 1, ∞; `forced-merge` is given the grouping a
+  correct machine needs (an oracle: neurons grouped by machine state before
+  the last input, and the last input) and merges each group by meeting
+  boxes; `forced-resolve` uses the same grouping but solves the linear
+  programs again on the training streams (a fresh network with one hidden
+  neuron per group).
+
+Tasks of experiment 4 at depth 2: prev_input (no state), parity (parity so
+far), adder (carry). 8 and 32 training streams, 100 unseen, 5 seeds. All
+streams are run without keys (hidden neurons at 0).
+
+### 38.1 Results
+
+Means over 5 seeds (330 rows). "Exact" is the fraction of streams with
+every output right; chance accuracy per output is about 0.5–0.56.
+
+| task | n | sleep | hidden | training exact | unseen exact | unseen acc |
+|---|---|---|---|---|---|---|
+| parity | 8 | wake (and any merge at δ = 0) | 69.6 | 1.00 | 0.02 | 0.64 |
+| parity | 8 | merge-meet, δ = 10⁻⁴ | 64.4 | 0.52 | 0.01 | 0.62 |
+| parity | 8 | merge-sum, δ = 10⁻⁴ | 10.0 | 0.09 | 0.01 | 0.62 |
+| parity | 8 | forced-merge | 4 | 0.00 | 0.00 | 0.55 |
+| parity | 8 | forced-resolve | 4 | 1.00 | **1.00** | **1.00** |
+| parity | 32 | wake | 227.6 | 1.00 | 0.03 | 0.72 |
+| parity | 32 | forced-merge | 4 | 0.00 | 0.00 | 0.55 |
+| parity | 32 | forced-resolve | 4 | 1.00 | **1.00** | **1.00** |
+| adder | 8 | wake | 81.6 | 1.00 | 0.00 | 0.58 |
+| adder | 8 | forced-resolve | 8 | 1.00 | 0.39 | 0.83 |
+| adder | 32 | wake | 298.4 | 1.00 | 0.00 | 0.62 |
+| adder | 32 | forced-merge | 8 | 0.00 | 0.00 | 0.52 |
+| adder | 32 | forced-resolve | 8 | 1.00 | **0.99** | **1.00** |
+| prev_input | 8, 32 | forced-resolve | 2 | 1.00 | **1.00** | **1.00** |
+
+Greedy merging at δ = ∞ leaves 1 hidden neuron and near-chance accuracy
+everywhere. No round needed the keyed fallback, and every re-solved linear
+program was feasible.
+
+### 38.2 Findings
+
+- **Networks can memorise without keys.** With input-driven clock neurons
+  every training stream replays exactly from its start, with all hidden
+  neurons at 0, in every run. The cost: the no-forgetting theorem no longer
+  covers these neurons (notes 4.9); one round only here.
+- **Merging boxes still does not generalise.** Greedy merging (meet or sum)
+  only shrinks the network by breaking memory, as in experiment 37; it
+  never raises unseen accuracy above the wake network's.
+- **Even the right grouping fails if boxes are only met.** Given the
+  correct grouping, merging by meeting boxes gives chance accuracy, on
+  training and unseen streams alike. The wake boxes do not contain the
+  weights the merged neurons need.
+- **The right grouping plus new linear programs generalises perfectly.**
+  Parity and prev_input are exact on all unseen streams from 8 training
+  streams; adder from 32 (0.99; 0.39 from 8). So the grouping carries the
+  generalisation, and the weights for it exist, but they have to be fitted
+  to the trained streams again.
+- **What a sleep phase would need.** (1) Find the grouping without an
+  oracle; the old sleep did this by state merging on a buffer. (2) Fit new
+  boxes for it, from the trained streams or from replays of them (Lucas's
+  sleep mode). Lucas prefers sleep not to solve linear programs; this is
+  evidence on that question, not a decision.
+- **Caveats.** The grouping is an oracle built from the true machine (by
+  Claude). Small tasks, one wake round, greedy merge order.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -3450,6 +3528,14 @@ and no pair costs 0 (parity and adder, seed 0).
   and recall from keys drops to 5–10% (0 for δ ≥ 2). Without keys the
   hidden neurons stay silent before and after merging, so unseen accuracy
   is unchanged (chance on parity and adder): this sleep does not generalise.
+
+**Memorising without keys, then sleep by merging (experiment 38).**
+- Input-driven clock neurons (one per input history, excited by the inputs)
+  memorise every training stream without keys. Merging boxes still does not
+  generalise, even with the correct grouping given. The same grouping with
+  the linear programs solved again is exact on unseen streams (parity and
+  prev_input from 8 streams, adder 0.99 from 32): the grouping carries the
+  generalisation, but the boxes must be fitted again.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
