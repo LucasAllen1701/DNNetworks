@@ -11,6 +11,7 @@ Corrected version of `Neural_Network_Notes.pdf` (Lucas Allen, November 2026). Th
 - **No cohort label in the network.** A network is now $(n, n_0, I, O, F)$, where the first $n_0$ neurons are the visible ones. The cohort function $c$ is defined separately (Definition 5) and is used in the proofs; WAKE only needs, during a round, the set of neurons it has created in that round (section 4.3).
 - **Keys** have a section of their own (4.5): what is in one, what it does, where it is kept, and what sleep does to keys.
 - **Clock neurons** (Lucas, 26 November, later the same day). When FEAS fails, a wake round adds one neuron for each vector of each sequence of the round (an identity matrix appended to the data), instead of chains of predictors and anti-predictors (section 4.3). Proofs, keys (now $v(0)$ plus one bit), examples and limitations are updated; the chain rule is kept as a remark, with a comparison. `dnn.py` still implements chains.
+- **Input-driven clock neurons** (27 November): an option that memorises without keys (section 4.9), and what experiments 37–38 showed about sleep by merging boxes (section 4.10).
 - **Training has two phases**: phase 1, wake (memorisation, expansion), is the TRAIN algorithm of the earlier versions (4.1–4.6); phase 2, sleep (generalisation, compression), is the rebuild-and-prune algorithm of experiment 15 (4.7), and 4.8 describes the cycle. Sections 1.3, 1.6, 5, 8 and 9 are updated to match.
 
 **Since the 15 November version.** Section 3 (running a network) is rewritten to match `dnn.py`: how $A$ is chosen when a box is unbounded, the three kinds of initial vector, a finite number of steps, the floating-point threshold, reading outputs at depth $h$, what a run does and does not guarantee, and a worked example. Section 8, item 6, now describes the tolerance the code actually uses. Nothing else changed.
@@ -384,6 +385,41 @@ STEPS:
 Round 1 can itself be a sleep: building the first network from the first sequences by SLEEP, as experiment 15 does.
 
 **Bounded buffers.** Lucas's decision 5 is a buffer of early data, for now. A buffer that keeps every sequence grows without bound. When it must shrink, which sequences may leave it matters. Keeping the most recent ones loses the sequences that ruled out wrong machines (experiment 15, buffer of 16: 3 runs ended with a wrong machine). Keeping the *witnesses*, the sequences whose removal would change the machine found, does better (experiment 18; for letters, experiment 25).
+
+### 4.9 Option: input-driven clock neurons (memorising without keys)
+
+*An option under study (27 November), not yet the rule of record.*
+
+Under (D) a key is necessary for everything the wake phase memorises: the neurons it adds can only be switched on by a key (Lemma 1). Clock neurons can instead be driven by the inputs, so that a sequence replays from its inputs alone.
+
+**Set-up.** The network has a *start input* $s$, an input neuron that is on at time $0$ of every sequence and off afterwards. Outputs answer at depth $h = 2$: the output at time $t+2$ answers the inputs up to time $t$.
+
+**The rule.** When FEAS fails in a wake round, add one neuron $n_p$ for each distinct *input history* $p = (x(0), \dots, x(t))$ that occurs in the round's sequences, where $x(u)$ is the vector of input-neuron values at time $u$ and $t+1$ is not the last time of the sequence. $n_p$ is on at time $t+1$ in exactly the sequences whose inputs up to $t$ are $p$. Sequences with the same input history share the neuron. The neurons form a *tree of input histories*: $n_{(p', x)}$ is switched on by its parent $n_{p'}$ (by $s$ when $p'$ is empty) together with the input pattern $x$. Their boxes are set by ADD, except that weights into them from input neurons are unrestricted. So (D) does not hold for them: they fire without a key.
+
+**Lemma A (tree neurons fit).** If $\varepsilon \le 1/(|I|+1)$, FEAS holds for every tree neuron.
+
+*Proof.* Let $m$ be the number of inputs that are $1$ in the pattern $x$ of $n_{(p',x)}$. Give it weight $1/(m+1)$ from its parent and from each input that is $1$ in $x$, weight $-1$ from each input that is $0$ in $x$, and $0$ from everything else. At each time exactly one tree neuron of each depth is on, so on a row where the parent is on and the inputs equal $x$ the sum is $1$. On every other row, either the parent is off or some input of $x$ is missing, and the sum is at most $m/(m+1) \le 1 - \varepsilon$; or some input outside $x$ is on, and the sum is at most $1 - 1 = 0$. $\square$
+
+**Lemma B (visible neurons fit).** In a round where the box of a visible non-input neuron $g$ contains $0$ (for example round 1), FEAS($g$) holds after the tree is added, provided that any two sequences of the round with the same input history up to $t$ want the same value of $g$ at time $t+2$, and all sequences want the same value of $g$ at time $1$.
+
+*Proof.* Take weight $0$ from every neuron except the tree neurons, and weight $1$ (for target $1$) or $0$ (for target $0$) from each tree neuron. On the row at time $t+1 \ge 1$ exactly one tree neuron is on, $n_{x(0..t)}$, and by assumption its target is the same in every sequence that shares it. On the row at time $0$ no tree neuron is on, and the target is the same in every sequence. $\square$
+
+If two sequences have the same inputs but want different outputs, no network without keys can store both. WAKE then also adds the keyed clock neurons of section 4.3, which always fit (Lemma 2).
+
+**What it gives.** Every trained sequence replays exactly from its start, with every hidden neuron at $0$ and no key (experiment 38). Its neurons read the inputs, so merging them merges situations with the same past: what a finite machine does.
+
+**What it loses.** The no-forgetting part of the Theorem is not proved. A later round's tree neurons are not dormant: they can fire during an earlier sequence whose inputs match one of their histories (every sequence starts with $s$ on) and change its outputs. Experiment 38 uses a single round. Whether no forgetting can be kept, for example by sharing the tree across rounds, is open.
+
+### 4.10 Sleep by merging boxes: what experiments 37 and 38 showed
+
+Lucas's merge (27 November): replace two neurons by one whose incoming box is where their incoming boxes meet, and whose outgoing weights are the sums (if the two fire together) or the meet (if they never do) of theirs, stretching boxes by at most $\delta$ if needed. No linear program is solved (`dnn_clock.sleep_merge`).
+
+- **Exact merges ($\delta = 0$) find nothing to merge.** A weight vector in $F(i) \cap F(j)$ makes $i$ and $j$ fire at the same times on all trained data, so only exact duplicates merge, and wake (with either kind of clock neuron) makes none.
+- **Any stretch breaks memory.** The boxes of neurons that fire at different times can be as little as $\varepsilon$ apart. Once $\delta \ge \varepsilon$, most neurons merge and recall falls towards $0$.
+- **With keyed clock neurons, merging cannot change behaviour without keys** (experiment 37): the hidden neurons stay silent (Lemma 1).
+- **Even the right grouping fails if boxes are only met.** With input-driven clock neurons (section 4.9), grouping them as a correct machine requires (by machine state and last input) and merging each group by meeting boxes gives chance accuracy. Solving the linear programs again on the trained sequences, with the same grouping, gives the correct machine (experiment 38; RESULTS.md section 38).
+
+So a sleep phase that generalises seems to need two things that merging boxes does not do: finding the grouping, and fitting new boxes to the trained sequences, which can come from replaying them (Lucas's sleep mode, `docs/Plan_Before_Experiments.md`, section 1). Lucas would prefer sleep not to solve linear programs (Plan, section 1); these results are evidence on that question, not a decision.
 
 ## 5 The space bound
 
