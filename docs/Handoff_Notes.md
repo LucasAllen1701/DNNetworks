@@ -75,6 +75,8 @@ Programs that run locally, built from discrete neural networks: (1) play Doom; (
 
 ## 8 Next steps (candidates, not yet chosen)
 
+**27 November: experiment 37** (wake with clock neurons, sleep by Lucas's merge; run in the claude.ai cloud workspace, `dnn_clock.py`): exact merging merges nothing, any stretch breaks recall, and merging cannot change behaviour without keys, so this sleep does not generalise (RESULTS.md section 37). The exp37–40 proposal below is renumbered from 38 on when revived.
+
 **26 November: on hold.** Lucas wants the training algorithm, the choice of training sequences (reward, dislodging) and the experiment list agreed first: `docs/Plan_Before_Experiments.md`. The items below predate that and may change.
 
 (a) Idea 3 on a game that needs memory: exp36's three-key order defeats circling; flips from scratch, and imitation (split search) plus flips. (b) Small objects on big screens: key and door as small squares at fixed or random places on 16×16, letters from window regions at every position (exp34's windows as a letter library). (c) Shared helpers as a fifth image layout in exp27's held-out choice (sharing wins local tasks, loses global ones). (d) Letter and machine both searched for the 3- and 4-state games with noise (choose_bits_search + split). (e) Image noise: a stronger filter or a noise-aware helper search. Exp28's wait game is the default for acting.
