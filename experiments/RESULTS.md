@@ -3064,6 +3064,72 @@ experiments 23 and 26. Search time: local 7.0 s mean (19 s max), split
   states over 4 letters are still small. Each run's held-out split uses
   every fourth episode.
 
+## 37 Wake with clock neurons, sleep by merging (`exp37_sleep_merge.py`)
+
+First test of the two-phase training of the notes of 26 November
+(`docs/DiscreteNeuralNetworkNotes261126.md`), at ε = 10⁻⁴. Run in the
+cloud workspace of the claude.ai project, not on the desktop (bad RAM):
+Python 3.13.18, numpy 2.5.3, scipy 1.18.1, 2 cores.
+
+- **Wake** (`dnn_clock.wake_clock`): one round on the training streams.
+  If a visible neuron does not fit, one clock neuron per vector of each
+  stream (last vector excepted).
+- **Sleep** (`dnn_clock.sleep_merge`, Lucas's merge of 27 November):
+  repeatedly merge the two hidden neurons whose boxes need the least
+  stretching to meet, while that stretch is at most δ. Incoming boxes
+  meet; outgoing weights add (the two fire together); key values must
+  agree. No linear program is solved.
+
+Tasks of experiment 4 (12 transitions per stream; y(t+1) from the inputs
+up to t; h = 1): prev_input (no memory needed), parity and adder (memory
+needed). 8 training streams, 100 unseen, 5 seeds, δ from 0 to ∞. Scores:
+hidden neurons left; trained streams recalled exactly from their keys (5
+weight samples); trained and unseen streams run without keys (hidden
+neurons at 0): fraction of outputs right.
+
+### 37.1 Results
+
+Means over 5 seeds (135 rows). Majority-class accuracy is 0.50 to 0.51.
+
+| task | δ | hidden | recall from keys | trained, no key | unseen, no key |
+|---|---|---|---|---|---|
+| prev_input | any | 0 | 1.00 | 1.00 | 1.00 |
+| parity | wake, 0 | 96 | 1.00 | 0.51 | 0.52 |
+| parity | 0.01 – 1 | 31.8 | 0.05 | 0.51 | 0.52 |
+| parity | 2 – ∞ | 9 | 0.00 | 0.51 | 0.52 |
+| adder | wake, 0 | 96 | 1.00 | 0.44 | 0.45 |
+| adder | 0.01 – 1 | 36.6 | 0.10 | 0.47 | 0.49 |
+| adder | 2 – ∞ | 9 – 12.2 | 0.00 | 0.42 – 0.46 | 0.45 – 0.48 |
+
+The smallest merge cost between two clock neurons is exactly ε = 10⁻⁴,
+and no pair costs 0 (parity and adder, seed 0).
+
+### 37.2 Findings
+
+- **Exact merging (δ = 0) merges nothing.** Two neurons whose boxes
+  overlap fire at the same times on all trained data, and no two clock
+  neurons do: each fires at one step of one stream. As expected from the
+  analysis of 27 November.
+- **Any stretch merges a lot and breaks memory.** The boxes of clock
+  neurons that fire at different times are only ε apart (one side needs a
+  sum ≥ 1, the other ≤ 1 − ε). So δ = 0.01 already merges two thirds
+  of the clock neurons, and recall from keys falls from 100% to 5–10%; past δ = 2
+  it falls to 0, with 9 hidden neurons left (the 8 start neurons, whose key
+  values differ, plus one).
+- **Merging cannot change behaviour without keys.** Without a key every
+  hidden neuron starts at 0 and, under (D), stays at 0 (Lemma 1); merging
+  keeps the weights from visible into hidden neurons at ≤ 0, so this still
+  holds (checked: no hidden neuron fired in 30 unseen runs after merging
+  everything). Unseen accuracy is that of the visible neurons alone: right
+  for prev_input, at chance for parity and adder. The small changes for
+  adder come from sampling weights of a different-sized matrix, not from
+  the merges.
+- **So this form of sleep does not generalise.** It only removes memory.
+  To generalise, a merged neuron would have to be switched on by the
+  inputs, which needs weights the wake boxes forbid, or a key.
+- **Caveats.** One wake round, small tasks, greedy merge order. The test
+  version of the clock rule is `dnn_clock.py`; `dnn.py` is unchanged.
+
 ## Summary
 
 **Baseline (`dnn.py`, experiments 1–5).**
@@ -3377,6 +3443,13 @@ experiments 23 and 26. Search time: local 7.0 s mean (19 s max), split
   noisy episodes in 8 / 7 / 5 of 10 runs at p = 0 / 0.1 / 0.2. Experiment
   30's local search finds it in 1 / 1 / 0, exact merging (p = 0) in 3. The
   letter is given; 16 episodes are too few for any method.
+
+**Wake with clock neurons, sleep by merging (experiment 37).**
+- Merging hidden neurons whose boxes meet (δ = 0) merges nothing: no two
+  clock neurons overlap. A stretch of δ = 0.01 merges about two thirds of them
+  and recall from keys drops to 5–10% (0 for δ ≥ 2). Without keys the
+  hidden neurons stay silent before and after merging, so unseen accuracy
+  is unchanged (chance on parity and adder): this sleep does not generalise.
 
 **Deviations from the specification.**
 - Experiment 7 runs at reduced sizes (section 7).
